@@ -18,7 +18,7 @@ arch=('i686' 'x86_64')
 url="http://www.mythtv.org/"
 license=('GPL')
 depends=('avahi' 'fftw' 'lame' 'libass' 'libavc1394' 'libcdio' 'libiec61883'
-         'libpulse' 'libva' 'libvdpau' 'libxinerama' 'lirc-utils'
+         'libpulse' 'libvdpau' 'libxinerama' 'lirc-utils'
 	 'mariadb-clients' 'mysql-python' 'perl-dbd-mysql' 'perl-io-socket-inet6'
 	 'perl-libwww' 'perl-net-upnp' 'python2-lxml' 'qtwebkit' 'urlgrabber'
 	 'x264')
@@ -85,7 +85,7 @@ build() {
 	      --enable-libfftw3 \
 	      --enable-libmp3lame \
 	      --enable-libx264 \
-	      --enable-vaapi \
+	      --disable-vaapi \
 	      --python=python2
   make
 }
