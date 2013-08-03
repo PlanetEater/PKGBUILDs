@@ -12,17 +12,17 @@
 pkgname=mythtv
 pkgver=20130728
 pkgrel=1
-epoch=1
+epoch=2
 pkgdesc="A Homebrew PVR project - 0.26/fixes branch"
 arch=('i686' 'x86_64')
 url="http://www.mythtv.org/"
 license=('GPL')
 depends=('avahi' 'fftw' 'lame' 'libass' 'libavc1394' 'libcdio' 'libiec61883'
-         'libpulse' 'libvdpau' 'libxinerama' 'lirc-utils'
+         'libpulse' 'libxinerama' 'lirc-utils'
 	 'mariadb-clients' 'mysql-python' 'perl-dbd-mysql' 'perl-io-socket-inet6'
 	 'perl-libwww' 'perl-net-upnp' 'python2-lxml' 'qtwebkit' 'urlgrabber'
 	 'x264')
-makedepends=('glew''libxml2' 'openssl' 'yasm')
+makedepends=('glew' 'libxml2' 'openssl' 'yasm')
 optdepends=('glew: for GPU commercial flagging'
             'libcec: for consumer electronics control capabilities'
 	    'libxml2: to read blu-ray metadata'
