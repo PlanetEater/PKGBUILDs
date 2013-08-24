@@ -1,0 +1,49 @@
+# Contributor: vacapetr@centrum.cz
+
+pkgname=mythplugins-mythweb-git
+pkgver=20130106
+pkgrel=1
+arch=('i686' 'x86_64')
+url="http://www.mythtv.org"
+license=('GPL')
+makedepends=("mythtv" 'git')
+pkgdesc="Web interface for MythTV's backend 0.26-fixes"
+depends=("mythtv")
+optdepends=('php-apache'
+              'lighttpd')
+replaces=('mythplugins-mythweb')
+conflicts=('mythplugins-mythweb')
+
+_gitname="mythweb"
+_gitroot="git://github.com/MythTV/mythweb.git"
+#source=('php54.patch')
+#md5sums=('7a114c1b5a84ab5ee190e63cc9514086')
+
+build() {
+    msg "Connecting to GIT server...."
+
+if [ -d $_gitname/.git ]; then
+    cd $_gitname
+    git pull && git pull origin
+    msg "The local files are updated."
+else
+    git clone -b fixes/0.26 "$_gitroot" "$_gitname"
+    #git clone "$_gitroot" "$_gitname"
+fi
+
+msg "GIT checkout done or server timeout"
+msg "Starting make..."
+
+rm -rf "$srcdir/$_gitname-build"
+git clone "$srcdir/$_gitname" "$srcdir/$_gitname-build"
+
+#patch -d "$srcdir/$_gitname-build" -Np0 -i "$srcdir/php54.patch"
+sed -re 's@/usr/local.*/usr/share@/usr/share@' -i "$srcdir/$_gitname-build/mythweb.php"
+mkdir -p ${pkgdir}/usr/local/share
+ln -sv /usr/share/mythtv ${pkgdir}/usr/local/share/mythtv
+mkdir -p "$pkgdir/var/lib/mythtv/mythweb"/{image_cache,php_sessions,data}
+cp -R "${srcdir}/$_gitname-build"/* "$pkgdir/var/lib/mythtv/mythweb"
+chown -R http:http "$pkgdir/var/lib/mythtv/mythweb"
+chmod g+rw "$pkgdir/var/lib/mythtv/mythweb"/{image_cache,php_sessions,data}
+}
+
