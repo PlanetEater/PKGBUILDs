@@ -1,0 +1,25 @@
+From 3f842ae03c601ab004a63996c212b1b82d94a0f9 Mon Sep 17 00:00:00 2001
+From: NAS user <user@nas>
+Date: Sun, 25 Aug 2013 15:05:41 +0200
+Subject: [PATCH] Don't try to translate error messages
+
+---
+ includes/errors.php | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/includes/errors.php b/includes/errors.php
+index 0434b7a..c57620a 100644
+--- a/includes/errors.php
++++ b/includes/errors.php
+@@ -103,8 +103,6 @@
+ /**/
+     function error_handler($errno, $errstr, $errfile, $errline, $vars) {
+         global $db;
+-        if (class_exists('Translate'))
+-            $errstr = Translate::find()->string($errstr);
+     // Try to auto-repair damaged SQL tables
+         if ($db && preg_match("/Incorrect key file for table: '(\\w+)'/", $errstr, $match))
+             $db->query('REPAIR TABLE '.$match[1]);
+-- 
+1.8.3.4
+
