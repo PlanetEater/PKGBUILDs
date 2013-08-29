@@ -1,7 +1,7 @@
 # Contributor: vacapetr@centrum.cz
 
 pkgname=mythplugins-mythweb-git
-pkgver=0.26.1
+pkgver=0.26.1.2~g7326d7e
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.mythtv.org"
@@ -18,11 +18,9 @@ _gitname="mythweb"
 _gitbranch="fixes/0.26"
 
 source=("git://github.com/MythTV/mythweb.git#branch=${_gitbranch}"
-    'mythweb.ini'
-    '0001-Don-t-try-to-translate-error-messages.patch')
+    'mythweb.ini' )
 md5sums=('SKIP'
-    '3232aa087fa2ff983cae2c3dcc8254b0'
-    'be159ac4fa41f243acf7831610f605dc')
+    '3232aa087fa2ff983cae2c3dcc8254b0')
 
 backup=('etc/php/conf.d/mythweb.ini')
 install='mythweb.install'
@@ -31,11 +29,6 @@ pkgver() {
     cd $srcdir/$_gitname
     # Use the tag of the last commit (x.y.z.<no_of_commits>~<commit_hash>)
     git describe --always | sed -e 's|^v||' -e 's|-|.|' -e 's|-|~|'
-}
-
-prepare() {
-    cd $srcdir/$_gitname
-    patch -Np1 -i "${srcdir}/0001-Don-t-try-to-translate-error-messages.patch"
 }
 
 package() {
