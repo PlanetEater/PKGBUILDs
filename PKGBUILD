@@ -9,8 +9,8 @@
 #  - correctly define ARM cpus for configure
 #  - disabled vdpau, mmx
 
-pkgname=mythtv
-pkgver=20130728
+pkgname=mythtv-git
+pkgver=0.26.1.5~g3bce16c
 pkgrel=1
 epoch=2
 pkgdesc="A Homebrew PVR project - 0.26/fixes branch"
@@ -22,58 +22,50 @@ depends=('avahi' 'fftw' 'lame' 'libass' 'libavc1394' 'libcdio' 'libiec61883'
 	 'mariadb-clients' 'mysql-python' 'perl-dbd-mysql' 'perl-io-socket-inet6'
 	 'perl-libwww' 'perl-net-upnp' 'python2-lxml' 'qtwebkit' 'urlgrabber'
 	 'x264')
-makedepends=('glew' 'libxml2' 'openssl' 'yasm')
+makedepends=('git glew' 'libxml2' 'openssl' 'yasm')
 optdepends=('glew: for GPU commercial flagging'
             'libcec: for consumer electronics control capabilities'
 	    'libxml2: to read blu-ray metadata'
 	    'openssl: for AirTunes (RAOP) support'
             'xmltv: to download tv listings')
-conflicts=('myththemes' 'mythplugins-mythvideo')
-replaces=('myththemes' 'mythplugins-mythvideo')
+conflicts=('mythtv' 'myththemes' 'mythplugins-mythvideo')
+provides=('mythtv')
+# replaces=('myththemes' 'mythplugins-mythvideo')
 backup=('etc/conf.d/mythbackend')
 install='mythtv.install'
-source=('alsa.patch'
+_gitbranch='fixes/0.26'
+source=("git://github.com/MythTV/mythtv.git#branch=$_gitbranch"
+	'alsa.patch'
 	'mythbackend.service')
-md5sums=('f64b8219e3d27a2edf96733b851e576b'
+md5sums=('SKIP'
+	'f64b8219e3d27a2edf96733b851e576b'
 	'e4d572dcc307d6d8ae26bee5aebf9f3a')
-
 _gitname="mythtv"
-_gitroot="git://github.com/MythTV/mythtv.git"
 
-repo_root='/nas/pkg/repos'
+pkgver() {
+    cd $srcdir/$_gitname
+    # Use the tag of the last commit (x.y.z.<no_of_commits>~<commit_hash>)
+    git describe --always | sed -e 's|^v||' -e 's|-|.|' -e 's|-|~|'
+}
 
-build() {
-  msg "Connecting to GIT server...."
-
-  if [ -f ${repo_root}/${_gitname}/HEAD ]; then
-     msg "Updating the existing bare repo..."
-     cd ${repo_root}/${_gitname}
-     git fetch
-  else
-     msg "Cloning to a new bare repo..."
-     git clone --bare --single-branch --branch fixes/0.26 "${_gitroot}" "${repo_root}/${_gitname}"
-     #git clone "${_gitroot}" "${_gitname}"
-  fi
-  cd ${srcdir}
-  msg "GIT checkout done or server timeout"
-  msg "Cloning to a temporary build repo..."
-  rm -rf "${srcdir}/${_gitname}-build"
-  git clone "${repo_root}/${_gitname}" "${srcdir}/${_gitname}-build"
-
-  msg "Starting make..."
-  cd "${srcdir}/${_gitname}-build/${_gitname}"
-
+prepare() {
+  cd $srcdir/$_gitname/mythtv
   patch -Np1 -i "$srcdir/alsa.patch"
   msg "Replacing references to python..."
   find 'bindings/python' 'contrib' -type f | xargs sed -i 's@^#!.*python$@#!/usr/bin/python2@'
 
   msg "PHP wizardry..."
   sed -re 's@Key, &@Key, @' -i 'bindings/php/MythBase.php'
+}
+
+build() {
+  cd $srcdir/$_gitname/mythtv
 
   [[ $CARCH == "arm" ]] && ARCH="armv5te"
   [[ $CARCH == "armv6h" ]] && ARCH="armv6l"
   [[ $CARCH == "armv7" ]] && ARCH="armv7-a"
 
+    msg " Starting configure..."
   ./configure --prefix=/usr \
               --cpu="$ARCH" \
               --disable-mmx \
@@ -87,11 +79,12 @@ build() {
 	      --enable-libx264 \
 	      --disable-vaapi \
 	      --python=python2
+    msg " Starting make..."
   make
 }
 
 package() {
-  cd "$srcdir/${_gitname}-build/${_gitname}"
+  cd $srcdir/$_gitname/mythtv
   make INSTALL_ROOT="$pkgdir" install
 
   install -D -m644 "$srcdir/mythbackend.service" "$pkgdir/usr/lib/systemd/system/mythbackend.service"
