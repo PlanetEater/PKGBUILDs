@@ -35,10 +35,8 @@ backup=('etc/conf.d/mythbackend')
 install='mythtv.install'
 _gitbranch='fixes/0.26'
 source=("git://github.com/MythTV/mythtv.git#branch=$_gitbranch"
-	'alsa.patch'
 	'mythbackend.service')
 md5sums=('SKIP'
-	'f64b8219e3d27a2edf96733b851e576b'
 	'e4d572dcc307d6d8ae26bee5aebf9f3a')
 _gitname="mythtv"
 
@@ -50,7 +48,6 @@ pkgver() {
 
 prepare() {
   cd $srcdir/$_gitname/mythtv
-  patch -Np1 -i "$srcdir/alsa.patch"
   msg "Replacing references to python..."
   find 'bindings/python' 'contrib' -type f | xargs sed -i 's@^#!.*python$@#!/usr/bin/python2@'
 
