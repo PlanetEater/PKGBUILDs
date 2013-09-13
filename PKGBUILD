@@ -10,9 +10,9 @@
 #  - disabled vdpau, mmx
 
 pkgname=mythtv-git
-pkgver=0.26.1.5~g3bce16c
+pkgver=0.27.RC1.87~g5dfd171
 pkgrel=1
-epoch=2
+epoch=1
 pkgdesc="A Homebrew PVR project - 0.26/fixes branch"
 arch=('i686' 'x86_64')
 url="http://www.mythtv.org/"
@@ -22,7 +22,7 @@ depends=('avahi' 'fftw' 'lame' 'libass' 'libavc1394' 'libcdio' 'libiec61883'
 	 'mariadb-clients' 'mysql-python' 'perl-dbd-mysql' 'perl-io-socket-inet6'
 	 'perl-libwww' 'perl-net-upnp' 'python2-lxml' 'qtwebkit' 'urlgrabber'
 	 'x264')
-makedepends=('git glew' 'libxml2' 'openssl' 'yasm')
+makedepends=('git glew' 'libxml2' 'openssl' 'yasm' 'taglib')
 optdepends=('glew: for GPU commercial flagging'
             'libcec: for consumer electronics control capabilities'
 	    'libxml2: to read blu-ray metadata'
@@ -33,7 +33,7 @@ provides=('mythtv')
 # replaces=('myththemes' 'mythplugins-mythvideo')
 backup=('etc/conf.d/mythbackend')
 install='mythtv.install'
-_gitbranch='fixes/0.26'
+_gitbranch='fixes/0.27'
 source=("git://github.com/MythTV/mythtv.git#branch=$_gitbranch"
 	'mythbackend.service')
 md5sums=('SKIP'
@@ -43,7 +43,7 @@ _gitname="mythtv"
 pkgver() {
     cd $srcdir/$_gitname
     # Use the tag of the last commit (x.y.z.<no_of_commits>~<commit_hash>)
-    git describe --always | sed -e 's|^v||' -e 's|-|.|' -e 's|-|~|'
+    git describe --always | sed -e 's/^v//' -e 's/-/./g' -e 's/\(.*\)\.\(.*\)/\1~\2/'
 }
 
 prepare() {
