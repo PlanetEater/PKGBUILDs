@@ -20,9 +20,9 @@ license=('GPL')
 depends=('avahi' 'fftw' 'lame' 'libass' 'libavc1394' 'libcdio' 'libiec61883'
          'libpulse' 'libxinerama' 'lirc-utils'
 	 'mariadb-clients' 'mysql-python' 'perl-dbd-mysql' 'perl-io-socket-inet6'
-	 'perl-libwww' 'perl-net-upnp' 'python2-lxml' 'qtwebkit' 'urlgrabber'
+	 'perl-libwww' 'perl-net-upnp' 'python2-lxml' 'qtwebkit' 'taglib' 'urlgrabber'
 	 'x264')
-makedepends=('git glew' 'libxml2' 'openssl' 'yasm' 'taglib')
+makedepends=('git glew' 'libxml2' 'openssl' 'taglib' 'yasm')
 optdepends=('glew: for GPU commercial flagging'
             'libcec: for consumer electronics control capabilities'
 	    'libxml2: to read blu-ray metadata'
