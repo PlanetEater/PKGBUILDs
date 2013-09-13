@@ -1,7 +1,7 @@
 # Contributor: vacapetr@centrum.cz
 
 pkgname=mythplugins-mythweb-git
-pkgver=0.26.1.2~g7326d7e
+pkgver=0.27.RC1.2~gc662401
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.mythtv.org"
@@ -15,7 +15,7 @@ replaces=('mythplugins-mythweb')
 conflicts=('mythplugins-mythweb')
 
 _gitname="mythweb"
-_gitbranch="fixes/0.26"
+_gitbranch="fixes/0.27"
 
 source=("git://github.com/MythTV/mythweb.git#branch=${_gitbranch}"
     'mythweb.ini' )
@@ -28,7 +28,7 @@ install='mythweb.install'
 pkgver() {
     cd $srcdir/$_gitname
     # Use the tag of the last commit (x.y.z.<no_of_commits>~<commit_hash>)
-    git describe --always | sed -e 's|^v||' -e 's|-|.|' -e 's|-|~|'
+    git describe --always | sed -e 's/^v//' -e 's/-/./g' -e 's/\(.*\)\.\(.*\)/\1~\2/'
 }
 
 package() {
