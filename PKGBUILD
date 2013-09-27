@@ -37,7 +37,7 @@ _gitbranch='fixes/0.27'
 source=("git://github.com/MythTV/mythtv.git#branch=$_gitbranch"
 	'mythbackend.service')
 md5sums=('SKIP'
-	'e4d572dcc307d6d8ae26bee5aebf9f3a')
+	'475081ec8b381a6182258cdc2e9d6671')
 _gitname="mythtv"
 
 pkgver() {
