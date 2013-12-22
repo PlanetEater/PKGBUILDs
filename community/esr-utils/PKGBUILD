@@ -1,0 +1,34 @@
+pkgname=esr-utils
+pkgver=0.24
+pkgrel=1
+pkgdesc="PS2 ISO patcher and unpatcher for ffgriever's ESR project"
+arch=('i686' 'x86_64')
+url="http://psx-scene.com/forums/f164/esr-disc-patcher-linux-mac-qt4-port-60096/"
+license=('GPL')
+source=(http://psx-scene.com/forums/attachments/f164/14964d1229917916-esr-disc-patcher-linux-mac-qt4-port-esr-disc-patcher-cli-0.24a-src.zip
+	includefix.patch
+	largefiles.patch
+	suppress_warning.patch)
+
+md5sums=('acbc568524440ba41ffaf1ce7352af24'
+	'c62d7d16069814331bfb933cbad8b9af'
+	'2b0829f0eee273590cb6c997e0659a9c'
+	'5f216a0cca176df3174cc0cfb65a00f2')
+
+prepare() {
+	sed -i 's/\r//g' Patcher.h
+	sed -i 's/\r//g' defines.h
+	patch -Np0 < includefix.patch
+	patch -Np0 < largefiles.patch
+	patch -Np1 < suppress_warning.patch
+}
+
+build() {
+	make esrpatch
+	make esrunpatch
+}
+
+package() {
+	install -Dm755 esrpatch "${pkgdir}/usr/bin/esrpatch"
+	install -Dm755 esrunpatch "${pkgdir}/usr/bin/esrunpatch"
+}

@@ -1,0 +1,11 @@
+diff --git a/Makefile b/Makefile
+index 6acc99c..a8671aa 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,5 +1,5 @@
+ CXX=g++
+-CXXFLAGS=-Wall -ansi
++CXXFLAGS=-Wall -ansi -Wno-unused-result
+ 
+ esrpatch: esrpatch.cpp Patcher.cpp
+ 
