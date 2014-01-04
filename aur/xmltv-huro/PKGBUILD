@@ -58,6 +58,7 @@ prepare() {
 		tv_grab_na_dtv
 LIST_END
 
+	[ -f Makefile ] && rm -f Makefile
 	perl Makefile.PL PREFIX=/usr INSTALLDIRS=vendor --yes --exclude ${exclude_grabbers}
 }
 
