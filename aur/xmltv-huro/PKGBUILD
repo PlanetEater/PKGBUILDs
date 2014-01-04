@@ -20,14 +20,18 @@ depends=('perl-archive-zip' 'perl-datetime' 'perl-date-manip'
   'perl-xml-dom' 'perl-xml-libxml' 'perl-xml-libxslt' 'perl-xml-simple'
   'perl-xml-twig' 'perl-xml-writer' 'perl-parse-recdescent')
 _oname=xmltv
-source=(http://downloads.sourceforge.net/${_oname}/${_oname}-${pkgver}.tar.bz2)
-md5sums=('d9f93d85e78322e7d7484bed91529b54')
+source=("http://downloads.sourceforge.net/${_oname}/${_oname}-${pkgver}.tar.bz2"
+	01_fix_episode_numbering.patch)
+md5sums=('d9f93d85e78322e7d7484bed91529b54'
+	'f655e3fb9434a4dce10f693137a7c020')
 provides=('xmltv')
 conflicts=('xmltv')
 
 prepare() {
 
 	cd ${srcdir}/${_oname}-${pkgver}
+	patch -p1 -i ${srcdir}/01_fix_episode_numbering.patch
+
 # exclude all grabbers except tv_grab_huro
 	read  exclude_grabbers <<-'LIST_END'
 		tv_grab_ar,\
@@ -58,7 +62,10 @@ prepare() {
 		tv_grab_na_dtv
 LIST_END
 
-	[ -f Makefile ] && rm -f Makefile
+# Avoid warning about already existing (generated) Makefile
+	if [ -f Makefile ] ; then
+		make distclean
+	fi
 	perl Makefile.PL PREFIX=/usr INSTALLDIRS=vendor --yes --exclude ${exclude_grabbers}
 }
 
