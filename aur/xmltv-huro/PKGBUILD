@@ -3,10 +3,10 @@
 # Contributor: Allan McRae <allan@archlinux.org>
 # Contributor: Andrew Simmons <andrew.simmons@gmail.com>
 
-pkgname=xmltv
+pkgname=xmltv-huro
 pkgver=0.5.64
 pkgrel=1
-pkgdesc="Set of utilities to download tv listings and format them in xml"
+pkgdesc="Set of utilities to download tv listings and format them in xml - huro grabber only"
 arch=('any')
 url="http://xmltv.org/wiki/"
 license=('GPL')
@@ -19,19 +19,56 @@ depends=('perl-archive-zip' 'perl-datetime' 'perl-date-manip'
   'perl-unicode-string' 'perl-unicode-utf8simple' 'perl-www-mechanize'
   'perl-xml-dom' 'perl-xml-libxml' 'perl-xml-libxslt' 'perl-xml-simple'
   'perl-xml-twig' 'perl-xml-writer' 'perl-parse-recdescent')
-source=(http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.bz2)
+_oname=xmltv
+source=(http://downloads.sourceforge.net/${_oname}/${_oname}-${pkgver}.tar.bz2)
 md5sums=('d9f93d85e78322e7d7484bed91529b54')
+provides=('xmltv')
+conflicts=('xmltv')
+
+prepare() {
+
+	cd ${srcdir}/${_oname}-${pkgver}
+# exclude all grabbers except tv_grab_huro
+	read  exclude_grabbers <<-'LIST_END'
+		tv_grab_ar,\
+		tv_grab_ch_search,\
+		tv_grab_uk_rt,\
+		tv_grab_uk_bleb,\
+		tv_grab_uk_atlas,\
+		tv_grab_uk_guardian,\
+		tv_grab_uk_tvguide,\
+		tv_grab_is,\
+		tv_grab_it,\
+		tv_grab_it_dvb,\
+		tv_grab_na_dd,\
+		tv_grab_fi,\
+		tv_grab_il,\
+		tv_grab_es_laguiatv,\
+		tv_grab_se_swedb,\
+		tv_grab_hr,\
+		tv_grab_no_gfeed,\
+		tv_grab_eu_egon,\
+		tv_grab_se_tvzon,\
+		tv_grab_fr,\
+		tv_grab_fr_kazer,\
+		tv_grab_pt_meo,\
+		tv_grab_za,\
+		tv_grab_eu_epgdata,\
+		tv_grab_combiner,\
+		tv_grab_na_dtv
+LIST_END
+
+	perl Makefile.PL PREFIX=/usr INSTALLDIRS=vendor --yes --exclude ${exclude_grabbers}
+}
 
 build() {
-  cd ${srcdir}/${pkgname}-${pkgver}
-  yes | perl Makefile.PL PREFIX=/usr INSTALLDIRS=vendor 
-
-  make
+	cd ${srcdir}/${_oname}-${pkgver}
+	make
 }
 package() {
-  cd ${srcdir}/${pkgname}-${pkgver}
+  cd ${srcdir}/${_oname}-${pkgver}
   make DESTDIR=${pkgdir} PREFIX=/usr install
-	 
+
   # remove perllocal.pod and .packlist
   find ${pkgdir} -name perllocal.pod -delete
   find ${pkgdir} -name .packlist -delete
