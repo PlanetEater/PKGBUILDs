@@ -4,6 +4,8 @@
 
 buildarch=2
 
+# Cover upstream versions
+epoch=90
 pkgbase=linux-kirkwood-dt
 _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood DT"
@@ -123,7 +125,7 @@ build() {
   #yes "" | make config
 
 msg "Building!"
-  make ${MAKEFLAGS} zImage modules
+  make ${MAKEFLAGS} uImage modules
   make dtbs
 
 msg "Building cryptodev module"
@@ -151,7 +153,7 @@ _package() {
 
   mkdir -p "${pkgdir}"/{lib/modules,lib/firmware,boot/dtbs}
   make INSTALL_MOD_PATH="${pkgdir}" modules_install
-  cp arch/$KARCH/boot/zImage "${pkgdir}/boot/zImage"
+  cp arch/$KARCH/boot/uImage "${pkgdir}/boot/uImage"
   cp arch/$KARCH/boot/dts/*.dtb "${pkgdir}/boot/dtbs/."
   cp arch/$KARCH/boot/dts/skeleton.dtsi "${pkgdir}/boot/dtbs/."
   cp arch/$KARCH/boot/dts/kirkwood*.dts "${pkgdir}/boot/dtbs/."
