@@ -1,0 +1,9 @@
+--- Patcher.h	2008-07-12 18:34:18.000000000 -0700
++++ Patcher.h	2012-02-29 11:37:37.652454321 -0800
+@@ -1,5 +1,6 @@
+ #pragma once
+ #include "defines.h"
++#include <cstring>
+ 
+ class CPatcher
+ {

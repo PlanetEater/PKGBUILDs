@@ -1,0 +1,11 @@
+--- defines.h	2012-02-29 12:05:08.160759727 -0800
++++ defines.h	2012-02-29 12:05:01.934808115 -0800
+@@ -1,4 +1,8 @@
+ #pragma once
++#ifndef _LARGEFILE_SOURCE
++#define _LARGEFILE_SOURCE
++#endif
++#define _FILE_OFFSET_BITS 64
+ #include <stdio.h>
+ #include <string>
+ #include <stdlib.h>
