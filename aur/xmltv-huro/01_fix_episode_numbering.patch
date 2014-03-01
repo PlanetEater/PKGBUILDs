@@ -1,0 +1,43 @@
+commit 1be3eacf993fd8815ea3169a0fef6861248fb835
+Author: NAS user <user@nas>
+Date:   Sat Jan 4 19:28:57 2014 +0100
+
+    Add patch http://sourceforge.net/p/xmltv/patches/80/
+
+diff --git a/grab/huro/tv_grab_huro.in b/grab/huro/tv_grab_huro.in
+index b933b0a..bbd6789 100755
+--- a/grab/huro/tv_grab_huro.in
++++ b/grab/huro/tv_grab_huro.in
+@@ -714,8 +714,10 @@ sub parse_short_desc ($) {
+ 
+ 	t "parse_short_desc: text: '$cont'";
+         $WORDS{$COUNTRY}->{episode}="zdontmatchz" unless exists $WORDS{$COUNTRY}->{episode};
+-	# port.hu episode style
+-	if (m/\s*([0-9\/]+)\. $WORDS{$COUNTRY}->{episode}/) { $episode = $1; }
++	# port.hu episode style with season
++	if (m/\s*([IVX]+\.\/[0-9]+\.) $WORDS{$COUNTRY}->{episode}/) { $episode = $1; }
++	# port.hu episode style without season
++	elsif (m/\s*([0-9\/]+)\. $WORDS{$COUNTRY}->{episode}/) { $episode = $1; }
+ 	# port.cz/.sk episode style with season
+ 	elsif (m/$WORDS{$COUNTRY}->{episode} \s*([0-9]+, [IVX]+\.)/) { $episode = $1; }
+ 	# port.cz/.sk episode style for two episodes back to back in one slot
+@@ -759,10 +761,18 @@ sub parse_short_desc ($) {
+ 			# however XMLTV counts from 0 on ...
+ 			$prog->{q(episode-num)} = [[ sprintf('%d . %d .', $season - 1, $1 - 1), "xmltv_ns" ],
+ 				[ $episode, "onscreen" ]];
++		} elsif($episode =~ m#([IVX]+)\./(\d+)#) {
++			# decode season from roman numeral
++			my $season = arabic ($1);
++			# episode-num spec with the total number specified.
++			# however XMLTV counts from 0 on ...
++			$prog->{q(episode-num)} = [[ sprintf('%d . %d .', $season - 1, $2 - 1), "xmltv_ns" ],
++				[ $episode, "onscreen" ]];
+ 		} elsif($episode =~ m#(\d+)#) {
+ 			# episode-num spec with just the episode number
+ 			# however XMLTV counts from 0 on ...
+-			$prog->{q(episode-num)} = [[ sprintf('. %d .', $1 - 1), "xmltv_ns" ]];
++			$prog->{q(episode-num)} = [[ sprintf('. %d .', $1 - 1), "xmltv_ns" ],
++				[ $episode, "onscreen" ]];
+ 		} else {
+ 			$prog->{q(episode-num)} = [[ $episode, "onscreen" ]];
+ 		}
