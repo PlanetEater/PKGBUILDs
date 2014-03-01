@@ -1,0 +1,39 @@
+# Maintainer: krz <krz@freemail.hu>
+pkgname=opl-utils-hg
+pkgver=646
+pkgrel=1
+pkgdesc="PC utilities from the Open PS2 Loader project"
+arch=('any')
+url="https://bitbucket.org/ifcaro/open-ps2-loader/wiki/Home"
+license=('custom:AFL')
+depends=()
+makedepends=('mercurial')
+provides=('opl-utils')
+conflicts=('opl-utils')
+source=('hg+https://bitbucket.org/ifcaro/open-ps2-loader'
+	'remove_missing_includes.patch'
+	'omit_jobserver_warning.patch')
+md5sums=('SKIP'
+	'c10af0cbf0b493b61d2dfe7dd817e658'
+	'8d6b241afb7e1f50c2ec02f0d4fe6d28')
+_hgrepo=open-ps2-loader
+
+prepare() {
+	cd "${srcdir}/${_hgrepo}"
+	patch -Np1 -i "${srcdir}/remove_missing_includes.patch"
+	patch -Np1 -i "${srcdir}/omit_jobserver_warning.patch"
+}
+
+build() {
+	cd "${srcdir}/${_hgrepo}"
+	make pc_tools
+}
+
+package() {
+	mkdir --parents "${pkgdir}/usr/bin"
+	cd "${srcdir}/${_hgrepo}"
+	for _binfile in pc/*/bin/*; do
+		msg " Installing ${_binfile}"
+		cp -r ${_binfile} "${pkgdir}/usr/bin/"
+	done
+}

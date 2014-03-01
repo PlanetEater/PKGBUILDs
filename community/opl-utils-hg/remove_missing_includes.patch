@@ -1,0 +1,12 @@
+diff --git a/Makefile b/Makefile
+index 8d62435..7485472 100644
+--- a/Makefile
++++ b/Makefile
+@@ -500,7 +500,3 @@ $(EE_OBJS_DIR)%.o : $(EE_SRC_DIR)%.c
+ 
+ $(EE_OBJS_DIR)%.o : %.s
+ 	$(EE_AS) $(EE_ASFLAGS) $(EE_ASM_DIR)$< -o $@
+-
+-
+-include $(PS2SDK)/samples/Makefile.pref
+-include $(PS2SDK)/samples/Makefile.eeglobal
