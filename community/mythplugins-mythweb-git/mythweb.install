@@ -1,0 +1,5 @@
+
+post_install() {
+    # mythweb code includes both paths, both need to exist
+    [ -d /usr/share/mythtv -a ! -d /usr/local/share/mythtv ] && ln -sv /usr/share/mythtv ${pkgdir}/usr/local/share/mythtv
+}
