@@ -4,10 +4,11 @@
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - export flags for rpi
+#  - patch to not call vc_dispmanx_set_wl_buffer_in_use
 
 pkgname=weston
 pkgver=1.4.0
-pkgrel=2
+pkgrel=2.2
 pkgdesc='Reference implementation of a Wayland compositor'
 arch=('i686' 'x86_64')
 url='http://wayland.freedesktop.org'
@@ -23,11 +24,12 @@ build() {
 		export RPI_BCM_HOST_LIBS="-L/opt/vc/lib"
 		export RPI_BCM_HOST_CFLAGS="-I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux"
 		export WESTON_NATIVE_BACKEND="rpi-backend.so"
+		CONFIG='--disable-egl'
 	fi
 	./configure \
 		--prefix=/usr \
 		--libexecdir=/usr/lib/weston \
-		--enable-demo-clients-install
+		--enable-demo-clients-install $CONFIG
 	make
 }
 
