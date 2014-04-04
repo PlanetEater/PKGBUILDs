@@ -10,11 +10,9 @@ pkgbase=linux-kirkwood-dt
 _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood DT"
 pkgver=3.13.9
-pkgrel=1
+pkgrel=2
 cryptodev_commit=57b5544de80db85c8955499831fdaa30829db77a
 bfqver=v7r2
-uksmver="0.1.2.2"
-uksmname="v3.13"
 
 arch=('arm')
 url="http://www.kernel.org/"
@@ -24,31 +22,29 @@ options=('!strip')
 
 source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         'archlinuxarm.patch'
-        '01-build-ehci-as-module.patch'
         'config'
         'mach-types::http://www.arm.linux.org.uk/developer/machines/download.php'
         'change-default-console-loglevel.patch'
         'usb-add-reset-resume-quirk-for-several-webcams.patch'
         "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver:0:4}"
         "https://github.com/cryptodev-linux/cryptodev-linux/archive/${cryptodev_commit}.tar.gz"
-        "http://kerneldedup.org/download/uksm/${uksmver}/uksm-${uksmver}-for-${uksmname}.patch"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
-        "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch")
+        "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
+        '01-build-ehci-as-module.patch')
 
 md5sums=('91e81eb5acc67671ba5372835f594417'
          'a4580de76f17c7eb8fce9189ed0c414e'
-         '3f5098aba933f56b194e4fa3c311c40d'
-         'c27893acfc61f3a6b84017c8f6fe75c3'
+         '86349addfae9ac3b4a6ca2e19ca554fa'
          'SKIP'
          '65d5a4f313310bb2a732d022d51ea7e7'
          '9b5a265440abf57d2052838f31486a3a'
          'SKIP'
          'a59f78f0a34cfe321921265246a7b725'
-         '36d74b349f4c0e97dd5e5b91b8a1d750'
          'af879e680d2b723284bed9c660d9bba8'
          '64b67eb8d84c94fc3929cceaf8d37895'
-         '5c6962340e5617086f4bb9513918bd08')
+         '5c6962340e5617086f4bb9513918bd08'
+         '3f5098aba933f56b194e4fa3c311c40d')
 
 prepare() {
   cd "${srcdir}/linux-${pkgver}"
@@ -73,9 +69,6 @@ msg2 "Add the USB_QUIRK_RESET_RESUME for several webcams"
 msg2 "Add Arch Linux ARM patch for ARMv5te plug computers, mach-types"
   patch -Np1 -i "${srcdir}/archlinuxarm.patch"
   cp "${srcdir}/mach-types" arch/arm/tools
-
-msg2 "Add UKSM patch"
-  patch -Np1 -i "${srcdir}/uksm-${uksmver}-for-${uksmname}.patch"
 
 msg2 "Add BFQ patches"
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
