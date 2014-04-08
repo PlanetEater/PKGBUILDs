@@ -22,7 +22,7 @@ pkgname=('calligra-braindump'
          'calligra-sheets'
          'calligra-stage'
          'calligra-words')
-pkgver=2.8.0
+pkgver=2.8.1
 pkgrel=1
 arch=('i686' 'x86_64')
 url='http://www.calligra-suite.org/'
@@ -35,7 +35,7 @@ makedepends=('cmake' 'automoc4' 'boost' 'kdepimlibs' 'eigen2' 'kdeedu-marble'
 groups=('calligra')
 source=("http://download.kde.org/stable/${pkgbase}-${pkgver}/${pkgbase}-${pkgver}.tar.xz"
         'arm.patch')
-md5sums=('59abfc331220f5282ea2d6df5e80e899'
+md5sums=('7d75143f24a63b9983fe8bfe8ac029d1'
          'dc5105bcc612560f46d27071aca69cba')
 
 prepare() {
@@ -52,7 +52,8 @@ build() {
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \
-    -DBUILD_active=OFF
+    -DBUILD_active=OFF \
+    -DWITH_Soprano=OFF
   make
 }
 

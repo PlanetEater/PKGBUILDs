@@ -1,4 +1,3 @@
-
 # Contributor tomasgroth at yahoo.dk
 # Contributor WarheadsSE <max@warheads.net>
 # Maintainer CruX <CruX@project-insanity.org>
@@ -7,14 +6,14 @@
 buildarch=4
 
 pkgname=xbmc-imx-git
-pkgver=13.20140304
+pkgver=13.20140407
 pkgrel=1
-pkgdesc="A software media player and entertainment hub for digital media for the Wandboard"
+pkgdesc="A software media player and entertainment hub for digital media for select imx6 systems"
 arch=('armv7h')
 url="http://xbmc.org"
 license=('GPL' 'custom')
-depends=('fribidi' 'lzo2' 'smbclient' 'libtiff' 'libpng' 'libcdio' 'yajl' 'libmariadbclient' 'libjpeg-turbo' 'libsamplerate' 'libssh' 'libmicrohttpd' 'sdl_image' 'python2' 'libass' 'libmpeg2' 'libmad' 'libmodplug' 'jasper' 'rtmpdump' 'unzip' 'libbluray' 'libnfs' 'afpfs-ng' 'libshairport' 'avahi' 'bluez-libs' 'tinyxml' 'libplist' 'swig' 'taglib' 'libxslt' 'libfslvpuwrap=3.10.9_1.0.0' 'gpu-viv-bin-mx6q-fb=3.10.9_1.0.0' 'libcec-imx6' 'linux-headers-imx6-cubox' )
-makedepends=('boost' 'cmake' 'gperf' 'nasm' 'zip' 'udisks' 'upower' 'git' 'autoconf' 'java-runtime-headless')
+depends=('fribidi' 'lzo2' 'smbclient' 'libtiff' 'libpng' 'libcdio' 'yajl' 'libmariadbclient' 'libjpeg-turbo' 'libsamplerate' 'libssh' 'libmicrohttpd' 'sdl_image' 'python2' 'libass' 'libmpeg2' 'libmad' 'libmodplug' 'jasper' 'rtmpdump' 'unzip' 'libbluray' 'libnfs' 'afpfs-ng' 'libshairport' 'avahi' 'bluez-libs' 'tinyxml' 'libplist' 'swig' 'taglib' 'libxslt' 'libfslvpuwrap' 'gpu-viv-bin-mx6q-fb' 'libcec-imx6')
+makedepends=('boost' 'cmake' 'gperf' 'nasm' 'zip' 'udisks' 'upower' 'git' 'autoconf' 'java-runtime-headless' 'linux-headers-imx6-fsl')
 optdepends=(
   'lirc: remote controller support'
   'udisks: automount external drives'
@@ -24,9 +23,15 @@ optdepends=(
 provides=("xbmc")
 conflicts=("xbmc")
 install="xbmc.install"
-source=('xbmc.service')
+source=('xbmc.service'
+	'fix-wandboard.patch'
+        'runxbmc'
+        'xbmc.conf')
 
-md5sums=('36780e43d432c488259d9a899b1bcb28')
+md5sums=('07096dfd530cc432fa6073ee1a32e7f6'
+         '4ddb9c84c81b03da4e6aae46d7e82edb'
+         '730ac095a89b05c3c2cf2dd93947cb5c'
+         '00704fd638de9b7f071479cb22e81dae')
 
 # master branch of xbmc-imx6 organization. Modified by Stephan "wolgar" Rafin, Chris "koying" Browet, Rudi "rudi-warped" Ihle and smallint
 _gitname="xbmc"
@@ -53,6 +58,9 @@ prepare() {
 
   cd "${srcdir}/${_gitname}"
 
+  # fix running on wandboard-dt
+  patch -p0 <../fix-wandboard.patch
+
   # fix lsb_release dependency
   sed -i -e 's:/usr/bin/lsb_release -d:cat /etc/arch-release:' xbmc/utils/SystemInfo.cpp
 
@@ -68,19 +76,10 @@ build() {
   # Bootstrapping XBMC
   ./bootstrap
 
-  _kernel_release="$(pacman -Q linux-headers-imx6-cubox | grep -Eo "[^\ ]+$")"
-
-
-  # dirty: copy headers from kernel as we need those but apart from that want to use the ones in /usr/include 
-  KERNELSRC=/usr/src/linux-${_kernel_release}
-  mkdir -p linux-includes/include/linux
-  for f in mxcfb.h mxc_v4l2.h ipu.h; do
-    cp "${KERNELSRC}/include/linux/${f}" linux-includes/include/linux/
-  done
-
   # Configuring XBMC
   export PYTHON_VERSION=2  # external python v2
-  INCLUDES="-I${srcdir}/${_gitname}/linux-includes/include -I/opt/fsl/include" 
+ 
+  INCLUDES="-I/opt/fsl/include" 
   export CFLAGS="-Ofast -mfloat-abi=hard -mfpu=vfpv3-d16 -mtls-dialect=gnu -march=armv7-a -mtune=cortex-a9 -pipe -fstack-protector --param=ssp-buffer-size=4 -D_FORTIFY_SOURCE=2 $INCLUDES -Wl,-rpath,/opt/fsl/lib -L/opt/fsl/lib"
   export CPPFLAGS="-Ofast -mfloat-abi=hard -mfpu=vfpv3-d16 -mtls-dialect=gnu -march=armv7-a -mtune=cortex-a9 -fstack-protector --param=ssp-buffer-size=4 -D_FORTIFY_SOURCE=2 $INCLUDES -Wl,-rpath,/opt/fsl/lib -L/opt/fsl/lib"
   export CXXFLAGS="-Ofast -mfloat-abi=hard -mfpu=vfpv3-d16 -mtls-dialect=gnu -march=armv7-a -mtune=cortex-a9 -fstack-protector --param=ssp-buffer-size=4 -D_FORTIFY_SOURCE=2 $INCLUDES -Wl,-rpath,/opt/fsl/lib -L/opt/fsl/lib"
@@ -123,7 +122,9 @@ package() {
 
   # systemd stuff
   install -Dm0644 $srcdir/xbmc.service $pkgdir/usr/lib/systemd/system/xbmc.service
+  install -Dm0755 $srcdir/runxbmc $pkgdir/usr/bin/runxbmc
+  install -Dm0644 $srcdir/xbmc.conf $pkgdir/etc/tmpfiles.d/xbmc.conf
 
 }
 
-# vim:set ts=2 sw=2 et:
+

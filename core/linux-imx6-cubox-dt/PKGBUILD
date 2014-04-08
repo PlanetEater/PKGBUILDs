@@ -15,7 +15,7 @@ _srcname=linux-linaro-stable-mx6-${_commit}
 _kernelname=${pkgname#linux}
 _basekernel=3.10
 pkgver=${_basekernel}.30
-pkgrel=4
+pkgrel=14
 arch=('arm')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -23,10 +23,18 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'uboot-mkimage' 'git'
 options=('!strip')
 source=("https://github.com/solidrun/linux-linaro-stable-mx6/archive/${_commit}.tar.gz"
         'config'
-        'change-default-console-loglevel.pat')
+        'change-default-console-loglevel.pat'
+        'mxc_hdmi-dont-require-cea-mode.patch'
+        'http://hg.openbricks.org/openbricks/raw-file/414a70875fc4/config/platforms/arm/imx6/machines/cuboxi/packages/linux/patches/990_cubox-i-hummingboard-enable-spdif.patch'
+        'http://hg.openbricks.org/openbricks/raw-file/414a70875fc4/config/platforms/arm/imx6/machines/cuboxi/packages/linux/patches/991_cubox-i-use-ipu0.patch'
+        'http://hg.openbricks.org/openbricks/raw-file/414a70875fc4/config/platforms/arm/imx6/machines/cuboxi/packages/linux/patches/992_hummingboard-use-ipu0-disable-cec.patch')
 md5sums=('40a7283cfa9b3519453928f787f67fe9'
-         'a6d40650263d6bac3c2269461042ea2f'
-         '9d3c56a4b999c8bfbd4018089a62f662')
+         '9855a22f1abcf2e49a2400d798335e28'
+         '9d3c56a4b999c8bfbd4018089a62f662'
+         '8dc29365fc5b0668c10f630cc5b5d82d'
+         '7f91cc11b6a63771e415bb3549de8fdd'
+         'a2579ff8da52d1b922d704f160cfaa08'
+         '350c99545523f2fe8301bca9cb05f586')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
@@ -43,7 +51,10 @@ prepare() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -Np1 -i "${srcdir}/change-default-console-loglevel.pat"
-
+  patch -Np1 -i "${srcdir}/mxc_hdmi-dont-require-cea-mode.patch"
+  patch -Np1 -i "${srcdir}/990_cubox-i-hummingboard-enable-spdif.patch"
+  patch -Np1 -i "${srcdir}/991_cubox-i-use-ipu0.patch"
+  patch -Np1 -i "${srcdir}/992_hummingboard-use-ipu0-disable-cec.patch"
 }
 
 build() {
@@ -127,7 +138,7 @@ package_linux-imx6-cubox-dt() {
 
 package_linux-headers-imx6-cubox-dt() {
   pkgdesc="Header files and scripts for building modules for linux kernel - i.MX6 cubox-i"
-  provides=("linux-headers=${pkgver}")
+  provides=("linux-headers=${pkgver}" "linux-headers-imx6-fsl=${pkgver}")
   conflicts=('linux-headers-omap' 'linux-headers-trimslice')
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
@@ -225,6 +236,17 @@ package_linux-headers-imx6-cubox-dt() {
   mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/fs/xfs"
   mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/mm"
   cp fs/xfs/xfs_sb.h "${pkgdir}/usr/src/linux-${_kernver}/fs/xfs/xfs_sb.h"
+
+  #make uapi headers, some of them are needed for vpu/ipu usage
+  mkdir -p "${srcdir}/headers"
+  make headers_install ARCH=$KARCH INSTALL_HDR_PATH="${srcdir}/headers"
+
+
+  # copy freescale specific headers to /usr/include/linux
+  mkdir -p "${pkgdir}/usr/include/linux"
+  for f in "$srcdir/headers/include/linux"/mxc*.h "$srcdir/headers/include/linux/ipu.h"; do
+    cp "$f" "${pkgdir}/usr/include/linux"
+  done
 
   # copy in Kconfig files
   for i in `find . -name "Kconfig*"`; do

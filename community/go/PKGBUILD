@@ -7,6 +7,7 @@
 # Contributor: Christian Himpel <chressie@gmail.com>
 # Contributor: Mike Rosset <mike.rosset@gmail.com>
 # Contributor: Daniel YC Lin <dlin.tw@gmail.com>
+# Contributor: John Luebs <jkluebs@gmail.com>
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - added switches for our architectures
@@ -14,18 +15,19 @@
 #  - Go 1.1beta2 support
 
 pkgname=go
-pkgver=1.2.1
-pkgrel=1
 epoch=2
+pkgver=1.2.1
+pkgrel=4
 pkgdesc='Compiler and tools for the Go programming language from Google'
 url='http://golang.org/'
 license=('custom')
 depends=('perl' 'gawk')
 makedepends=('inetutils' 'mercurial')
 options=('!strip' 'staticlibs')
-optdepends=('liteide: IDE for editing and building projects written in Go'
-            'mercurial: VCS written in Python'
-            'git: VCS written in C')
+optdepends=('mercurial: for fetching sources from mercurial repositories'
+            'git: for fetching sources from git repositories'
+            'bzr: for fetching sources from bazaar repositories'
+            'svn: for fetching sources from subversion repositories')
 install="$pkgname.install"
 source=("$pkgname-$pkgver::hg+https://code.google.com/p/$pkgname#branch=release-branch.$pkgname${pkgver/.1}")
 md5sums=('SKIP')
@@ -40,11 +42,17 @@ build() {
   export GOARCH=arm
   export GOROOT_FINAL=/usr/lib/go
   export GOOS=linux
+  export GOPATH="$srcdir/"
+  export GOROOT="$srcdir/$pkgname-$pkgver"
 
   bash make.bash
 
-  # TODO: Find a way to install these tools as well:
-  #go get code.google.com/p/go.tools/cmd/...
+  $GOROOT/bin/go get -d code.google.com/p/go.tools/cmd/godoc
+  $GOROOT/bin/go build -o $srcdir/godoc code.google.com/p/go.tools/cmd/godoc
+  for tool in vet cover; do
+    $GOROOT/bin/go get -d code.google.com/p/go.tools/cmd/${tool}
+    $GOROOT/bin/go build -o $GOROOT/pkg/tool/${GOOS}_${GOARCH}/${tool} code.google.com/p/go.tools/cmd/${tool}
+  done
 }
 
 check() {
@@ -66,6 +74,8 @@ package() {
   cd "$pkgname-$pkgver"
 
   export GOROOT="$srcdir/$pkgname-$pkgver"
+
+  install -Dm755 ../godoc "$pkgdir/usr/bin/godoc"
 
   install -Dm644 LICENSE \
     "$pkgdir/usr/share/licenses/go/LICENSE"
