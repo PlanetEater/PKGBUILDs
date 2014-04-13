@@ -1,0 +1,26 @@
+commit 5d69c6984a8123d2e1467ea28f1558abb3f9f29e
+Author: NAS user <user@nas>
+Date:   Sun Apr 13 15:19:55 2014 +0200
+
+    Re-enable the ability to disable building the frontend/backend
+
+diff --git a/mythtv/configure b/mythtv/configure
+index 519d352..7257fdf 100755
+--- a/mythtv/configure
++++ b/mythtv/configure
+@@ -2847,11 +2847,11 @@ for opt do
+         ;;
+         --disable-quartz-video) disable quartz_video
+         ;;
+-# disabled due to abuse in Gentoo ebuild
+-        --disable-frontend)
++# re-enabled
++        --disable-frontend) disable frontend
+         ;;
+-# disabled due to abuse in Gentoo ebuild
+-        --disable-backend)
++# re-enabled
++        --disable-backend) disable backend
+         ;;
+         --enable-mac-bundle) enable mac_bundle
+         ;;
