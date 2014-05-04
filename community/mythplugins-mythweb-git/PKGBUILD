@@ -3,7 +3,7 @@
 pkgname=mythplugins-mythweb-git
 pkgver=0.27
 pkgrel=1
-arch=('i686' 'x86_64')
+arch=('i686' 'x86_64' 'arm')
 url="http://www.mythtv.org"
 license=('GPL')
 makedepends=("mythtv" 'git')
