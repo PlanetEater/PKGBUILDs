@@ -10,7 +10,7 @@ pkgbase=linux-kirkwood-dt
 _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood DT"
 pkgver=3.14.3
-pkgrel=1
+pkgrel=2
 cryptodev_commit=57b5544de80db85c8955499831fdaa30829db77a
 bfqver=v7r3
 
@@ -36,7 +36,7 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
 
 md5sums=('99043433ad7368d2471b4743c9f562a2'
          'e319a8e1a596a39a8951fc6454664b15'
-         '7d9dde03bd54f010585ffec6e8ec92ac'
+         '7c86b0fd4818c819a4369a0586047ea1'
          '1b276abe16d14e133f3f28d9c9e6bd68'
          'SKIP'
          '65d5a4f313310bb2a732d022d51ea7e7'
