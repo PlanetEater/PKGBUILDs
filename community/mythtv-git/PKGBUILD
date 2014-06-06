@@ -8,10 +8,9 @@
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - correctly define ARM cpus for configure
 #  - disabled vdpau, mmx, incompatible ARM FPUs
-#  - ffmpeg backport to fix building on GCC 4.8
 
 pkgname=mythtv-git
-pkgver=0.27
+pkgver=0.27.1
 pkgrel=1
 epoch=90
 pkgdesc="A Homebrew PVR project - 0.27/fixes branch"
@@ -36,11 +35,9 @@ install='mythtv.install'
 _gitbranch='fixes/0.27'
 _gitname="mythtv"
 source=("git://github.com/MythTV/mythtv.git#branch=$_gitbranch"
-        'mythbackend.service'
-        'https://github.com/FFmpeg/FFmpeg/commit/8067f55edf3719182aed6e5b57b7863889f80218.patch')
+        'mythbackend.service')
 sha256sums=('SKIP'
-            'ecfde779ded8332cc62c86fac6b432b09cbf5d254135798287ada688af9a1302'
-            'b29e0d373ae103ba11898b4313ed356f1ea9a7ae9da842b567e4f6e3843ec0a7')
+            'ecfde779ded8332cc62c86fac6b432b09cbf5d254135798287ada688af9a1302')
 
 prepare() {
   cd "$srcdir/$_gitname/mythtv"
@@ -63,10 +60,6 @@ prepare() {
               --disable-vaapi \
               --python=python2 \
               --disable-neon $CONFIG
-
-  # ffmpeg backport
-  cd external/FFmpeg
-  patch -Np1 -i "$srcdir/8067f55edf3719182aed6e5b57b7863889f80218.patch"
 }
 
 build() {
