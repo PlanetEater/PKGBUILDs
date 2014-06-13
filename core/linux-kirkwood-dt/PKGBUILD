@@ -9,10 +9,10 @@ epoch=90
 pkgbase=linux-kirkwood-dt
 _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood DT"
-pkgver=3.14.5
+pkgver=3.14.6
 pkgrel=1
 cryptodev_commit=57b5544de80db85c8955499831fdaa30829db77a
-bfqver=v7r3
+bfqver=v7r4
 
 arch=('arm')
 url="http://www.kernel.org/"
@@ -34,7 +34,7 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
         '01-build-ehci-as-module.patch')
 
-md5sums=('db2f2b8a83239852b72e560811eb80de'
+md5sums=('0916f216a1833acf8afb8da29488ac6f'
          'e319a8e1a596a39a8951fc6454664b15'
          '7c86b0fd4818c819a4369a0586047ea1'
          '1b276abe16d14e133f3f28d9c9e6bd68'
@@ -43,9 +43,9 @@ md5sums=('db2f2b8a83239852b72e560811eb80de'
          '9b5a265440abf57d2052838f31486a3a'
          'SKIP'
          'a59f78f0a34cfe321921265246a7b725'
-         'c958730ec91b3c9e5cb5e173e8083624'
-         'd22dbdac83384fd9d6acaaec0d3621f6'
-         '5bbacc0879a314b7c40e73bfa66942bf'
+         '8169a4332404c0c5ba791302876ae9e8'
+         '27b1e12892ca47ab5a3486a34d72d151'
+         '27ec38dccb3f59f99bf489dfdda19132'
          '3f5098aba933f56b194e4fa3c311c40d')
 
 prepare() {
