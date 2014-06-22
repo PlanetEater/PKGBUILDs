@@ -7,10 +7,10 @@ buildarch=2
 pkgbase=linux-kirkwood
 _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood"
-pkgver=3.14.2
+pkgver=3.15.1
 pkgrel=1
 cryptodev_commit=57b5544de80db85c8955499831fdaa30829db77a
-bfqver=v7r3
+bfqver=v7r4
 
 arch=('arm')
 url="http://www.kernel.org/"
@@ -21,7 +21,6 @@ options=('!strip')
 source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         'archlinuxarm.patch'
         'config'
-	'0001-Bluetooth-allocate-static-minor-for-vhci.patch'
         'mach-types::http://www.arm.linux.org.uk/developer/machines/download.php'
         'change-default-console-loglevel.patch'
         'usb-add-reset-resume-quirk-for-several-webcams.patch'
@@ -31,18 +30,17 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch")
 
-md5sums=('28b68cde77997ddafab3c4e16cefae7d'
-         '2875cc4e92aa84ad28f24da0a3dabae0'
-         'a493742fdd9bab5efaeec7b1352d2205'
-         '1b276abe16d14e133f3f28d9c9e6bd68'
+md5sums=('72bd0bf0e773963217c89cddbf3e0048'
+         '20c0aa36ce1a9c5ef082b2e2f56a0a22'
+         '03f32c3aa8890e9f23e08e0f77ef09b7'
          'SKIP'
          '65d5a4f313310bb2a732d022d51ea7e7'
          '9b5a265440abf57d2052838f31486a3a'
          'SKIP'
          'a59f78f0a34cfe321921265246a7b725'
-         'c958730ec91b3c9e5cb5e173e8083624'
-         'd22dbdac83384fd9d6acaaec0d3621f6'
-         '5bbacc0879a314b7c40e73bfa66942bf')
+         '7789bef14c7eb81ac5ab8a54e378878f'
+         'b5ca74d065ebac9ff225bb257ffa2281'
+         'f69d29121f9ea26ba84924e9355894fe')
 
 prepare() {
   cd "${srcdir}/linux-${pkgver}"
@@ -59,9 +57,6 @@ msg2 "Applying aufs3 patches"
   patch -Np1 -i ../aufs3-standalone/aufs3-base.patch
   patch -Np1 -i ../aufs3-standalone/aufs3-mmap.patch
   patch -Np1 -i ../aufs3-standalone/aufs3-standalone.patch
-
-msg2 "Fix vhci warning in kmod"
-  patch -p1 -i "${srcdir}/0001-Bluetooth-allocate-static-minor-for-vhci.patch"
 
 msg2 "Add the USB_QUIRK_RESET_RESUME for several webcams"
   # FS#26528

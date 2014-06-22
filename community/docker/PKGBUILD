@@ -5,7 +5,7 @@
 #  - ARM patches, adjustments
 
 pkgname=docker
-pkgver=0.10.0
+pkgver=1.0.0
 pkgrel=1
 epoch=1
 pkgdesc='Pack, ship and run any application as a lightweight container'
@@ -20,23 +20,23 @@ optdepends=('btrfs-progs: btrfs backend support'
 options=('!strip')
 install=$pkgname.install
 source=("git+https://github.com/dotcloud/docker.git#tag=v$pkgver"
-        'docker-arm.patch'
-        'btrfs-arm.patch'
-        'docker-setBridgeMacAddress-ARM.patch')
+        '0001-ARM-as-allowed-architecture.patch'
+        '0002-Fix-btrfs-detection-on-ARM.patch'
+        '0003-setBridgeMacAddress-ARM-support.patch')
 md5sums=('SKIP'
-         '47cc1cdf900af66660bfa3402012ea71'
-         '4683e045fd3f3ac40211c5b845bb693a'
-         '06d254bec427fa3f6b8a5846b60da1e6')
+         'c003084f4cf0f754c868662a8bae95e8'
+         '3ca24a8fe8567a153fad4f9ab31286ae'
+         '1f74fb11f1b10868dbc55ddb6d437125')
 
 prepare() {
   cd "docker"
-  patch -p1 -i ../docker-arm.patch
-  patch -p1 -i ../btrfs-arm.patch
+  patch -p1 -i ../0001-ARM-as-allowed-architecture.patch
+  patch -p1 -i ../0002-Fix-btrfs-detection-on-ARM.patch
   find . -name '*.go' | xargs sed --in-place= -e 's/\/\/ +build amd64/\/\/ +build arm/'
   find . -name '*.go' | xargs sed --in-place= -e 's/\/\/ +build !linux !amd64/\/\/ +build !linux !arm/'
   find . -name '*.go' | xargs sed --in-place= -e 's/\/\/ +build linux,amd64/\/\/ +build linux,arm/'
   # This patch is applicable after the seds.
-  patch -p1 -i ../docker-setBridgeMacAddress-ARM.patch
+  patch -p1 -i ../0003-setBridgeMacAddress-ARM-support.patch
 }
 
 build() {

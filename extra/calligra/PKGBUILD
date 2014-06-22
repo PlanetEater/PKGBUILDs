@@ -22,8 +22,8 @@ pkgname=('calligra-braindump'
          'calligra-sheets'
          'calligra-stage'
          'calligra-words')
-pkgver=2.8.2
-pkgrel=1
+pkgver=2.8.3
+pkgrel=3
 arch=('i686' 'x86_64')
 url='http://www.calligra-suite.org/'
 license=('FDL1.2' 'GPL2' 'LGPL')
@@ -34,16 +34,19 @@ makedepends=('cmake' 'automoc4' 'boost' 'kdepimlibs' 'eigen2' 'kdeedu-marble'
              'libetonyek' 'libpqxx' 'libspnav')
 groups=('calligra')
 source=("http://download.kde.org/stable/${pkgbase}-${pkgver}/${pkgbase}-${pkgver}.tar.xz"
-        'arm.patch')
-md5sums=('adb7d386dd2ec0cafdb39ce474bba73a'
-         'dc5105bcc612560f46d27071aca69cba')
+        'arm.patch'
+        0001-switch-to-librevenge-based-import-libs.patch)
+md5sums=('78ad97127a3cc6d2c5c79ac6ae56f130'
+         'dc5105bcc612560f46d27071aca69cba'
+         '2589200d3f2199a8bff5755ff3245e33')
 
 prepare() {
   mkdir build
 
-   # fix openjpeg detection
-  sed -i "s:/usr/include/openjpeg:/usr/include/openjpeg-1.5:" \
-    ${pkgbase}-${pkgver}/cmake/modules/FindOpenJPEG.cmake
+  # use librevenge based import filter libraries - patch taken from Fedora
+  pushd $pkgbase-$pkgver
+  patch -Np1 -i $srcdir/0001-switch-to-librevenge-based-import-libs.patch
+  popd
 }
 
 build() {
@@ -74,7 +77,7 @@ package_calligra-filters() {
 
 package_calligra-libs() {
   pkgdesc="Libraries for the Calligra office suite"
-  depends=('kdepimlibs' 'kactivities')
+  depends=('kdepimlibs' 'kactivities' 'libkactivities4')
   conflicts=('koffice-interfaces' 'koffice-libs' 'koffice-pics'
              'koffice-servicetypes' 'calligra-interfaces'
              'calligra-pics' 'calligra-servicetypes')

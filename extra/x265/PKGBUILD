@@ -6,7 +6,7 @@
 #  - patch to attempt fixing ARM hackery by bandwagoning developers
 
 pkgname=x265
-pkgver=0.9
+pkgver=1.1
 pkgrel=1
 pkgdesc='Open Source H265/HEVC video encoder'
 arch=('i686' 'x86_64')
@@ -16,8 +16,8 @@ makedepends=('yasm' 'cmake')
 url='https://bitbucket.org/multicoreware/x265'
 source=($url/get/$pkgver.tar.bz2
         arm.patch)
-md5sums=('0cc0b0189cf9ed7422aad98633c6de8f'
-         '84b4f95a14040711d298c1abfc4e373a')
+md5sums=('e6d33d31abdab1f7bd9c240641933472'
+         'b34f36b81f351061fa83ef7ef1a30956')
 
 prepare() {
   cd multicoreware-x265-*

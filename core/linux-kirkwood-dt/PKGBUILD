@@ -4,12 +4,10 @@
 
 buildarch=2
 
-# Cover upstream versions
-epoch=90
 pkgbase=linux-kirkwood-dt
 _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood DT"
-pkgver=3.14.8
+pkgver=3.15.1
 pkgrel=1
 cryptodev_commit=57b5544de80db85c8955499831fdaa30829db77a
 bfqver=v7r4
@@ -21,32 +19,31 @@ makedepends=('xmlto' 'docbook-xsl' 'uboot-mkimage' 'kmod' 'inetutils' 'bc' 'git'
 options=('!strip')
 
 source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
-        'archlinuxarm.patch'
         'config'
-        '0001-Bluetooth-allocate-static-minor-for-vhci.patch'
+        'archlinuxarm.patch'
         'mach-types::http://www.arm.linux.org.uk/developer/machines/download.php'
-        'change-default-console-loglevel.patch'
         'usb-add-reset-resume-quirk-for-several-webcams.patch'
+#        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
         "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver:0:4}"
         "https://github.com/cryptodev-linux/cryptodev-linux/archive/${cryptodev_commit}.tar.gz"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
-        '01-build-ehci-as-module.patch')
+        'goflexhome_dtb.patch'
+        'pogo_e02_dtb.patch')
 
-md5sums=('d19dcd4819f2148cc85b80190133755e'
+md5sums=('72bd0bf0e773963217c89cddbf3e0048'
+         '11cfa05ab3d1399e8f6c784a09bec17b'
          'e319a8e1a596a39a8951fc6454664b15'
-         '7c86b0fd4818c819a4369a0586047ea1'
-         '1b276abe16d14e133f3f28d9c9e6bd68'
          'SKIP'
-         '65d5a4f313310bb2a732d022d51ea7e7'
          '9b5a265440abf57d2052838f31486a3a'
          'SKIP'
          'a59f78f0a34cfe321921265246a7b725'
-         '8169a4332404c0c5ba791302876ae9e8'
-         '27b1e12892ca47ab5a3486a34d72d151'
-         '27ec38dccb3f59f99bf489dfdda19132'
-         '3f5098aba933f56b194e4fa3c311c40d')
+         '7789bef14c7eb81ac5ab8a54e378878f'
+         'b5ca74d065ebac9ff225bb257ffa2281'
+         'f69d29121f9ea26ba84924e9355894fe'
+         '4b68b14d17c78d7299b8b4d680cf6aab'
+         '15fd07ea17a926afceb2fdbba5318549')
 
 prepare() {
   cd "${srcdir}/linux-${pkgver}"
@@ -64,9 +61,6 @@ msg2 "Applying aufs3 patches"
   patch -Np1 -i ../aufs3-standalone/aufs3-mmap.patch
   patch -Np1 -i ../aufs3-standalone/aufs3-standalone.patch
 
-msg2 "Fix vhci warning in kmod"
-  patch -p1 -i "${srcdir}/0001-Bluetooth-allocate-static-minor-for-vhci.patch"
-
 msg2 "Add the USB_QUIRK_RESET_RESUME for several webcams"
   # FS#26528
   patch -Np1 -i "${srcdir}/usb-add-reset-resume-quirk-for-several-webcams.patch"
@@ -74,15 +68,15 @@ msg2 "Add the USB_QUIRK_RESET_RESUME for several webcams"
 msg2 "Add Arch Linux ARM patch for ARMv5te plug computers, mach-types"
   patch -Np1 -i "${srcdir}/archlinuxarm.patch"
   cp "${srcdir}/mach-types" arch/arm/tools
+  patch -Np1 -i "${srcdir}/goflexhome_dtb.patch"
+  patch -Np1 -i "${srcdir}/pogo_e02_dtb.patch"
 
 msg2 "Add BFQ patches"
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
-  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
+  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"  
 
-  cat "${srcdir}/config" > ./config
-  patch -Np3 -i "${srcdir}/01-build-ehci-as-module.patch"
-  cp config .config
+  cat "${srcdir}/config" > ./.config
 
   # add pkgrel to extraversion
   sed -ri "s|^(EXTRAVERSION =)(.*)|\1 \2-${pkgrel}|" Makefile
@@ -111,8 +105,8 @@ build() {
   ####################
   # stop here
   # this is useful to configure the kernel
-  # msg "Stopping build"
-  # return 1
+  #msg "Stopping build"
+  #return 1
   ####################
 
   #yes "" | make config
@@ -127,7 +121,7 @@ msg "Building cryptodev module"
 
 _package() {
   pkgdesc="The Linux Kernel and modules - ${_desc}"
-  depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7' 'uboot-mkimage' 'uboot-env')
+  depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7')
   optdepends=('crda: to set the correct wireless channels of your country')
   provides=('kernel26' 'linux=${pkgver}' 'aufs_friendly' 'cryptodev_friendly')
   conflicts=('linux-kirkwood' 'linux' 'linux-olinuxino')
@@ -146,13 +140,7 @@ _package() {
   mkdir -p "${pkgdir}"/{lib/modules,lib/firmware,boot/dtbs}
   make INSTALL_MOD_PATH="${pkgdir}" modules_install
   cp arch/$KARCH/boot/zImage "${pkgdir}/boot/zImage"
-  cp arch/$KARCH/boot/dts/*.dtb "${pkgdir}/boot/dtbs/."
-  cp arch/$KARCH/boot/dts/skeleton.dtsi "${pkgdir}/boot/dtbs/."
-  cp arch/$KARCH/boot/dts/kirkwood*.dts "${pkgdir}/boot/dtbs/."
-  cp arch/$KARCH/boot/dts/kirkwood*.dtsi "${pkgdir}/boot/dtbs/."
-
-  mkdir -p "${pkgdir}"/usr/local/sbin
-  cp scripts/dtc/dtc "${pkgdir}/usr/local/sbin/."
+  cp arch/$KARCH/boot/dts/*.dtb "${pkgdir}/boot/dtbs"
 
   # set correct depmod command for install
   sed \
@@ -189,7 +177,7 @@ _package() {
 _package-headers() {
   pkgdesc="Header files and scripts for building modules for linux kernel - ${_desc}"
   provides=('linux-headers=${pkgver}')
-  conflicts=('linux-headers-kirkwood' 'linux-headers' 'linux-headers-olinuxino')
+  conflicts=('linux-kirkwood-headers' 'linux-headers' 'linux-headers-olinuxino')
   replaces=('linux-headers-kirkwood-dt')
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
@@ -241,7 +229,7 @@ _package-headers() {
     cp -a drivers/media/pci/${i}/*.h "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/pci/${i}"
   done
   # usb
-  for i in cpia2 em28xx pwc sn9c102; do
+  for i in cpia2 em28xx pwc; do
     mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/usb/${i}"
     cp -a drivers/media/usb/${i}/*.h "${pkgdir}/usr/src/linux-${_kernver}/drivers/media/usb/${i}"
   done

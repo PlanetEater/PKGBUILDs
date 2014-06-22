@@ -6,8 +6,8 @@
 #  - remove numactl from depends, doesn't build on ARM
 
 pkgname=libvirt
-pkgver=1.2.3
-pkgrel=4
+pkgver=1.2.5
+pkgrel=1
 pkgdesc="API for controlling virtualization engines (openvz,kvm,qemu,virtualbox,xen,etc)"
 arch=('i686' 'x86_64')
 url="http://libvirt.org/"
@@ -16,14 +16,14 @@ depends=('e2fsprogs' 'gnutls' 'iptables' 'libxml2' 'parted' 'polkit' 'python2'
 	 'avahi' 'yajl' 'libpciaccess' 'udev' 'dbus-core' 'libxau' 'libxdmcp' 'libpcap'
 	 'curl' 'libsasl' 'libgcrypt' 'libgpg-error' 'openssl' 'libxcb' 'gcc-libs'
 	 'iproute2' 'libnl' 'libx11')
-makedepends=('pkgconfig' 'lvm2' 'linux-api-headers' 'dnsmasq' 'lxc')
+makedepends=('pkgconfig' 'lvm2' 'linux-api-headers' 'dnsmasq' 'lxc' 'libiscsi' 'open-iscsi')
 optdepends=('bridge-utils: for briged networking (default)'
 	    'dnsmasq: for NAT/DHCP for guests'
 	    'openbsd-netcat: for remote management over ssh'
 	    'qemu'
 	    'radvd'
 	    'dmidecode'
-	    'ebtables'
+	    'ebtables: for networking'
 	    'pm-utils: host power management')
 options=('emptydirs')
 backup=('etc/conf.d/libvirt-guests'
@@ -64,7 +64,7 @@ source=("http://libvirt.org/sources/$pkgname-$pkgver.tar.gz"
 	libvirtd.conf.d
 	libvirtd-guests.conf.d
 	libvirt.tmpfiles.d)
-md5sums=('ad1602a2fcc3609c83b885a28f3eecbd'
+md5sums=('787960669a40181fd381a87a318c0660'
          '3ed0e24f5b5e25bf553f5427d64915e6'
          '0a96ed876ffb1fcb9dff5a9b3a609c1e'
          '020971887442ebbf1b6949e031c8dd3f')
@@ -95,7 +95,7 @@ build() {
 	--with-storage-lvm --without-xen --with-udev --without-hal --disable-static \
 	--with-init-script=systemd \
 	--with-qemu-user=nobody --with-qemu-group=nobody \
-	--without-netcf --with-interface --with-lxc
+	--without-netcf --with-interface --with-lxc --with-storage-iscsi
   make
 }
 

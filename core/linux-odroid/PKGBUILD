@@ -7,22 +7,22 @@ pkgbase=linux-odroid
 pkgname=('linux-odroid-x' 'linux-odroid-x2' 'linux-odroid-u2' 'linux-headers-odroid')
 _kernelname=${pkgname#linux}
 _basekernel=3.8
-pkgver=${_basekernel}.13.21
-pkgrel=2
+pkgver=${_basekernel}.13.23
+pkgrel=3
 arch=('armv7h')
 url="http://github.com/hardkernel/linux/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'git' 'inetutils' 'bc')
 options=('!strip')
-_commit=2f4e1c85cbb3cb20677784f9f3e1ad121faead5a
+_commit=6c4bca0dcee314ab2521e20ab2dbdd11a2658ff7
 source=("https://github.com/hardkernel/linux/archive/${_commit}.tar.gz"
         'config_x'
         'config_x2'
         'config_u2')
-md5sums=('930b4a5026be653926a899672b6342ac'
-         '566092b25c4ccdbe712dcfc944bbbd03'
-         '893db8bc80fec4d94062e86c14240d21'
-         '5140da2d874bb083923d15a851484d05')
+md5sums=('2dbe85108d58e4d44ded2087eef570d4'
+         '4c98d2c4e8a58d0709892f602e2795a9'
+         '1b5def2885b4bc437efb238fcfa22101'
+         'e7788423ad753c8f344d7734dbef12f7')
 
 prepare() {
   cd "${srcdir}/linux-${_commit}"

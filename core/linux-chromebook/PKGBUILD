@@ -6,7 +6,7 @@ buildarch=4
 
 pkgbase=linux-chromebook
 pkgname=('linux-chromebook' 'linux-headers-chromebook')
-pkgver=20140421
+pkgver=20140525
 _kernelname=${pkgname#linux}
 pkgdesc="ChromiumOS kernel with ArchLinux ARM tweaks"
 _basever=3.4
@@ -16,14 +16,14 @@ url="https://chromium.googlesource.com/chromiumos/third_party/kernel/+/chromeos-
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'uboot-mkimage' 'dtc' 'inetutils' 'kmod')
 options=('!strip')
-_commit=135148b515275c24d691f10ba74c0c5b8d56af63
+_commit=27c0093c220d66d796e85d2ecd1231850f7c9397
 source=("https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/${_commit}.tar.gz"
-	    'config'
+        'config'
         'kernel.its')
 noextract=("${_commit}.tar.gz")
-# Skipping the source, because the md5sum changes from build to build.
+# Skipping the source, the tarball is regenerated regularly with new timestamps.
 md5sums=('SKIP'
-         '2d9911daeffef1ee61534850ef5c8d9b'
+         'f01929a84dd2e295ebf6e2b5e3cdbf82'
          '56f8343875b928b6aa4e83921e5df25f')
 
 prepare() {

@@ -7,17 +7,19 @@
 # Contributor: Jason Plum <jplum@archlinuxarm.org>
 
 pkgname=nodejs
-pkgver=0.10.26
+pkgver=0.10.29
 pkgrel=1
 pkgdesc='Evented I/O for V8 javascript'
 arch=('i686' 'x86_64' 'arm')
 url='http://nodejs.org/'
 license=('MIT')
+provides=('nodejs-node-gyp')
 makedepends=('python2')
+optdepends=('python2: for node-gyp')
 checkdepends=('curl')
 options=('!emptydirs !strip')
 source=("http://nodejs.org/dist/v${pkgver}/node-v${pkgver}.tar.gz")
-sha256sums=('ef5e4ea6f2689ed7f781355012b942a2347e0299da0804a58de8e6281c4b1daa')
+sha256sums=('47379d01f765f87c1a1498b4e65de30e45201de50334954860d7375a8258b15d')
 
 set_flags_for_arm() {
   if [ "$CARCH" == "arm" ]; then
@@ -88,7 +90,7 @@ build() {
 check() {
   cd node-v${pkgver}
 
-  make test || true
+  make test || warning "Tests failed"
 }
 
 package() {
@@ -109,6 +111,9 @@ package() {
 
   install -D -m644 LICENSE \
     ${pkgdir}/usr/share/licenses/nodejs/LICENSE
+
+  # Why the hell wasn't this installed?! FS#40221
+  ln -s /usr/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js "$pkgdir"/usr/bin/node-gyp
 }
 
 # vim:set ts=2 sw=2 et:

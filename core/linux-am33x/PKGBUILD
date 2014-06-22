@@ -7,9 +7,9 @@ pkgbase=linux-am33x
 _srcname=linux-3.14
 _kernelname=${pkgbase#linux}
 _desc="TI AM335x Beaglebone (Black)"
-pkgver=3.14.1
+pkgver=3.14.4
 pkgrel=1
-rcnrel=bone2
+rcnrel=bone4
 arch=('armv7h')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -22,11 +22,11 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/${_srcname}.tar.xz"
         '0001-Bluetooth-allocate-static-minor-for-vhci.patch'
         'config')
 md5sums=('b621207b3f6ecbb67db18b13258f8ea8'
-         '2526eb95793ecc1c22d7e1428ef23cdc'
-         '42274b91d4143c921b470cfa954cbc80'
+         '116f27cf17c3522716b6678b17516067'
+         'ea7ff785da31668415160dcaa42e02a7'
          'SKIP'
          '1b276abe16d14e133f3f28d9c9e6bd68'
-         'd714a20ea9d6046575ed7176209901de')
+         'b24944272e50e4756ada1a01b6856abb')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
@@ -158,13 +158,12 @@ _package-headers() {
     cp -a include/${i} "${pkgdir}/usr/lib/modules/${_kernver}/build/include/"
   done
 
-  # copy arch includes for external modules
-  mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH
-  cp -a arch/$KARCH/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/
-  mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/mach-omap2
-  cp -a arch/$KARCH/mach-omap2/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/mach-omap2/
-  mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/plat-omap
-  cp -a arch/$KARCH/plat-omap/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/plat-omap/
+  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH
+  cp -a arch/$KARCH/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/
+  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-omap2
+  cp -a arch/$KARCH/mach-omap2/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-omap2/
+  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-omap
+  cp -a arch/$KARCH/plat-omap/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-omap/
 
   # copy files necessary for later builds, like nvidia and vmware
   cp Module.symvers "${pkgdir}/usr/lib/modules/${_kernver}/build"
