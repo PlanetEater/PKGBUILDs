@@ -9,6 +9,7 @@ _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood DT"
 pkgver=3.15.1
 pkgrel=1
+epoch=90
 cryptodev_commit=57b5544de80db85c8955499831fdaa30829db77a
 bfqver=v7r4
 
