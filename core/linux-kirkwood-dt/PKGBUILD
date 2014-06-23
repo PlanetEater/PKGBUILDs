@@ -31,7 +31,8 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
         'goflexhome_dtb.patch'
-        'pogo_e02_dtb.patch')
+        'pogo_e02_dtb.patch'
+        'nsa320_dtb.patch')
 
 md5sums=('72bd0bf0e773963217c89cddbf3e0048'
          '11cfa05ab3d1399e8f6c784a09bec17b'
@@ -44,7 +45,8 @@ md5sums=('72bd0bf0e773963217c89cddbf3e0048'
          'b5ca74d065ebac9ff225bb257ffa2281'
          'f69d29121f9ea26ba84924e9355894fe'
          '4b68b14d17c78d7299b8b4d680cf6aab'
-         '15fd07ea17a926afceb2fdbba5318549')
+         '15fd07ea17a926afceb2fdbba5318549'
+         'cf52796dd415cdb25408ad28d020c398')
 
 prepare() {
   cd "${srcdir}/linux-${pkgver}"
@@ -71,6 +73,7 @@ msg2 "Add Arch Linux ARM patch for ARMv5te plug computers, mach-types"
   cp "${srcdir}/mach-types" arch/arm/tools
   patch -Np1 -i "${srcdir}/goflexhome_dtb.patch"
   patch -Np1 -i "${srcdir}/pogo_e02_dtb.patch"
+  patch -Np1 -i "${srcdir}/nsa320_dtb.patch"
 
 msg2 "Add BFQ patches"
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
@@ -114,6 +117,7 @@ build() {
 
 msg "Building!"
   make ${MAKEFLAGS} zImage modules dtbs
+  make ${MAKEFLAGS} kirkwood-nsa320.dtb
 
 msg "Building cryptodev module"
   cd "${srcdir}/cryptodev-linux-${cryptodev_commit}"
