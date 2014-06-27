@@ -7,7 +7,7 @@ pkgbase=linux-armv5
 _srcname=linux-3.15
 _kernelname=${pkgbase#linux}
 _desc="ARMv5 based platforms"
-pkgver=3.15.0
+pkgver=3.15.1
 pkgrel=1
 arch=('arm')
 url="http://www.kernel.org/"
@@ -15,9 +15,9 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
 source=("http://www.kernel.org/pub/linux/kernel/v3.x/${_srcname}.tar.xz"
-        #"http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
-        #"git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver%.*}"
-        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
+        "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
+        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver%.*}"
+        #"git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
         '0001-Revert-mmc-mxs-use-mmc_of_parse-to-parse-devicetree-.patch'
         '0002-Revert-mmc-mxs-use-mmc_gpio_get_ro-for-detecting-rea.patch'
         '0003-Revert-mmc-mxs-use-standard-flag-for-cd-inverted.patch'
@@ -27,8 +27,10 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/${_srcname}.tar.xz"
         '0007-Added-ASoC-driver-for-i.MX233-s-builtin-ADC-DAC-code.patch'
         '0008-Added-DTS-with-mxs-builtin-entries-for-testing-the-a.patch'
         '0009-I2C-fixes.patch'
+        'archlinuxarm.patch'
         'config')
 md5sums=('97ca1625bb40368dc41b9a7971549071'
+         '78a944411af297b9e5e9aa430056de4c'
          'SKIP'
          '537d3b1821b5685036138621308148d2'
          'eb663234804d647a64cea20b949f3afd'
@@ -39,13 +41,14 @@ md5sums=('97ca1625bb40368dc41b9a7971549071'
          '14570ba571b001b1f42070e2066232d7'
          'ad4eb847c301bc3d5a66de3ee2369da8'
          'ef607cd7a01d7c287b107f677f6a7808'
-         '3c631306b4dbffeb6d813a640f50f400')
+         'e319a8e1a596a39a8951fc6454664b15'
+         '74a6c44ea27af6d7240cf77586b2a099')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
 
   # add upstream patch
-  #git apply "${srcdir}/patch-${pkgver}"
+  git apply "${srcdir}/patch-${pkgver}"
 
   # ALARM patches
   git apply ../0001-Revert-mmc-mxs-use-mmc_of_parse-to-parse-devicetree-.patch
@@ -57,6 +60,7 @@ prepare() {
   git apply ../0007-Added-ASoC-driver-for-i.MX233-s-builtin-ADC-DAC-code.patch
   git apply ../0008-Added-DTS-with-mxs-builtin-entries-for-testing-the-a.patch
   git apply ../0009-I2C-fixes.patch
+  patch -p1 -i ../archlinuxarm.patch
 
   # AUFS patches
   cp -ru "${srcdir}/aufs3-standalone/Documentation" .
