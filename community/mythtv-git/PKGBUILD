@@ -83,5 +83,5 @@ package() {
 pkgver() {
     cd $srcdir/$_gitname
     # Use the tag of the last commit (x.y.z.<no_of_commits>~<commit_hash>)
-    git describe --always | sed -e 's/^v//' -e 's/-/./g' -e 's/\(.*\)\.\(.*\)/\1~\2/'
+    git describe --always --long | sed -e 's/^v//' -e 's/-/./g' -e 's/\(.*\)\.\(.*\)/\1~\2/'
 }
