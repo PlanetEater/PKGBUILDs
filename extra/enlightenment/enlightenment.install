@@ -1,4 +1,5 @@
 post_install() {
+  update-mime-database usr/share/mime > /dev/null
   update-desktop-database -q
 }
 
