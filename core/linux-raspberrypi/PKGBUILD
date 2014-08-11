@@ -4,11 +4,11 @@
 buildarch=18
 
 pkgbase=linux-raspberrypi
-_commit=a58c89292b7fa399624e40047b699ae910b41880
+_commit=4ab8abbf53c043a84a6e64a1fa1f6e173ba1c168
 _srcname=linux-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="Raspberry Pi"
-pkgver=3.12.25
+pkgver=3.12.26
 pkgrel=1
 arch=('arm armv6h')
 url="http://www.kernel.org/"
@@ -17,15 +17,13 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'uboot-mkimage' 'git' 'pyt
 options=('!strip')
 source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
         'config'
-        'change-default-console-loglevel.patch'
         'args-uncompressed.txt'
         'boot-uncompressed.txt'
         'imagetool-uncompressed.py'
         "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver%.*}.x")
 
-md5sums=('f96b3a99da55210095480ea22f050bd4'
-         'fe0099fabf13060a56c511697c999054'
-         '98beb36f9b8cf16e58de2483ea9985e3'
+md5sums=('d447600072bc03283e655f188ee88114'
+         'c319d13c852674f0ef31e5ad52e592d5'
          '9335d1263fd426215db69841a380ea26'
          'a00e424e2fbb8c5a5f77ba2c4871bed4'
          '2f82dbe5752af65ff409d737caf11954'
@@ -33,11 +31,6 @@ md5sums=('f96b3a99da55210095480ea22f050bd4'
 
 prepare() {
   cd "${srcdir}/${_srcname}"
-
-  # Set DEFAULT_CONSOLE_LOGLEVEL to 4 (same value as the 'quiet' kernel param)
-  # remove this when a Kconfig knob is made available by upstream
-  # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
-  patch -Np1 -i "${srcdir}/change-default-console-loglevel.patch"
 
   cp ${srcdir}/args-uncompressed.txt arch/arm/boot/
   cp ${srcdir}/boot-uncompressed.txt arch/arm/boot/

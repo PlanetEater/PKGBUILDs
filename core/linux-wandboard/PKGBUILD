@@ -9,7 +9,7 @@ _srcname=linux-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="i.MX6 Wandboard"
 pkgver=3.10.17
-pkgrel=3
+pkgrel=5
 arch=('armv7h')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -18,6 +18,7 @@ options=('!strip')
 source=("https://github.com/wandboard-org/linux/archive/${_commit}.tar.gz"
         '0001-Swap-usdhc1-and-usdhc3.patch'
         'config')
+
 md5sums=('e10cf2d6b0e82303be6ea384aa2880fb'
          '1edf745b39c715206fbe327c60f6cf76'
          '87706fcb5d01bf5a1722c6c9de5be83f')
