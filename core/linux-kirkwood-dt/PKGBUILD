@@ -8,8 +8,7 @@ pkgbase=linux-kirkwood-dt
 _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood DT"
 pkgver=3.16
-pkgrel=1
-epoch=90
+pkgrel=2
 cryptodev_commit=8af0fe8a977f33236d3e00306ac3648063052704
 bfqver=v7r5
 
