@@ -6,10 +6,13 @@
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - drop x265 until it builds on ARM
+#
+# ALARM: David Beauchamp <david@archlinuxarm.org>
+#  - drop hardening-wrapper from makedepends
 
 pkgname=ffmpeg
-pkgver=2.3.1
-pkgrel=1
+pkgver=2.5.2
+pkgrel=2
 epoch=1
 pkgdesc='Complete and free Internet live audio and video broadcasting solution'
 arch=('i686' 'x86_64')
@@ -20,9 +23,10 @@ depends=(
       'libbluray' 'libmodplug' 'libpulse' 'libtheora' 'libva' 'libvorbis' 'libvpx'
       'opencore-amr' 'openjpeg' 'opus' 'rtmpdump' 'schroedinger' 'sdl' 'speex'
       'v4l-utils' 'libx264' 'xvidcore' 'zlib')
-makedepends=('libvdpau' 'yasm' 'x264')
+makedepends=('libvdpau' 'yasm')
 source=(http://ffmpeg.org/releases/$pkgname-$pkgver.tar.bz2{,.asc})
-md5sums=('bb02e99c39941d7f3dc56658b9324a2b'
+validpgpkeys=('FCF986EA15E6E293A5644F10B4322F04D67658D8') # ffmpeg-devel
+md5sums=('308d49d91752ac00ded9483ebaab849d'
          'SKIP')
 
 build() {
@@ -79,5 +83,3 @@ package() {
   make DESTDIR="$pkgdir" install install-man
   install -Dm755 tools/qt-faststart "$pkgdir"/usr/bin/qt-faststart
 }
-
-# vim:set ts=2 sw=2 et:

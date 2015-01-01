@@ -2,35 +2,27 @@
 # Maintainer: Tom Gundersen <teg@jklm.no>
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
-#  - disable optimization, currently breaks timesyncd over distcc
+#  - disable optimization, currently breaks many things
 
 pkgbase=systemd
 pkgname=('systemd' 'libsystemd' 'systemd-sysvcompat')
-pkgver=215
-pkgrel=4.1
+pkgver=218
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.freedesktop.org/wiki/Software/systemd"
 makedepends=('acl' 'cryptsetup' 'docbook-xsl' 'gobject-introspection' 'gperf'
-             'gtk-doc' 'intltool' 'kmod' 'libcap' 'libgcrypt'  'libmicrohttpd' 'libxslt'
-             'util-linux' 'linux-api-headers' 'pam' 'python' 'python-lxml' 'quota-tools'
-             'shadow' 'xz')
+             'gtk-doc' 'intltool' 'kmod' 'libcap' 'libidn' 'libgcrypt' 'libmicrohttpd'
+             'libxslt' 'util-linux' 'linux-api-headers' 'lz4' 'pam' 'python'
+             'python-lxml' 'quota-tools' 'shadow' 'xz')
 options=('strip' 'debug')
 source=("http://www.freedesktop.org/software/$pkgname/$pkgname-$pkgver.tar.xz"
         'initcpio-hook-udev'
         'initcpio-install-systemd'
-        'initcpio-install-udev'
-        '0001-networkd-properly-track-addresses-when-first-added.patch')
-md5sums=('d2603e9fffd8b18d242543e36f2e7d31'
-         '29245f7a240bfba66e2b1783b63b6b40'
-         '66cca7318e13eaf37c5b7db2efa69846'
-         'bde43090d4ac0ef048e3eaee8202a407'
-         '2d237a277a12b3801c88d159d64a7413')
-
-prepare() {
-  cd "$pkgname-$pkgver"
-
-  patch -Np1 <"$srcdir"/0001-networkd-properly-track-addresses-when-first-added.patch
-}
+        'initcpio-install-udev')
+md5sums=('4e2c511b0a7932d7fc9d79822273aac6'
+         '90ea67a7bb237502094914622a39e281'
+         'c9db3010602913559295de3481019681'
+         'bde43090d4ac0ef048e3eaee8202a407')
 
 build() {
   cd "$pkgname-$pkgver"
@@ -38,19 +30,22 @@ build() {
   CFLAGS=`echo $CFLAGS | sed -e 's/-O2/-O0/'` && CXXFLAGS="$CFLAGS"
   unset CPPFLAGS
 
+  local timeservers=({0..3}.arch.pool.ntp.org)
+
   ./configure \
       --libexecdir=/usr/lib \
       --localstatedir=/var \
       --sysconfdir=/etc \
       --enable-introspection \
       --enable-gtk-doc \
+      --enable-lz4 \
       --enable-compat-libs \
       --disable-audit \
       --disable-ima \
       --disable-kdbus \
       --with-sysvinit-path= \
       --with-sysvrcnd-path= \
-      --with-firmware-path="/usr/lib/firmware/updates:/usr/lib/firmware"
+      --with-ntp-servers="${timeservers[*]}"
 
   make
 }
@@ -59,7 +54,7 @@ package_systemd() {
   pkgdesc="system and service manager"
   license=('GPL2' 'LGPL2.1' 'MIT')
   depends=('acl' 'bash' 'dbus' 'glib2' 'kbd' 'kmod' 'hwids' 'libcap' 'libgcrypt'
-           'libsystemd' 'pam' 'libseccomp' 'util-linux' 'xz')
+           'libsystemd' 'libidn' 'lz4' 'pam' 'libseccomp' 'util-linux' 'xz')
   provides=('nss-myhostname' "systemd-tools=$pkgver" "udev=$pkgver")
   replaces=('nss-myhostname' 'systemd-tools' 'udev')
   conflicts=('nss-myhostname' 'systemd-tools' 'udev')
@@ -67,7 +62,8 @@ package_systemd() {
               'cryptsetup: required for encrypted block devices'
               'libmicrohttpd: remote journald capabilities'
               'quota-tools: kernel-level quota management'
-              'systemd-sysvcompat: symlink package to provide sysvinit binaries')
+              'systemd-sysvcompat: symlink package to provide sysvinit binaries'
+              'polkit: allow administration as unprivileged user')
   backup=(etc/dbus-1/system.d/org.freedesktop.systemd1.conf
           etc/dbus-1/system.d/org.freedesktop.hostname1.conf
           etc/dbus-1/system.d/org.freedesktop.login1.conf
@@ -76,6 +72,7 @@ package_systemd() {
           etc/dbus-1/system.d/org.freedesktop.timedate1.conf
           etc/pam.d/systemd-user
           etc/systemd/bootchart.conf
+          etc/systemd/coredump.conf
           etc/systemd/journald.conf
           etc/systemd/logind.conf
           etc/systemd/system.conf
@@ -92,13 +89,10 @@ package_systemd() {
   rm "$pkgdir/etc/systemd/system/getty.target.wants/getty@tty1.service" \
       "$pkgdir/etc/systemd/system/multi-user.target.wants/systemd-networkd.service" \
       "$pkgdir/etc/systemd/system/multi-user.target.wants/systemd-resolved.service" \
-      "$pkgdir/etc/systemd/system/multi-user.target.wants/systemd-timesyncd.service" \
+      "$pkgdir/etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service" \
       "$pkgdir/etc/systemd/system/network-online.target.wants/systemd-networkd-wait-online.service"
   rmdir "$pkgdir/etc/systemd/system/getty.target.wants" \
       "$pkgdir/etc/systemd/system/network-online.target.wants"
-
-  # remove the coredump rule until minidumps are a thing.
-  rm "$pkgdir/usr/lib/sysctl.d/50-coredump.conf"
 
   # get rid of RPM macros
   rm -r "$pkgdir/usr/lib/rpm"
@@ -119,12 +113,15 @@ package_systemd() {
   install -Dm644 "$srcdir/initcpio-install-udev" "$pkgdir/usr/lib/initcpio/install/udev"
   install -Dm644 "$srcdir/initcpio-hook-udev" "$pkgdir/usr/lib/initcpio/hooks/udev"
 
-  # ensure proper permissions for /var/log/journal
+  # ensure proper permissions for /var/log/journal. This is only to placate
   chown root:systemd-journal "$pkgdir/var/log/journal"
-  chmod 2755 "$pkgdir/var/log/journal"
+  chmod 2755 "$pkgdir/var/log/journal"{,/remote}
 
   # fix pam file
   sed 's|system-auth|system-login|g' -i "$pkgdir/etc/pam.d/systemd-user"
+
+  # ship default policy to leave services disabled
+  echo 'disable *' >"$pkgdir"/usr/lib/systemd/system-preset/99-default.preset
 
   ### split out manpages for sysvcompat
   rm -rf "$srcdir/_sysvcompat"
@@ -145,7 +142,7 @@ package_systemd() {
 
 package_libsystemd() {
   pkgdesc="systemd client libraries"
-  depends=('glib2' 'glibc' 'libgcrypt' 'xz')
+  depends=('glib2' 'glibc' 'libgcrypt' 'lz4' 'xz')
   license=('GPL2')
   provides=('libgudev-1.0.so' 'libsystemd.so' 'libsystemd-daemon.so' 'libsystemd-id128.so'
             'libsystemd-journal.so' 'libsystemd-login.so' 'libudev.so')

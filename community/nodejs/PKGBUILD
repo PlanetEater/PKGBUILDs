@@ -1,4 +1,6 @@
-# Maintainer: Thomas Dziedzic < gostrc at gmail >
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor  Bartłomiej Piotrowski <bpiotrowski@archlinux.org>
+# Contributor: Thomas Dziedzic < gostrc at gmail >
 # Contributor: James Campos <james.r.campos@gmail.com>
 # Contributor: BlackEagle < ike DOT devolder AT gmail DOT com >
 # Contributor: Dongsheng Cai <dongsheng at moodle dot com>
@@ -7,9 +9,9 @@
 # Contributor: Jason Plum <jplum@archlinuxarm.org>
 
 pkgname=nodejs
-pkgver=0.10.30
-_npmver=1.4.21
-pkgrel=1
+pkgver=0.10.35
+_npmver=2.1.17
+pkgrel=2
 pkgdesc='Evented I/O for V8 javascript'
 arch=('i686' 'x86_64' 'arm')
 url='http://nodejs.org/'
@@ -21,7 +23,7 @@ checkdepends=('curl')
 options=('!emptydirs !strip')
 source=("http://nodejs.org/dist/v$pkgver/node-v$pkgver.tar.gz"
         git+https://github.com/npm/npm.git#tag=v$_npmver)
-sha256sums=('3dfcbd307f5f5f266ef174e1443107da853cd3d0aa0b2493a44235d5908625d2'
+sha256sums=('0043656bb1724cb09dbdc960a2fd6ee37d3badb2f9c75562b2d11235daa40a03'
             'SKIP')
 
 set_flags_for_arm() {
@@ -97,7 +99,7 @@ build() {
   cd ../npm
   ../node-v$pkgver/node cli.js install ronn marked
   PATH="$srcdir/node-v$pkgver:$PATH" make
-  ../node-v$pkgver/node cli.js uninstall ronn marked
+  ../node-v$pkgver/node cli.js uninstall ronn marked marked-man
 }
 
 check() {

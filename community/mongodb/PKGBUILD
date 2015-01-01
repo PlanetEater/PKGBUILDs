@@ -1,5 +1,5 @@
 # $Id$
-# Maintainer: Felix Yan <felixonmars@gmail.com>
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
 # Contributor: Sven-Hendrik Haase <sh@lutzhaase.com>
 # Contributor: Thomas Dziedzic < gostrc at gmail >
 # Contributor: Mathias Stearn <mathias@10gen.com>
@@ -11,7 +11,7 @@
 #  - ARM patches
 
 pkgname=mongodb
-pkgver=2.6.3
+pkgver=2.6.6
 pkgrel=1
 pkgdesc='A high-performance, open source, schema-free document-oriented database'
 arch=('i686' 'x86_64')
@@ -29,6 +29,18 @@ source=("http://downloads.mongodb.org/src/mongodb-src-r${pkgver}.tar.gz"
 
 MAKEFLAGS="-j2"
 
+prepare() {
+  cd mongodb-src-r${pkgver}
+
+  # Add missing include required for std::swap()
+  # https://github.com/mongodb/mongo/commit/2d5d662
+  if grep -q '#include <algorithm>' src/mongo/shell/linenoise_utf8.h; then
+    error '<algorithm> include has been fixed upstream; remove this local fix.'
+    return 1
+  fi
+  sed -i '1i #include <algorithm>' src/mongo/shell/linenoise_utf8.h
+}
+
 build() {
   # fucking mongo aint no fun to package
   export SCONSFLAGS="$MAKEFLAGS"
@@ -43,6 +55,7 @@ build() {
     --use-system-snappy \
     --use-system-tcmalloc \
     --ssl \
+    --disable-warnings-as-errors \
     --use-system-v8 \
     --use-sasl-client
 }
@@ -60,6 +73,7 @@ check() {
     --use-sasl-client \
     --use-system-boost \
     --ssl \
+    --disable-warnings-as-errors \
     --smokedbprefix="$srcdir" || warning "Tests failed"
 }
 
@@ -74,6 +88,7 @@ package() {
     --use-system-snappy \
     --use-system-tcmalloc \
     --ssl \
+    --disable-warnings-as-errors \
     --prefix="$pkgdir/usr" \
     --use-system-v8 \
     --use-sasl-client
@@ -84,7 +99,7 @@ package() {
   install -dm755 "$pkgdir/var/log/mongodb"
 }
 
-sha512sums=('c73ff95c949380c9b8a8e2c851d53731b08dcd6b93088c0d67fce1580a898d6742bebab3a142d5316353f00fbe12ea32c4651f04b66b85b205589414b7f6811a'
+sha512sums=('0f5fdce6ad3aa64e3636099cee9b7099b74c5f1d5887c89543bcdf900e523a855164f497071c8c4251c8e87361841eaec969bd7b7e0efcff5504cf5f1d6b9f05'
             '05dead727d3ea5fe8af1a3c3888693f6b3e2b8cb7f197a5d793352e10d2c524e96c9a5c55ad2e88c1114643a9612ec0b26a2574b48a5260a9b51ec8941461f1c'
             '177251404b2e818ae2b546fe8b13cb76e348c99e85c7bef22a04b0f07b600fd515a309ede50214f4198594388a6d2b31f46e945b9dae84aabb4dfa13b1123bb9'
             '9e369c499e550578bfd428d5ad0b50530426bf798a80e2354b9e84622fbef141f57002e5c362721361c16c523ff9b6bf3d5eeb16dee9c24fe246471d92d1a884'

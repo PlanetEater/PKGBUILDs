@@ -1,16 +1,15 @@
-# Maintainer: Mike Staszel <mikestaszel@plugapps.com>
-# Maintainer: Kevin Mihelich <kevin@plugapps.com>
-# Maintainer: Oleg Rakhmanov <orakhmanov@gmail.com>
+# Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
+# Maintainer: Oleg Rakhmanov <oleg@archlinuxarm.org>
 
 buildarch=2
 
 pkgbase=linux-kirkwood-dt
 _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood DT"
-pkgver=3.16
-pkgrel=2
-cryptodev_commit=8af0fe8a977f33236d3e00306ac3648063052704
-bfqver=v7r5
+pkgver=3.18.1
+pkgrel=1
+cryptodev_commit=6aa62a2c320b04f55fdfe0ed015c3d9b48997239
+bfqver=v7r6
 
 arch=('arm')
 url="http://www.kernel.org/"
@@ -23,27 +22,34 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         'archlinuxarm.patch'
         'mach-types::http://www.arm.linux.org.uk/developer/machines/download.php'
         'usb-add-reset-resume-quirk-for-several-webcams.patch'
+	'0001-disable-mv643xx_eth-TSO.patch'
         "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
 #        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver:0:4}"
-        "https://github.com/cryptodev-linux/cryptodev-linux/archive/${cryptodev_commit}.tar.gz"
+        '0001-AUFS-fix-for-3.18.1.patch'
+        'cryptodev::https://github.com/cryptodev-linux/cryptodev-linux/archive/${cryptodev_commit}.tar.gz'
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
         'goflexhome_dtb.patch'
-        'pogo_e02_dtb.patch')
+        'pogo_e02_dtb.patch'
+        'mvsdio TX DMA workaround.patch')
 
-md5sums=('5c569ed649a0c9711879f333e90c5386'
-         '1d2d6c0d0a70f6229028115625862127'
+md5sums=('79c9b73a01e1dce0a4c28828496ef02c'
+         '5dbb04ebed1afb6d2e1408598cd34ad7'
          'e319a8e1a596a39a8951fc6454664b15'
-         'SKIP'
+         '78aa4e6802026e4db4207940788ab83e'
          '9b5a265440abf57d2052838f31486a3a'
+         '09d44b9f07abfaeaf4f688ee52034786'
          'SKIP'
-         '32ba4029bb418a2f9a71738eb2d6d3a8'
-         '27b45e15c3f9855792808498af21f664'
-         '812c18775a53e337f1b2c7cd9078bff1'
-         'e903ed2c79546d2f0ec41e7e631c62f7'
+         'aa83d1bca3a3583aa4011d03ff23bfd5'
+         'ddf7876487c876f6676ef0e050e9d204'
+         'f84f5f809a0f92e5e469d7c9e2dbac58'
+         '22ef862652608c8d6b07536e990d4bcb'
+         'b031b1aafd416453d1c8579bd6823fca'
          'e42c64b6f4b54f382cf3d7e8d82968f1'
-         '341f8164dad19b6baf05d764a800862a')
+         '341f8164dad19b6baf05d764a800862a'
+         'fd50ede1d3bfdd4b00a3c830ebf2db0d')
+
 prepare() {
   cd "${srcdir}/linux-${pkgver}"
 
@@ -59,10 +65,19 @@ msg2 "Applying aufs3 patches"
   patch -Np1 -i ../aufs3-standalone/aufs3-base.patch
   patch -Np1 -i ../aufs3-standalone/aufs3-mmap.patch
   patch -Np1 -i ../aufs3-standalone/aufs3-standalone.patch
+  # Remove when updated upstream
+  patch -Np1 -i ../0001-AUFS-fix-for-3.18.1.patch
+
+msg2 "Disable buggy TCP segmentation offload implementation"
+msg2 "http://archlinuxarm.org/forum/viewtopic.php?f=9&t=7692"
+  patch -Np1 -i ${srcdir}/0001-disable-mv643xx_eth-TSO.patch
 
 msg2 "Add the USB_QUIRK_RESET_RESUME for several webcams"
   # FS#26528
   patch -Np1 -i "${srcdir}/usb-add-reset-resume-quirk-for-several-webcams.patch"
+
+msg2 "Work around broken TX DMA in mvsdio"
+  patch -Np1 -i "${srcdir}/mvsdio TX DMA workaround.patch"
 
 msg2 "Add Arch Linux ARM patch for ARMv5te plug computers, mach-types"
   patch -Np1 -i "${srcdir}/archlinuxarm.patch"
@@ -73,7 +88,7 @@ msg2 "Add Arch Linux ARM patch for ARMv5te plug computers, mach-types"
 msg2 "Add BFQ patches"
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
-  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"  
+  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
 
   cat "${srcdir}/config" > ./.config
 
@@ -202,8 +217,8 @@ _package-headers() {
   # copy arch includes for external modules
   mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH
   cp -a arch/$KARCH/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/
-  mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/mach-kirkwood
-  cp -a arch/$KARCH/mach-kirkwood/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/mach-kirkwood/
+  mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/mach-mvebu
+  cp -a arch/$KARCH/mach-mvebu/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/mach-mvebu/
   mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/plat-orion
   cp -a arch/$KARCH/plat-orion/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/plat-orion/
 
@@ -286,7 +301,6 @@ _package-headers() {
   # add xfs and shmem for aufs building
   mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/fs/xfs"
   mkdir -p "${pkgdir}/usr/src/linux-${_kernver}/mm"
-  cp fs/xfs/xfs_sb.h "${pkgdir}/usr/src/linux-${_kernver}/fs/xfs/xfs_sb.h"
 
   # copy in Kconfig files
   for i in `find . -name "Kconfig*"`; do

@@ -21,13 +21,13 @@
 buildarch=4
 
 pkgname=chromium
-pkgver=36.0.1985.125
+pkgver=39.0.2171.95
 pkgrel=1
 pkgdesc="The open-source project behind Google Chrome, an attempt at creating a safer, faster, and more stable browser"
 arch=('armv6h' 'armv7h')
 url="http://www.chromium.org/"
 license=('BSD')
-depends=('gtk2' 'nss' 'alsa-lib' 'xdg-utils' 'bzip2' 'libevent' 'libxss'
+depends=('gtk2' 'nss' 'alsa-lib' 'xdg-utils' 'bzip2' 'libevent' 'libxss' 'icu'
          'libexif' 'libgcrypt' 'ttf-font' 'systemd' 'dbus' 'flac' 'snappy'
          'speech-dispatcher' 'pciutils' 'libpulse' 'harfbuzz'
          'desktop-file-utils' 'hicolor-icon-theme')
@@ -49,7 +49,7 @@ source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgn
         chromium-arm-r0.patch
         skia.patch
         v6-ffmpeg.patch)
-sha256sums=('1782d0a5397e94313dee9e456de38bdfccf575c4e565f064a6ed7f9c509d5023'
+sha256sums=('66cb6902afbd8a0f990cb9e70ff1df843a7461f66077ffe7f41d730278a2a868'
             '09bfac44104f4ccda4c228053f689c947b3e97da9a4ab6fa34ce061ee83d0322'
             '478340d5760a9bd6c549e19b1b5d1c5b4933ebf5f8cfb2b3e2d70d07443fe232'
             '4999fded897af692f4974f0a3e3bbb215193519918a1fa9b31ed51e74a2dccb9'
@@ -76,16 +76,18 @@ prepare() {
   # Fix WebRTC for ARM
   patch -Np0 -i "$srcdir/arm-webrtc-fix.patch"
 
-  # Fix icu build on ARm
+  # Fix icu build on ARM
   patch -Np0 -i ../chromium-arm-r0.patch
+
+  # Remove bundled ICU; its header files appear to get picked up instead of
+  # the system ones, leading to errors during the final link stage
+  # https://groups.google.com/a/chromium.org/d/topic/chromium-packagers/BNGvJc08B6Q
+  find third_party/icu -type f \! -regex '.*\.\(gyp\|gypi\|isolate\)' -delete
 
   MAKEFLAGS=-j4
 
   # Use Python 2
-  find . -type f -exec sed -i -r \
-    -e 's|/usr/bin/python$|&2|g' \
-    -e 's|(/usr/bin/python2)\.4$|\1|g' \
-    {} +
+  find . -name '*.py' -exec sed -i -r 's|/usr/bin/python$|&2|g' {} +
 
   # There are still a lot of relative calls which need a workaround
   mkdir "$srcdir/python2-path"
@@ -121,6 +123,8 @@ fi
     -Dgoogle_default_client_id=$_google_default_client_id
     -Dgoogle_default_client_secret=$_google_default_client_secret
     -Dwerror=
+    -Dclang=0
+    -Dclang_use_chrome_plugins=0
     -Dpython_ver=2.7
     -Dlinux_link_gsettings=1
     -Dlinux_link_libpci=1
@@ -130,6 +134,7 @@ fi
     -Dlinux_use_bundled_binutils=0
     -Dlinux_use_bundled_gold=0
     -Dlinux_use_gold_flags=0
+    -Dicu_use_data_file_flag=0
     -Drelease_extra_cflags="$CFLAGS -DUSE_EABI_HARDFLOAT"
     -Dlibspeechd_h_prefix=speech-dispatcher/
     -Dffmpeg_branding=Chrome
@@ -139,6 +144,7 @@ fi
     -Duse_system_protobuf=0
     -Duse_system_ffmpeg=0
     -Duse_system_harfbuzz=1
+    -Duse_system_icu=1
     -Duse_system_libevent=1
     -Duse_system_libjpeg=1
     -Duse_system_libpng=1
@@ -155,19 +161,19 @@ fi
     -Ddisable_sse2=1
     -Dtarget_arch=arm
     -Darm_neon=0
-    -Dlinux_use_tcmalloc=0
     -Dlogging_like_official_build=1
     -Ddisable_nacl=1
+    -Ddisable_pnacl=1
     -Dv8_use_arm_eabi_hardfloat=true
     -Darm_float_abi=hard
     -Dsysroot=
     ${arch_specific_flags})
 
   # Re-configure bundled ffmpeg.
-  pushd third_party/ffmpeg > /dev/null || die
-  chromium/scripts/build_ffmpeg.sh linux arm "${PWD}" config-only || die
-  chromium/scripts/copy_config.sh || die
-  popd > /dev/null || die
+  pushd third_party/ffmpeg > /dev/null || exit 1
+  python2 chromium/scripts/build_ffmpeg.py linux arm --config-only || exit 1
+  chromium/scripts/copy_config.sh || exit 1
+  popd > /dev/null || exit 1
 
   build/linux/unbundle/replace_gyp_files.py "${_chromium_conf[@]}"
   build/gyp_chromium --depth=. "${_chromium_conf[@]}"
@@ -183,13 +189,15 @@ package() {
   install -Dm4755 -o root -g root out/Release/chrome_sandbox \
     "$pkgdir/usr/lib/chromium/chrome-sandbox"
 
-  cp out/Release/{*.pak,libffmpegsumo.so} \
-    "$pkgdir/usr/lib/chromium/"
+  cp out/Release/{*.pak,libffmpegsumo.so,libpdf.so} "$pkgdir/usr/lib/chromium/"
+  
+  strip $STRIP_SHARED "$pkgdir/usr/lib/chromium/libffmpegsumo.so" \
+    "$pkgdir/usr/lib/chromium/libpdf.so"
 
   # Allow users to override command-line options
   install -Dm644 "$srcdir/chromium.default" "$pkgdir/etc/chromium/default"
 
-  cp -a out/Release/locales out/Release/icudtl.dat "$pkgdir/usr/lib/chromium/"
+  cp -a out/Release/locales "$pkgdir/usr/lib/chromium/"
 
   install -Dm644 out/Release/chrome.1 "$pkgdir/usr/share/man/man1/chromium.1"
 

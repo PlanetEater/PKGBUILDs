@@ -1,20 +1,24 @@
-# ARMv5 based platforms
+# ARMv5 multi-platform
 # Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
 
 buildarch=2
 
+_rcver=3.19
+_rcrel=1
+
 pkgbase=linux-armv5-rc
-_srcname=linux-3.16-rc7
+_srcname=linux-3.$((${_rcver##*.}-1))
 _kernelname=${pkgbase#linux}
-_desc="ARMv5 based platforms"
-pkgver=3.16.0
-pkgrel=6
+_desc="ARMv5 multi-platform"
+pkgver=${_rcver}.rc${_rcrel}
+pkgrel=1
 arch=('arm')
 url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
-source=("http://www.kernel.org/pub/linux/kernel/v3.x/testing/${_srcname}.tar.xz"
+source=("http://www.kernel.org/pub/linux/kernel/v3.x/${_srcname}.tar.xz"
+        "https://www.kernel.org/pub/linux/kernel/v3.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
         "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
         '0001-Added-ASoC-driver-for-i.MX233-s-builtin-ADC-DAC-code.patch'
         '0001-arm-dts-imx23-olinuxino-enable-mxs-builtin-audio.patch'
@@ -22,17 +26,21 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/testing/${_srcname}.tar.xz"
         '0001-imx23-I2C-fixes.patch'
         'archlinuxarm.patch'
         'config')
-md5sums=('8608902c05c4acb065ccf342f2574f5f'
+md5sums=('9e854df51ca3fef8bfe566dbd7b89241'
+         'ae18910200b003a2c0a77636b8612a88'
          'SKIP'
-         '5add8cc8a029016f05270f73c7863931'
+         'e3911eef007c122d23fd8ad7e91d69bf'
          '3a1e689563354c2f9f2d2764e1baa334'
          'a88071c80e1c2b22637894ae148c74b8'
          'e64077ce856769fc3af2a15ae95d8310'
          'e319a8e1a596a39a8951fc6454664b15'
-         '5b7772064919923e7c49604828fc62c5')
+         '041d39de67d48fdc42ae7801ca439a22')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
+
+  # RC patch
+  git apply --whitespace=nowarn ../patch-${_rcver}-rc${_rcrel}
 
   # ALARM patches
   git apply ../0001-Added-ASoC-driver-for-i.MX233-s-builtin-ADC-DAC-code.patch
@@ -42,15 +50,15 @@ prepare() {
   patch -p1 -i ../archlinuxarm.patch
 
   # AUFS patches
-  cp -ru "${srcdir}/aufs3-standalone/Documentation" .
-  cp -ru "${srcdir}/aufs3-standalone/fs" .
-  cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" ./include/linux
-  cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" ./include/uapi/linux
+  #cp -ru "${srcdir}/aufs3-standalone/Documentation" .
+  #cp -ru "${srcdir}/aufs3-standalone/fs" .
+  #cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" ./include/linux
+  #cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" ./include/uapi/linux
 
-  git apply ../aufs3-standalone/aufs3-kbuild.patch
-  git apply ../aufs3-standalone/aufs3-base.patch
-  git apply ../aufs3-standalone/aufs3-mmap.patch
-  git apply ../aufs3-standalone/aufs3-standalone.patch
+  #git apply ../aufs3-standalone/aufs3-kbuild.patch
+  #git apply ../aufs3-standalone/aufs3-base.patch
+  #git apply ../aufs3-standalone/aufs3-mmap.patch
+  #git apply ../aufs3-standalone/aufs3-standalone.patch
 
   cat "${srcdir}/config" > ./.config
 
@@ -162,12 +170,12 @@ _package-headers() {
   done
 
   # copy arch includes for external modules
-  mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH
-  cp -a arch/$KARCH/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/
-  mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/mach-kirkwood
-  cp -a arch/$KARCH/mach-kirkwood/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/mach-kirkwood/
-  mkdir -p ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/plat-orion
-  cp -a arch/$KARCH/plat-orion/include ${pkgdir}/usr/src/linux-${_kernver}/arch/$KARCH/plat-orion/
+  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH
+  cp -a arch/$KARCH/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/
+  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-mvebu
+  cp -a arch/$KARCH/mach-mvebu/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-mvebu/
+  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-orion
+  cp -a arch/$KARCH/plat-orion/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-orion/
 
   # copy files necessary for later builds, like nvidia and vmware
   cp Module.symvers "${pkgdir}/usr/lib/modules/${_kernver}/build"
@@ -230,7 +238,6 @@ _package-headers() {
   # add xfs and shmem for aufs building
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs"
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/mm"
-  cp fs/xfs/xfs_sb.h "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs/xfs_sb.h"
 
   # copy in Kconfig files
   for i in $(find . -name "Kconfig*"); do

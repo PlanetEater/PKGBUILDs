@@ -14,24 +14,28 @@
 noautobuild=1
 
 pkgname=('gcc' 'gcc-libs' 'gcc-fortran' 'gcc-objc' 'gcc-go')
-pkgver=4.9.1
+pkgver=4.9.2
 _pkgver=4.9
-pkgrel=1
-#_snapshot=4.9-20140604
+_islver=0.12.2
+_cloogver=0.18.1
+pkgrel=2
+_snapshot=4.9-20141224
 pkgdesc="The GNU Compiler Collection"
 arch=('i686' 'x86_64')
 license=('GPL' 'LGPL' 'FDL' 'custom')
 url="http://gcc.gnu.org"
-makedepends=('binutils>=2.24' 'libmpc' 'cloog' 'doxygen')
+makedepends=('binutils>=2.25' 'libmpc' 'doxygen')
 checkdepends=('dejagnu' 'inetutils')
 options=('!emptydirs' '!distcc')
-source=(ftp://gcc.gnu.org/pub/gcc/releases/gcc-${pkgver}/gcc-${pkgver}.tar.bz2
-        #ftp://gcc.gnu.org/pub/gcc/snapshots/${_snapshot}/gcc-${_snapshot}.tar.bz2
-        gcc-4.8-filename-output.patch
-        gcc-4.9-isl-0.13-hack.patch)
-md5sums=('fddf71348546af523353bd43d34919c1'
-         '40cb437805e2f7a006aa0d0c3098ab0f'
-         'f26ae06b9cbc8abe86f5ee4dc5737da8')
+source=(#ftp://gcc.gnu.org/pub/gcc/releases/gcc-${pkgver}/gcc-${pkgver}.tar.bz2
+        ftp://gcc.gnu.org/pub/gcc/snapshots/${_snapshot}/gcc-${_snapshot}.tar.bz2
+        http://isl.gforge.inria.fr/isl-${_islver}.tar.bz2
+        http://www.bastoul.net/cloog/pages/download/cloog-${_cloogver}.tar.gz
+        gcc-4.8-filename-output.patch)
+md5sums=('064bc3224ed492c1b2751c313f8278b0'
+         'e039bfcfb6c2ab039b8ee69bf883e824'
+         'e34fca0540d840e5d0f6427e98c92252'
+         '6810bb9b2252f03e6c98d9a671d94589')
 
 if [ -n "${_snapshot}" ]; then
   _basedir=gcc-${_snapshot}
@@ -44,6 +48,10 @@ _libdir="usr/lib/gcc/$CHOST/$pkgver"
 prepare() {
   cd ${srcdir}/${_basedir}
 
+  # link isl/cloog for in-tree builds
+  ln -s ../isl-${_islver} isl
+  ln -s ../cloog-${_cloogver} cloog
+
   # Do not run fixincludes
   sed -i 's@\./fixinc\.sh@-c true@' gcc/Makefile.in
 
@@ -53,14 +61,11 @@ prepare() {
   sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" {libiberty,gcc}/configure
 
   # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=57653
-  patch -p0 -i ${srcdir}/gcc-4.8-filename-output.patch
-
-  # isl-0.13 support - mostly header includes and a function rename
-  # (which does not seem right but causes no testsuite failures...)
-  patch -p1 -i ${srcdir}/gcc-4.9-isl-0.13-hack.patch
+  # https://gcc.gnu.org/git/?p=gcc.git;a=patch;h=9140d56f
+  patch -p1 -i ${srcdir}/gcc-4.8-filename-output.patch
 
   # ALARM: Specify build host types, triplet patch
-  [[ $CARCH == "arm" ]] && CONFIGFLAG="--host=armv5tel-unknown-linux-gnueabi --build=armv5tel-unknown-linux-gnueabi"
+  [[ $CARCH == "arm" ]] && CONFIGFLAG="--host=armv5tel-unknown-linux-gnueabi --build=armv5tel-unknown-linux-gnueabi --with-arch=armv5te --with-float=soft"
   [[ $CARCH == "armv6h" ]] && CONFIGFLAG="--host=armv6l-unknown-linux-gnueabihf --build=armv6l-unknown-linux-gnueabihf --with-arch=armv6 --with-float=hard --with-fpu=vfp"
   [[ $CARCH == "armv7h" ]] && CONFIGFLAG="--host=armv7l-unknown-linux-gnueabihf --build=armv7l-unknown-linux-gnueabihf --with-arch=armv7-a --with-float=hard --with-fpu=vfpv3-d16"
 
@@ -86,7 +91,6 @@ build() {
       --disable-libstdcxx-pch --disable-libssp \
       --enable-gnu-unique-object --enable-linker-build-id \
       --enable-cloog-backend=isl \
-      --disable-isl-version-check --disable-cloog-version-check \
       --enable-lto --enable-plugin --enable-install-libiberty \
       --with-linker-hash-style=gnu \
       --disable-multilib --disable-werror \
@@ -113,8 +117,8 @@ package_gcc-libs()
 {
   pkgdesc="Runtime libraries shipped by GCC"
   groups=('base')
-  depends=('glibc>=2.19')
-  options=('!emptydirs')
+  depends=('glibc>=2.20')
+  options=('!emptydirs' '!strip')
   install=gcc-libs.install
 
   cd ${srcdir}/gcc-build
@@ -123,13 +127,11 @@ package_gcc-libs()
   rm ${pkgdir}/${_libdir}/libgcc_eh.a
   
   for lib in libatomic \
-             libcilkrts \
              libgfortran \
              libgomp \
              libitm \
              libquadmath \
-             libstdc++-v3/src \
-             libvtv; do
+             libstdc++-v3/src; do
     make -C $CHOST/$lib DESTDIR=${pkgdir} install-toolexeclibLTLIBRARIES
   done
 
@@ -151,7 +153,7 @@ package_gcc-libs()
 package_gcc()
 {
   pkgdesc="The GNU Compiler Collection - C and C++ frontends"
-  depends=("gcc-libs=$pkgver-$pkgrel" 'binutils>=2.24' 'libmpc' 'cloog')
+  depends=("gcc-libs=$pkgver-$pkgrel" 'binutils>=2.24' 'libmpc')
   groups=('base-devel')
   options=('staticlibs')
   install=gcc.install
@@ -181,8 +183,6 @@ package_gcc()
   make -C gcc DESTDIR=${pkgdir} install-mkheaders
   make -C lto-plugin DESTDIR=${pkgdir} install
 
-  make -C $CHOST/libcilkrts DESTDIR=${pkgdir} install-nodist_toolexeclibHEADERS \
-    install-nodist_cilkincludeHEADERS
   make -C $CHOST/libgomp DESTDIR=${pkgdir} install-nodist_toolexeclibHEADERS \
     install-nodist_libsubincludeHEADERS
   make -C $CHOST/libitm DESTDIR=${pkgdir} install-nodist_toolexeclibHEADERS
@@ -243,7 +243,7 @@ package_gcc-fortran()
 {
   pkgdesc="Fortran front-end for GCC"
   depends=("gcc=$pkgver-$pkgrel")
-  options=('staticlibs' '!emptydirs')
+  options=('!emptydirs')
   install=gcc-fortran.install
 
   cd ${srcdir}/gcc-build
@@ -278,15 +278,13 @@ package_gcc-go()
 {
   pkgdesc="Go front-end for GCC"
   depends=("gcc=$pkgver-$pkgrel")
-  options=('staticlibs'  '!emptydirs')
+  options=('!emptydirs')
   install=gcc-go.install
 
   cd ${srcdir}/gcc-build
   make -C $CHOST/libgo DESTDIR=$pkgdir install-exec-am
   make -C gcc DESTDIR=$pkgdir go.install-{common,man,info}
   install -Dm755 gcc/go1 $pkgdir/${_libdir}/go1
-
-  rm $pkgdir/usr/lib/libgo.a
 
   # Install Runtime Library Exception
   install -d ${pkgdir}/usr/share/licenses/gcc-go/
