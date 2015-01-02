@@ -38,7 +38,7 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
 md5sums=('79c9b73a01e1dce0a4c28828496ef02c'
          '5dbb04ebed1afb6d2e1408598cd34ad7'
          'e319a8e1a596a39a8951fc6454664b15'
-         '78aa4e6802026e4db4207940788ab83e'
+         '9a3eb874484033217649fddb2d98ef67'
          '9b5a265440abf57d2052838f31486a3a'
          '09d44b9f07abfaeaf4f688ee52034786'
          'SKIP'
