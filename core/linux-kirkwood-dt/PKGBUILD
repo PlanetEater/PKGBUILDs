@@ -31,8 +31,6 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
         'goflexhome_dtb.patch'
         'pogo_e02_dtb.patch'
-        'EHCI_fix-0001.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=6d89252a998a695ecb0348fc2d717dc33d90cae9'
-        'EHCI_fix-0002.patch::https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/patch/?id=c401e7b4a808d50ab53ef45cb8d0b99b238bf2c9'
         'mvsdio_TX-DMA_workaround.patch')
 
 md5sums=('7f37f59b9f01945c9503bc9deed88820'
@@ -47,8 +45,6 @@ md5sums=('7f37f59b9f01945c9503bc9deed88820'
          '8f2743651280f5a022e541f4e95e5546'
          'e42c64b6f4b54f382cf3d7e8d82968f1'
          '341f8164dad19b6baf05d764a800862a'
-         'b2d2a9d4b135766d25b7d0131ce70f31'
-         'd402ba4160381df4c8aa8380ce65c5b6'
          'fd50ede1d3bfdd4b00a3c830ebf2db0d')
 
 prepare() {
@@ -84,10 +80,6 @@ msg2 "Add BFQ patches"
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
-
-msg2 "Apply EHCI fixes"
-  patch -Np1 -i "${srcdir}/EHCI_fix-0001.patch"
-  patch -Np1 -i "${srcdir}/EHCI_fix-0002.patch"
 
   cat "${srcdir}/config" > ./.config
 
