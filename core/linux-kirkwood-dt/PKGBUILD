@@ -6,7 +6,7 @@ buildarch=2
 pkgbase=linux-kirkwood-dt
 _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood DT"
-pkgver=3.18.3
+pkgver=3.18.5
 pkgrel=1
 epoch=90
 cryptodev_commit=6aa62a2c320b04f55fdfe0ed015c3d9b48997239
@@ -33,8 +33,8 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         'pogo_e02_dtb.patch'
         'mvsdio_TX-DMA_workaround.patch')
 
-md5sums=('7f37f59b9f01945c9503bc9deed88820'
-         '8360f535456d5c999ea698098a833727'
+md5sums=('b655fcbc4597aa4b0cbabcfc72983259'
+         '5dbb04ebed1afb6d2e1408598cd34ad7'
          'e319a8e1a596a39a8951fc6454664b15'
          '9b5a265440abf57d2052838f31486a3a'
          '09d44b9f07abfaeaf4f688ee52034786'
