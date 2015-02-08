@@ -34,7 +34,7 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         'mvsdio_TX-DMA_workaround.patch')
 
 md5sums=('b655fcbc4597aa4b0cbabcfc72983259'
-         '5dbb04ebed1afb6d2e1408598cd34ad7'
+         '8360f535456d5c999ea698098a833727'
          'e319a8e1a596a39a8951fc6454664b15'
          '9b5a265440abf57d2052838f31486a3a'
          '09d44b9f07abfaeaf4f688ee52034786'
