@@ -26,7 +26,7 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
 	'0001-disable-mv643xx_eth-TSO.patch'
 #        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
         "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver:0:4}.1+"
-        "cryptodev.tar.gz::https://github.com/cryptodev-linux/cryptodev-linux/archive/${cryptodev_commit}.tar.gz"
+        "https://github.com/cryptodev-linux/cryptodev-linux/archive/${cryptodev_commit}.tar.gz"
         "ftp://teambelgium.net/bfq/patches/${pkgver:0:4}.0-${bfqver}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
         "ftp://teambelgium.net/bfq/patches/${pkgver:0:4}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
         "ftp://teambelgium.net/bfq/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
