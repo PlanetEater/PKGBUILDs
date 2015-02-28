@@ -10,43 +10,39 @@
 #  - disabled vdpau, mmx, incompatible ARM FPUs
 #  - ffmpeg backport to fix building on GCC 4.8
 
-pkgname=mythtv
+pkgname=mythtv-git
 pkgver=0.27.4
-pkgrel=2
-epoch=1
-pkgdesc="A Homebrew PVR project"
-arch=('i686' 'x86_64')
+pkgrel=1
+pkgdesc="A Homebrew PVR project (git 0.27/fixes branch)"
+arch=('i686' 'x86_64' 'arm')
 url="http://www.mythtv.org/"
 license=('GPL')
 depends=('avahi' 'fftw' 'lame' 'libass' 'libavc1394' 'libcdio' 'libiec61883' 'libgl'
          'libpulse' 'libva' 'libvpx' 'libxinerama' 'lirc-utils' 'mariadb-clients'
          'mysql-python' 'perl-dbd-mysql' 'perl-io-socket-inet6' 'perl-libwww'
          'perl-net-upnp' 'python2-lxml' 'qtwebkit' 'taglib' 'urlgrabber' 'libx264')
-makedepends=('glew' 'libcec' 'libxml2' 'mesa' 'mesa-libgl' 'openssl' 'yasm' 'x264' 'gdb')
+makedepends=('glew' 'libcec' 'libxml2' 'mesa' 'mesa-libgl' 'openssl' 'yasm' 'x264' 'gdb' 'git')
 optdepends=('glew: for GPU commercial flagging'
             'libcec: for consumer electronics control capabilities'
             'libxml2: to read blu-ray metadata'
             'openssl: for AirTunes (RAOP) support'
             'udisks: detect changes to removable media'
             'xmltv: to download tv listings')
-conflicts=('myththemes' 'mythplugins-mythvideo')
-replaces=('myththemes' 'mythplugins-mythvideo')
+conflicts=('myththemes' 'mythplugins-mythvideo' 'mythtv')
+replaces=('myththemes' 'mythplugins-mythvideo' 'mythtv')
+provides=('mythtv')
 install='mythtv.install'
-source=("$pkgname-$pkgver.tar.gz::https://github.com/MythTV/$pkgname/archive/v$pkgver.tar.gz"
+source=("git://github.com/MythTV/mythtv.git#branch=fixes/0.27"
         'mythbackend.service'
         'http://code.mythtv.org/trac/raw-attachment/ticket/11338/libcec-2-support.2.patch')
-sha256sums=('1f734ffc776e4938aa913e49ce94279f2c2d520c62af278f1d04fe399723365b'
+sha256sums=('SKIP'
             'ecfde779ded8332cc62c86fac6b432b09cbf5d254135798287ada688af9a1302'
             '8270407c2074b305e0c32151f89c84f6bf980a32665a2da8e4727405fa3911f3')
 
 prepare() {
-  cd "$srcdir/$pkgname-$pkgver/$pkgname"
+  cd "$srcdir/mythtv/mythtv"
   find 'bindings/python' 'contrib' -type f | xargs sed -i 's@^#!.*python$@#!/usr/bin/python2@'
   patch -Np2 -i "$srcdir/libcec-2-support.2.patch"
-}
-
-build() {
-  cd "$srcdir/$pkgname-$pkgver/$pkgname"
 
   [[ $CARCH == "arm" ]] && ARCH="armv5te" && CONFIG="--disable-armv6 --disable-armv6t2 --disable-vfp"
   [[ $CARCH == "armv6h" ]] && ARCH="armv6l" && CONFIG="--disable-vfp"
@@ -66,11 +62,16 @@ build() {
               --python=python2 \
               --perl-config-opts=INSTALLDIRS=vendor \
               --disable-neon $CONFIG
+}
+
+build() {
+  cd "$srcdir/mythtv/mythtv"
+
   make
 }
 
 package() {
-  cd "$srcdir/$pkgname-$pkgver/$pkgname"
+  cd "$srcdir/mythtv/mythtv"
   make INSTALL_ROOT="$pkgdir" install
 
   install -D -m644 "$srcdir/mythbackend.service" "$pkgdir/usr/lib/systemd/system/mythbackend.service"
@@ -79,4 +80,10 @@ package() {
   mkdir -p "$pkgdir/usr/share/mythtv"
   cp -R 'contrib' "$pkgdir/usr/share/mythtv"
   mkdir -p "$pkgdir/var/log/mythtv"
+}
+
+pkgver() {
+    cd $srcdir/mythtv
+    # Use the tag of the last commit (x.y.z.<no_of_commits>~<commit_hash>)
+    git describe --always --long | sed -e 's/^v//' -e 's/-/./g' -e 's/\(.*\)\.\(.*\)/\1~\2/'
 }
