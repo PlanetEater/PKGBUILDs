@@ -29,7 +29,6 @@ options=('!strip')
 source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         'config'
         'archlinuxarm.patch'
-        '0001-ntp-Fixup-adjtimex-freq-validation-on-32bit-systems-1.patch::https://bugzilla.redhat.com/attachment.cgi?id=987224'
         'usb-add-reset-resume-quirk-for-several-webcams.patch'
 	'0001-disable-mv643xx_eth-TSO.patch'
         "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=${aufsbranch}"
@@ -45,7 +44,6 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
 md5sums=('90e9cdcaecf587acba4e94904f5f8606'
          '886be39b699b642ee4828d6a5607372e'
          'a67c880f50e3aff38e821f9c0f659ac9'
-         '973aa93041fc159c42e9b29109025efc'
          '9b5a265440abf57d2052838f31486a3a'
          '09d44b9f07abfaeaf4f688ee52034786'
          'SKIP'
@@ -90,9 +88,6 @@ msg2 "Add BFQ patches"
   patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${bfqkern}.patch"
   patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${bfqkern}.patch"
   patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${bfqkern}.0.patch"
-
-msg2 "Fixup adjtimex freq validation"
-  patch -Np1 -i "${srcdir}/0001-ntp-Fixup-adjtimex-freq-validation-on-32bit-systems-1.patch"
 
   cat "${srcdir}/config" > ./.config
 
