@@ -4,12 +4,12 @@
 buildarch=4
 
 pkgbase=linux-am33x
-_srcname=linux-3.17
+_srcname=linux-3.19
 _kernelname=${pkgbase#linux}
 _desc="TI AM335x Beaglebone (Black)"
-pkgver=3.17.2
+pkgver=3.19.1
 pkgrel=1
-rcnrel=bone5
+rcnrel=bone4
 arch=('armv7h')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -19,13 +19,13 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/${_srcname}.tar.xz"
         "http://www.kernel.org/pub/linux/kernel/v3.x/patch-${pkgver}.xz"
         "http://rcn-ee.net/deb/sid-armhf/v${pkgver}-${rcnrel}/patch-${pkgver%.0}-${rcnrel}.diff.gz"
         "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver%.*}"
-        #"git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
+        #"git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN" 
         'config')
-md5sums=('fb30d0f29214d75cddd2faa94f73d5cf'
-         'd694b8625f834791f5e02d7c9add1406'
-         '5dc7c4ae822effa68465a5f9aac6d096'
+md5sums=('d3fc8316d4d4d04b65cbc2d70799e763'
+         '2f2822cf2d84a8ec3a8b044e732cf45b'
+         '296c9b14c60bb6b4737d6a7ae4b8658e'
          'SKIP'
-         'c8d38d87d76521f2839beb41df17638f')
+         '6f62bf0203a3cc40b16c5686d6b0876f')
 
 prepare() {
   cd "${srcdir}/${_srcname}"

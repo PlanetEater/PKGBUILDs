@@ -1,16 +1,23 @@
-# Maintainer: Mike Staszel <mikestaszel@plugapps.com>
-# Maintainer: Kevin Mihelich <kevin@plugapps.com>
-# Maintainer: Oleg Rakhmanov <orakhmanov@gmail.com>
+# Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
+# Maintainer: Oleg Rakhmanov <oleg@archlinuxarm.org>
 
 buildarch=2
 
 pkgbase=linux-kirkwood-dt
 _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood DT"
-pkgver=3.17.2
+pkgver=3.19.1
 pkgrel=1
-cryptodev_commit=6aa62a2c320b04f55fdfe0ed015c3d9b48997239
-bfqver=v7r6
+cryptodev_commit=5054d20d45571cc85339351fde52f872eeb82206
+bfqver=v7r7
+
+### BFQ patch kernel version
+bfqkern=${pkgver:0:4}
+#bfqkern=3.18
+
+### AUFS branch name
+aufsbranch="aufs${pkgver:0:4}"
+#aufsbranch="aufs3.x-rcN"
 
 arch=('arm')
 url="http://www.kernel.org/"
@@ -21,41 +28,39 @@ options=('!strip')
 source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         'config'
         'archlinuxarm.patch'
-        'mach-types::http://www.arm.linux.org.uk/developer/machines/download.php'
         'usb-add-reset-resume-quirk-for-several-webcams.patch'
 	'0001-disable-mv643xx_eth-TSO.patch'
-#        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
-        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver:0:4}"
-        'cryptodev::https://github.com/cryptodev-linux/cryptodev-linux/archive/${cryptodev_commit}.tar.gz'
-        "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
-        "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
-        "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
-        'goflexhome_dtb.patch'
-        'pogo_e02_dtb.patch')
+        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=${aufsbranch}"
+        "cryptodev-${cryptodev_commit}.tar.gz::https://github.com/cryptodev-linux/cryptodev-linux/archive/${cryptodev_commit}.tar.gz"
+        "ftp://teambelgium.net/bfq/patches/${bfqkern}.0-${bfqver}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${bfqkern}.patch"
+        "ftp://teambelgium.net/bfq/patches/${bfqkern}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${bfqkern}.patch"
+        "ftp://teambelgium.net/bfq/patches/${bfqkern}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${bfqkern}.0.patch"
+        'goflexhome_fdt.patch'
+        'pogo_e02_fdt.patch'
+        'pogoplugv4_fdt.patch'
+        'nsa325_fdt.patch')
 
-md5sums=('87444e6f0906e2ec783cf0ed6aab1a56'
-         '9b7d775077cfdedcea3e77fa73fe99da'
-         'e319a8e1a596a39a8951fc6454664b15'
-         'd75a7fa1f615485cd27b232bc1391838'
+md5sums=('90e9cdcaecf587acba4e94904f5f8606'
+         '114e9f070fc6452d0afd7a8e17596449'
+         'a67c880f50e3aff38e821f9c0f659ac9'
          '9b5a265440abf57d2052838f31486a3a'
          '09d44b9f07abfaeaf4f688ee52034786'
          'SKIP'
-         'ddf7876487c876f6676ef0e050e9d204'
-         '065dfb596e42d2c92a34936ae9e718cd'
-         'f5523479e045810acd2baf05f12f7b2c'
-         '0202585b76071b7ca1263515e2b4f23b'
-         'e42c64b6f4b54f382cf3d7e8d82968f1'
-         '341f8164dad19b6baf05d764a800862a')
+         '8f81b86fffb53ab49d1e48f86383deea'
+         'b548a53e1c07209770dd1acb51dc1ae5'
+         '55446f2cfb5466d868088b6a938adf03'
+         'dc11bd25031e98d003d8b027d79c812c'
+         'ce1975f40c48ec1b08dd09447ab043ca'
+         '341f8164dad19b6baf05d764a800862a'
+         '7efecf23dbebc1ee2e2ccb527c8579c0'
+         '8397411edfe110b7cf074f5fecd110c0')
 
 prepare() {
   cd "${srcdir}/linux-${pkgver}"
 
 msg2 "Copying aufs3 patches into the kernel source tree"
-
-  cp -ru "${srcdir}/aufs3-standalone/Documentation" "${srcdir}/linux-${pkgver}/"
-  cp -ru "${srcdir}/aufs3-standalone/fs" "${srcdir}/linux-${pkgver}/"
-  cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" "${srcdir}/linux-${pkgver}/include/linux/"
-  cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" "${srcdir}/linux-${pkgver}/include/uapi/linux/"
+  cp -ru "${srcdir}/aufs3-standalone/"{Documentation,fs} "${srcdir}/linux-${pkgver}/"
+  cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" "${srcdir}/linux-${pkgver}/include/"{linux/,uapi/linux/}
 
 msg2 "Applying aufs3 patches"
   patch -Np1 -i ../aufs3-standalone/aufs3-kbuild.patch
@@ -71,16 +76,17 @@ msg2 "Add the USB_QUIRK_RESET_RESUME for several webcams"
   # FS#26528
   patch -Np1 -i "${srcdir}/usb-add-reset-resume-quirk-for-several-webcams.patch"
 
-msg2 "Add Arch Linux ARM patch for ARMv5te plug computers, mach-types"
+msg2 "Add Arch Linux ARM patch for ARMv5te plug computers"
   patch -Np1 -i "${srcdir}/archlinuxarm.patch"
-  cp "${srcdir}/mach-types" arch/arm/tools
-  patch -Np1 -i "${srcdir}/goflexhome_dtb.patch"
-  patch -Np1 -i "${srcdir}/pogo_e02_dtb.patch"
+  patch -Np1 -i "${srcdir}/goflexhome_fdt.patch"
+  patch -Np1 -i "${srcdir}/pogo_e02_fdt.patch"
+  patch -Np1 -i "${srcdir}/pogoplugv4_fdt.patch"
+  patch -Np1 -i "${srcdir}/nsa325_fdt.patch"
 
 msg2 "Add BFQ patches"
-  patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
-  patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
-  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
+  patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${bfqkern}.patch"
+  patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${bfqkern}.patch"
+  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${bfqkern}.0.patch"
 
   cat "${srcdir}/config" > ./.config
 
@@ -118,7 +124,7 @@ build() {
   #yes "" | make config
 
 msg "Building!"
-  make ${MAKEFLAGS} zImage modules dtbs kirkwood-nsa320.dtb
+  make ${MAKEFLAGS} zImage modules dtbs kirkwood-nsa320.dtb kirkwood-nsa325.dtb
 
 msg "Building cryptodev module"
   cd "${srcdir}/cryptodev-linux-${cryptodev_commit}"

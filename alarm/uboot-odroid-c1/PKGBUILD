@@ -1,0 +1,49 @@
+# U-Boot: ODROID-C1
+# Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
+
+buildarch=4
+
+pkgname=uboot-odroid-c1
+pkgver=2011.03
+pkgrel=9
+pkgdesc="U-Boot for ODROID-C1"
+arch=('armv7h')
+url="https://github.com/hardkernel/u-boot"
+license=('GPL')
+install=$pkgname.install
+makedepends=('git' 'bc')
+backup=('boot/boot.ini')
+_commit=e7d4447d551ccba5d60be8b11697aa0ab49086c4
+source=("https://github.com/hardkernel/u-boot/archive/${_commit}.tar.gz"
+        'boot.ini'
+        '0001-remove-cross-compiling.patch'
+        '0002-sd_fusing-tweaks.patch')
+md5sums=('0fc20cde97358ab04b22b946d563e970'
+         'f191e1ab6910983585ac877f17eed4e7'
+         'fb9e00cfdc765b60c61b42060bde6fc2'
+         'beeec86a4903a3ce6d1e7956ad9250c4')
+
+prepare() {
+  cd u-boot-${_commit}
+
+  git apply ../0001-remove-cross-compiling.patch
+  git apply ../0002-sd_fusing-tweaks.patch
+}
+
+build() {
+  cd u-boot-${_commit}
+
+  unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
+  
+  make distclean
+  make odroidc_config
+  make EXTRAVERSION=-${pkgrel}
+}
+
+package() {
+  cd u-boot-${_commit}/sd_fuse
+
+  mkdir -p "${pkgdir}"/boot
+  cp bl1.bin.hardkernel sd_fusing.sh u-boot.bin "${pkgdir}"/boot
+  cp "${srcdir}"/boot.ini "${pkgdir}"/boot
+}

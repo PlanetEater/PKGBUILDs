@@ -1,0 +1,48 @@
+# ODROID-C1 Mali GL Driver
+# Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
+
+buildarch=4
+
+pkgbase=odroid-c1-libgl
+pkgname=("${pkgbase}-x11" "${pkgbase}-fb" "${pkgbase}-headers")
+pkgver=r4p0
+pkgrel=2
+arch=('armv7h')
+url="http://www.hardkernel.com/"
+license=('Proprietary')
+depends=('mesa-libgl')
+makedepends=('git')
+source=("git+https://github.com/mdrjr/c1_mali_libs.git"
+        'mali-c1.conf')
+md5sums=('SKIP'
+         '40f5104200cfceb12b4623d219646d4e')
+
+package_odroid-c1-libgl-x11() {
+  pkgdesc="ODROID-C1 Mali driver (X11)"
+  conflicts=('odroid-c1-libgl')
+  provides=('odroid-c1-libgl')
+  replaces=('odroid-c1-libgl')
+
+  install -d "${pkgdir}"/usr/lib/mali-egl
+  install -d "${pkgdir}"/etc/ld.so.conf.d
+  cp -a c1_mali_libs/x11/mali_libs/lib* "${pkgdir}"/usr/lib/mali-egl
+  cp "${srcdir}"/mali-c1.conf "${pkgdir}"/etc/ld.so.conf.d
+}
+
+package_odroid-c1-libgl-fb() {
+  pkgdesc="ODROID-C1 Mali driver (framebuffer)"
+  conflicts=('odroid-c1-libgl')
+  provides=('odroid-c1-libgl')
+
+  install -d "${pkgdir}"/usr/lib/mali-egl
+  install -d "${pkgdir}"/etc/ld.so.conf.d
+  cp -a c1_mali_libs/fbdev/mali_libs/lib* "${pkgdir}"/usr/lib/mali-egl
+  cp "${srcdir}"/mali-c1.conf "${pkgdir}"/etc/ld.so.conf.d
+}
+
+package_odroid-c1-libgl-headers() {
+  pkgdesc="ODROID-C1 Mali driver headers"
+
+  install -d "${pkgdir}"/usr/include
+  cp -a c1_mali_libs/x11/mali_headers/{ump,umplock} "${pkgdir}"/usr/include
+}

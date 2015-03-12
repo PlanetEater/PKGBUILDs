@@ -6,7 +6,7 @@
 #  - set -DUSE_LLVM_BITCODE=OFF for v5 and v6
 
 pkgname=openshadinglanguage
-pkgver=1.5.10
+pkgver=1.5.12
 pkgrel=2
 pkgdesc="Advanced shading language for production GI renderers"
 arch=(i686 x86_64)
@@ -15,20 +15,17 @@ license=('custom')
 depends=('boost-libs' 'openimageio' 'openexr' 'llvm' 'freetype2' 'libpng' 'libtiff')
 makedepends=('boost' 'cmake' 'clang')
 source=(https://github.com/imageworks/OpenShadingLanguage/archive/Release-${pkgver}.tar.gz
-        https://github.com/imageworks/OpenShadingLanguage/commit/163df11a3af32295757cfe008d1ba2b757cc7b7b.patch
-        https://github.com/imageworks/OpenShadingLanguage/pull/412.patch)
-md5sums=('b828366f056e115b539ee1780883fc7d'
-         'e980ed0a9480958307fa048544154887'
-         'd21cab675ce13c9f0640e1f6a662d2b9')
+        alignment.patch::https://github.com/imageworks/OpenShadingLanguage/commit/bcaf5778e2d778b72615e5c49269b59671cf0d91.patch)
+md5sums=('484752a0f97df55962c3a667075deddc'
+         'f3f24c2aa7f5aabd98c0967747b58ecc')
+
+prepare() {
+  cd OpenShadingLanguage-Release-$pkgver
+  patch -Np1 < $srcdir/alignment.patch
+}
 
 build() {
   cd OpenShadingLanguage-Release-$pkgver
-
-  # Fails building this file on i686
-  #sed -i "/src\/testshade/d" CMakeLists.txt
-
-  patch -Np1 < $srcdir/412.patch
-  patch -Np1 < $srcdir/163df11a3af32295757cfe008d1ba2b757cc7b7b.patch
 
   cd src
 

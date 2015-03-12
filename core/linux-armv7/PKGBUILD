@@ -4,11 +4,11 @@
 buildarch=4
 
 pkgbase=linux-armv7
-_srcname=linux-3.17
+_srcname=linux-3.19
 _kernelname=${pkgbase#linux}
 _desc="ARMv7 multi-platform"
-pkgver=3.17.2
-pkgrel=1
+pkgver=3.19.1
+pkgrel=3
 rcnrel=armv7-x3
 arch=('armv7h')
 url="http://www.kernel.org/"
@@ -24,16 +24,20 @@ source=("http://www.kernel.org/pub/linux/kernel/v3.x/${_srcname}.tar.xz"
         '0002-ARM-atags-fdt-retrieve-MAC-addresses-from-Marvell-bo.patch'
         '0003-SMILE-Plug-device-tree-file.patch'
         '0004-fix-mvsdio-eMMC-timing.patch'
+        '0005-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch'
+        '0006-USB-armory-support.patch'
         'config')
-md5sums=('fb30d0f29214d75cddd2faa94f73d5cf'
-         'd694b8625f834791f5e02d7c9add1406'
-         'ecfb4199ee33f109fe8a7d37925ae8a3'
+md5sums=('d3fc8316d4d4d04b65cbc2d70799e763'
+         '2f2822cf2d84a8ec3a8b044e732cf45b'
+         '0f085618a0d85d406320e8bbba7fbec1'
          'SKIP'
-         'b266bbfa3f3c487a87142d0c62daf544'
-         '1c1aa520091fcd25fa135582eddd0671'
-         'cbfb644a50651ef450f9e35570da1b3f'
-         '19330f72bf29ce5271f77d8bf769706f'
-         '9338f2504f33a879d8ec5edea3eb531d')
+         '4e3bed0d1833836968ebf0d7947980a2'
+         'b9a9593d6724ff6a1aed7e0536939b26'
+         'fe82fa383a4295182182e9247f1298aa'
+         '2d1065176c31853f2238718f97bf2b80'
+         '377debc0c9f280d10e4c4f092b9c9bfc'
+         '8497959df9de7032e46fe68d207feaac'
+         'ae3dc19260a86e04658a5b6c2a71d76a')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
@@ -49,6 +53,8 @@ prepare() {
   git apply ../0002-ARM-atags-fdt-retrieve-MAC-addresses-from-Marvell-bo.patch
   git apply ../0003-SMILE-Plug-device-tree-file.patch
   git apply ../0004-fix-mvsdio-eMMC-timing.patch
+  git apply ../0005-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch
+  git apply ../0006-USB-armory-support.patch
 
   # AUFS patches
   cp -ru "${srcdir}/aufs3-standalone/Documentation" .
@@ -106,7 +112,7 @@ _package() {
   optdepends=('crda: to set the correct wireless channels of your country')
   provides=('kernel26' "linux=${pkgver}" 'aufs_friendly')
   conflicts=('linux')
-  replaces=('linux-mvebu')
+  replaces=('linux-mvebu' 'linux-udoo')
   install=${pkgname}.install
 
   cd "${srcdir}/${_srcname}"
@@ -272,7 +278,8 @@ _package-headers() {
 _package-smileplug() {
   pkgdesc="The Linux Kernel - ${_desc} - Marvell SMILE Plug"
   depends=('linux-armv7')
-  conflicts=('linux-armv7-mirabox' 'linux-armv7-ax3')
+  provides=('linux-armv7-uimage')
+  conflicts=('linux-armv7-uimage')
   replaces=('linux-mvebu-smileplug')
 
   cd "${srcdir}/${_srcname}"
@@ -285,7 +292,8 @@ _package-smileplug() {
 _package-mirabox() {
   pkgdesc="The Linux Kernel - ${_desc} - Globalscale Mirabox"
   depends=('linux-armv7')
-  conflicts=('linux-armv7-smileplug' 'linux-armv7-ax3')
+  provides=('linux-armv7-uimage')
+  conflicts=('linux-armv7-uimage')
   replaces=('linux-mvebu-mirabox')
 
   cd "${srcdir}/${_srcname}"
@@ -298,7 +306,8 @@ _package-mirabox() {
 _package-ax3() {
   pkgdesc="The Linux Kernel - ${_desc} - OpenBlocks AX3-4"
   depends=('linux-armv7')
-  conflicts=('linux-armv7-mirabox' 'linux-armv7-smileplug')
+  provides=('linux-armv7-uimage')
+  conflicts=('linux-armv7-uimage')
   replaces=('linux-mvebu-ax3')
 
   cd "${srcdir}/${_srcname}"
@@ -308,7 +317,35 @@ _package-ax3() {
   mkimage -A arm -O linux -T kernel -C none -a 0x00008000 -e 0x00008000 -n "${pkgname}" -d myimage "${pkgdir}/boot/uImage"
 }
 
-pkgname=("${pkgbase}" "${pkgbase}-headers" "${pkgbase}-smileplug" "${pkgbase}-mirabox" "${pkgbase}-ax3")
+_package-d3plug() {
+  pkgdesc="The Linux Kernel - ${_desc} - Globalscale D3Plug"
+  depends=('linux-armv7')
+  provides=('linux-armv7-uimage')
+  conflicts=('linux-armv7-uimage')
+  #replaces=('linux-d3plug')
+
+  cd "${srcdir}/${_srcname}"
+
+  mkdir -p "${pkgdir}/boot"
+  cat arch/$KARCH/boot/zImage arch/$KARCH/boot/dts/dove-d3plug.dtb > myimage
+  mkimage -A arm -O linux -T kernel -C none -a 0x00008000 -e 0x00008000 -n "${pkgname}" -d myimage "${pkgdir}/boot/uImage"
+}
+
+_package-cubox() {
+  pkgdesc="The Linux Kernel - ${_desc} - SolidRun Cubox (Marvell)"
+  depends=('linux-armv7')
+  provides=('linux-armv7-uimage')
+  conflicts=('linux-armv7-uimage')
+  #replaces=('linux-cubox')
+
+  cd "${srcdir}/${_srcname}"
+
+  mkdir -p "${pkgdir}/boot"
+  cat arch/$KARCH/boot/zImage arch/$KARCH/boot/dts/dove-cubox.dtb > myimage
+  mkimage -A arm -O linux -T kernel -C none -a 0x00008000 -e 0x00008000 -n "${pkgname}" -d myimage "${pkgdir}/boot/uImage"
+}
+
+pkgname=("${pkgbase}" "${pkgbase}-headers" "${pkgbase}-smileplug" "${pkgbase}-mirabox" "${pkgbase}-ax3" "${pkgbase}-d3plug" "${pkgbase}-cubox")
 for _p in ${pkgname[@]}; do
   eval "package_${_p}() {
     _package${_p#${pkgbase}}

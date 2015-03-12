@@ -3,23 +3,29 @@
 buildarch=4
 
 pkgname=gst-imx
-_commit=efecde5514ef2d246bf84fbb61360f63864a23c2
-pkgver=0.9.9
-pkgrel=7
+pkgver=0.10.1.r2.g355ea98
+pkgrel=1
 pkgdesc="GStreamer plugins for i.MX platforms"
 arch=('armv7h')
 license=('LGPL')
 url="https://github.com/Freescale/gstreamer-imx"
 depends=('gst-plugins-base-libs' 'libfslvpuwrap' 'gpu-viv-bin-mx6q-fb')
-makedepends=('python2' 'linux-headers-imx6-fsl')
-source=("https://github.com/Freescale/gstreamer-imx/archive/${_commit}.tar.gz")
-md5sums=('a3827b2784d781d39b4e0a53a66ae1ef')
+makedepends=('python2' 'linux-headers-imx6-fsl' 'git')
+source=('git+https://github.com/Freescale/gstreamer-imx.git')
+md5sums=('SKIP')
 
 LDFLAGS+=' -L/opt/fsl/lib'
 CPPFLAGS+=' -I/opt/fsl/include'
 
+pkgver() {
+  cd gstreamer-imx
+  ( set -o pipefail
+    git describe --long --tags 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+  )
+}
+
 build() {
-  cd gstreamer-imx-${_commit}
+  cd gstreamer-imx
 
   export PKG_CONFIG_PATH='/opt/fsl/lib/pkgconfig'
 
@@ -33,6 +39,6 @@ build() {
 }
 
 package() {
-  cd gstreamer-imx-${_commit}
+  cd gstreamer-imx
   python2 waf install --destdir="$pkgdir"
 }

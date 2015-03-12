@@ -18,10 +18,11 @@ Description=Remote desktop service (VNC)
 After=syslog.target network.target
 
 [Service]
-Type=forking
+Type=simple
 User=
 
-ExecStart=/usr/bin/vncserver %i
+ExecStartPre=/bin/sh -c '/usr/bin/vncserver -kill %i >/dev/null 2>&1 || true'
+ExecStart=/usr/bin/vncserver -fg %i
 ExecStop=/usr/bin/vncserver -kill %i
 
 [Install]

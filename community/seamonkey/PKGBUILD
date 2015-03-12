@@ -5,7 +5,7 @@
 #  - mozconfig additions used in xulrunner, just in case
 
 pkgname=seamonkey
-pkgver=2.30
+pkgver=2.33
 pkgrel=1
 pkgdesc="SeaMonkey internet suite"
 arch=('i686' 'x86_64')
@@ -22,7 +22,7 @@ source=(ftp://ftp.mozilla.org/pub/mozilla.org/$pkgname/releases/$pkgver/source/$
         mozconfig
         seamonkey-2.0-lang.patch
         rhbz-966424.patch)
-md5sums=('831e91caf7036387f89b369c54250e75'
+md5sums=('94a2ff3ac33602218fea4dfb5ef4af16'
          '806cb42b072a8e749685ae6eafefb4ec'
          '25b6fe16ac24cd5c852213e5c1adb272'
          '8c1578232b7a60fa1caa9a0b322d1e2b')
@@ -30,7 +30,7 @@ md5sums=('831e91caf7036387f89b369c54250e75'
 prepare() {
   cd comm-release
   cp ../mozconfig .mozconfig
-  patch -Np1 -i ../seamonkey-2.0-lang.patch
+  #patch -Np1 -i ../seamonkey-2.0-lang.patch
 
   # https://bugs.archlinux.org/task/41689
   patch -Np1 -d mozilla -i ../../rhbz-966424.patch
@@ -44,6 +44,9 @@ prepare() {
 
   # 2.26 build fix from wgnie (blfs ch 37)
   sed -i 's/$(MOZ_ZLIB_CFLAGS)/& $(MOZ_PIXMAN_CFLAGS)/' config/config.mk
+
+  # fix usage of char on ARM
+  patch -p1 -i ../273bcc4d6e9b.patch
 }
 
 build() {

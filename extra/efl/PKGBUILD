@@ -7,8 +7,8 @@
 
 pkgbase=efl
 pkgname=('efl' 'efl-docs')
-pkgver=1.11.2
-pkgrel=2
+pkgver=1.13.0
+pkgrel=1
 pkgdesc="Enlightenment Foundation Libraries"
 arch=('i686' 'x86_64')
 url="http://www.enlightenment.org"
@@ -17,16 +17,16 @@ depends=('bullet' 'libjpeg-turbo' 'gst-plugins-base'
          'luajit' 'curl' 'fribidi' 'libpulse' 'libxcomposite'
          'libxinerama' 'libxrandr' 'libxss'
          'libxcursor' 'libxp' 'libwebp' 'shared-mime-info'
-         'libxkbcommon' 'wayland')
+         'libxkbcommon' 'wayland' 'lz4' 'openjpeg' 'avahi')
 optdepends=('python2: einabench-cmp')
 makedepends=('doxygen' 'python' 'texlive-core' 'ghostscript')
 replaces=('ecore' 'edje' 'eet' 'eeze' 'efreet' 'eina' 'eio' 'embryo'
           'emotion' 'ethumb' 'evas')
 options=('!emptydirs')
-source=(http://download.enlightenment.org/rel/libs/${pkgname}/$pkgname-$pkgver.tar.gz
+source=(http://download.enlightenment.org/rel/libs/${pkgname}/$pkgname-$pkgver.tar.xz
        'eina_doxygen.patch')
 install=efl.install
-sha1sums=('6faabf84126f2ba790b77adef658aaaa03154bf7'
+sha1sums=('f72cd0b4598eab330fae67c374758a578c26462d'
           'ef2b961e793c711685623a149ab55b1bec9a3676')
 
 prepare() {
@@ -45,7 +45,8 @@ build() {
   ./configure --prefix=/usr \
   --disable-static --disable-tslib --enable-fb \
   --enable-xinput22 --enable-multisense --enable-systemd \
-  --enable-image-loader-webp --enable-harfbuzz --enable-wayland --disable-neon
+  --enable-image-loader-webp --enable-harfbuzz --enable-wayland \
+  --enable-liblz4 --disable-neon
 
   make
   make -j1 doc

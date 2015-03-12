@@ -1,50 +1,50 @@
 # Maintainer: Dave Higham <pepedog@archlinuxarm.org>
 # Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
+# Maintainer: Oleg Rakhmanov <oleg@archlinuxarm.org>
 
-buildarch=18
+# NOTE: Packages replace linux-raspberrypi-latest, remove if that package comes back
+
+buildarch=20
 
 pkgbase=linux-raspberrypi
-_commit=519c51ec5c429c84c59a301b65d16fb79e9e09b2
+_commit=5e3fb8358a4918c1c6c3ad0706da28c90ef7f737
 _srcname=linux-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="Raspberry Pi"
-pkgver=3.12.31
-pkgrel=1
-arch=('arm armv6h')
+pkgver=3.18.9
+pkgrel=2
+bfqver=v7r7
+arch=('armv6h' 'armv7h')
 url="http://www.kernel.org/"
 license=('GPL2')
-makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'uboot-mkimage' 'git' 'python2' 'bc')
+makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
 source=("https://github.com/raspberrypi/linux/archive/${_commit}.tar.gz"
-        'config'
-        'args-uncompressed.txt'
-        'boot-uncompressed.txt'
-        'imagetool-uncompressed.py'
-        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver:0:4}.x"
-	'aufs-linux-3.12.30-fix.patch')
-
-md5sums=('f3fc4fc6e5dd4c3def4ad1598b0c9a14'
-         '35dd333a1cf485d133e69767f8568165'
-         '9335d1263fd426215db69841a380ea26'
-         'a00e424e2fbb8c5a5f77ba2c4871bed4'
-         '2f82dbe5752af65ff409d737caf11954'
+        #"git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
+        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver%.*}.1+" # 3.18.1+
+        "ftp://teambelgium.net/bfq/patches/${pkgver:0:4}.0-${bfqver}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
+        "ftp://teambelgium.net/bfq/patches/${pkgver:0:4}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
+        "ftp://teambelgium.net/bfq/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
+        'https://github.com/raspberrypi/tools/raw/master/mkimage/mkknlimg'
+        'config.txt'
+        'cmdline.txt'
+        'config.v6'
+        'config.v7')
+md5sums=('88a3ab7a0bfec9f470f029468fe3a2d6'
          'SKIP'
-         '60d066ad22364f8a6e75d56d192cf9a5')
+         '1c7c2d0338939a9e6953a64d80861471'
+         'a81346cce95baeac2c56cf60d3c7e5b6'
+         '8f2743651280f5a022e541f4e95e5546'
+         '69d50a4604a587ae770e4be244e293bd'
+         '7ca71972aba94a9ce21c2e942cb1d582'
+         '60bc3624123c183305677097bcd56212'
+         '34c9486ef89b066c544b6a6949545a21'
+         'f76aedaec63f00c28730fce35723e6df')
 
 prepare() {
-
-  # Remove when AUFS3 for 3.12.30+ is out
-  cd "${srcdir}/aufs3-standalone"
-  patch -Np1 -i ${srcdir}/aufs-linux-3.12.30-fix.patch
-  ##################################################
-
   cd "${srcdir}/${_srcname}"
 
-  cp ${srcdir}/args-uncompressed.txt arch/arm/boot/
-  cp ${srcdir}/boot-uncompressed.txt arch/arm/boot/
-  cp ${srcdir}/imagetool-uncompressed.py arch/arm/boot/
-  
-  # AUFS patches
+ msg2 "AUFS patches"
   cp -ru "${srcdir}/aufs3-standalone/Documentation" .
   cp -ru "${srcdir}/aufs3-standalone/fs" .
   cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" ./include/linux
@@ -55,7 +55,14 @@ prepare() {
   patch -Np1 -i ../aufs3-standalone/aufs3-mmap.patch
   patch -Np1 -i ../aufs3-standalone/aufs3-standalone.patch
 
-  cat "${srcdir}/config" > ./.config
+ msg2 "Add BFQ patches"
+  patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
+  patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
+  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"
+
+msg "Prepare to build"
+  [[ $CARCH == "armv6h" ]] && cat "${srcdir}/config.v6" > ./.config
+  [[ $CARCH == "armv7h" ]] && cat "${srcdir}/config.v7" > ./.config
 
   # add pkgrel to extraversion
   sed -ri "s|^(EXTRAVERSION =)(.*)|\1 \2-${pkgrel}|" Makefile
@@ -91,8 +98,8 @@ build() {
 
   #yes "" | make config
 
-  # build!
-  make ${MAKEFLAGS} modules uImage
+msg "Building!"
+  make ${MAKEFLAGS} zImage modules dtbs
 }
 
 _package() {
@@ -102,6 +109,8 @@ _package() {
   provides=('kernel26' "linux=${pkgver}" 'aufs_friendly')
   conflicts=('kernel26' 'linux')
   install=${pkgname}.install
+  backup=('boot/config.txt' 'boot/cmdline.txt')
+  replaces=('linux-raspberrypi-latest')
 
   cd "${srcdir}/${_srcname}"
 
@@ -110,13 +119,13 @@ _package() {
   # get kernel version
   _kernver="$(make kernelrelease)"
 
-  mkdir -p "${pkgdir}"/{lib/modules,lib/firmware,boot}
+  mkdir -p "${pkgdir}"/{lib/modules,lib/firmware,boot/overlays}
   make INSTALL_MOD_PATH="${pkgdir}" modules_install
-  pushd arch/$KARCH/boot/
-    /usr/bin/python2 imagetool-uncompressed.py
-  popd
-  cp arch/$KARCH/boot/kernel.img ${pkgdir}/boot/kernel.img
-  #cp arch/$KARCH/boot/uImage "${pkgdir}/boot/uImage"
+
+  [[ $CARCH == "armv6h" ]] && perl ../mkknlimg --dtok arch/$KARCH/boot/zImage "${pkgdir}/boot/kernel.img"
+  [[ $CARCH == "armv7h" ]] && perl ../mkknlimg --dtok arch/$KARCH/boot/zImage "${pkgdir}/boot/kernel7.img"
+  mv arch/$KARCH/boot/dts/*-overlay.dtb "${pkgdir}/boot/overlays"
+  mv arch/$KARCH/boot/dts/*.dtb "${pkgdir}/boot"
 
   # set correct depmod command for install
   sed \
@@ -142,13 +151,16 @@ _package() {
   # move module tree /lib -> /usr/lib
   mkdir -p "${pkgdir}/usr"
   mv "$pkgdir/lib" "$pkgdir/usr"
+
+  # install boot files
+  install -m644 ../config.txt ../cmdline.txt "${pkgdir}/boot"
 }
 
 _package-headers() {
   pkgdesc="Header files and scripts for building modules for linux kernel - ${_desc}"
-  provides=('linux-headers=${pkgver}')
-  replaces=('linux-headers-raspberrypi')
+  provides=("linux-headers=${pkgver}")
   conflicts=('linux-headers')
+  replaces=('linux-raspberrypi-latest-headers')
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
 
@@ -167,11 +179,14 @@ _package-headers() {
     cp -a include/${i} "${pkgdir}/usr/lib/modules/${_kernver}/build/include/"
   done
 
+  [[ $CARCH == "armv6h" ]] && MACH="mach-bcm2708"
+  [[ $CARCH == "armv7h" ]] && MACH="mach-bcm2709"
+
   # copy arch includes for external modules
   mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH
   cp -a arch/$KARCH/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/
-  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-bcm2708
-  cp -a arch/$KARCH/mach-bcm2708/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-bcm2708/
+  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/$MACH
+  cp -a arch/$KARCH/$MACH/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/$MACH/
 
   # copy files necessary for later builds, like nvidia and vmware
   cp Module.symvers "${pkgdir}/usr/lib/modules/${_kernver}/build"
@@ -234,7 +249,6 @@ _package-headers() {
   # add xfs and shmem for aufs building
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs"
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/mm"
-  cp fs/xfs/xfs_sb.h "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs/xfs_sb.h"
 
   # copy in Kconfig files
   for i in $(find . -name "Kconfig*"); do

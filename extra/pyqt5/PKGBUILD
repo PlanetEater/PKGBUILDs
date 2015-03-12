@@ -1,41 +1,36 @@
 # $Id$
-# Maintainer: Andrea Scarpino <andrea@archlinux.org>
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Andrea Scarpino <andrea@archlinux.org>
 # Contributor: Yichao Yu <yyc1992@gmail.com>
 # Contributor: Douglas Soares de Andrade <douglas@archlinux.org>
 # Contributor: riai <riai@bigfoot.com> Ben <ben@benmazer.net>
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
-#  - patch to fix qreal on ARM
+#  - remove qt5-webengine makedepend, not built for ARM
 
 pkgbase=pyqt5
 pkgname=pyqt5
 pkgname=('pyqt5-common' 'python-pyqt5' 'python2-pyqt5')
-pkgver=5.3.2
+pkgver=5.4.1
+_pkgver=$pkgver
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://riverbankcomputing.co.uk/software/pyqt/intro"
 license=('GPL')
 makedepends=('python-sip' 'python2-sip' 'python-opengl' 'python2-opengl'
-             'python2-dbus' 'python-dbus' 'qt5-multimedia' 'qt5-tools'
-             'qt5-svg' 'qt5-serialport')
-source=("http://downloads.sourceforge.net/project/pyqt/PyQt5/PyQt-${pkgver}/PyQt-gpl-${pkgver}.tar.gz"
-        'fix_qreal_check.diff')
-md5sums=('81ef608fa4f3961918106d0ca07aa68a'
-         '24100c64ed373dfd55a0c050f3989524')
-
-prepare() {
-  cd PyQt-gpl-${pkgver}
-
-  patch -p1 -i ../fix_qreal_check.diff
-}
+             'python2-dbus' 'python-dbus' 'qt5-connectivity' 'qt5-enginio'
+             'qt5-multimedia' 'qt5-tools' 'qt5-serialport' 'qt5-svg'
+             'qt5-websockets' 'qt5-x11extras')
+source=("http://downloads.sourceforge.net/project/pyqt/PyQt5/PyQt-${_pkgver}/PyQt-gpl-${_pkgver}.tar.gz")
+md5sums=('a07bd7c426c7cda39f9a5072ee724aba')
 
 build() {
-  cp -r PyQt-gpl-${pkgver} Py2Qt-gpl-${pkgver}
+  cp -a PyQt-gpl-${_pkgver} Py2Qt-gpl-${_pkgver}
 
-  cd PyQt-gpl-${pkgver}
+  cd PyQt-gpl-${_pkgver}
   python3 configure.py \
     --confirm-license \
-    -v /usr/share/sip/PyQt5 \
+    --no-sip-files \
     --qsci-api \
     -q /usr/bin/qmake-qt5
 
@@ -45,10 +40,10 @@ build() {
   make
 
   ### Python2 version ###
-  cd ../Py2Qt-gpl-${pkgver}
+  cd ../Py2Qt-gpl-${_pkgver}
   python2 configure.py \
     --confirm-license \
-    -v /usr/share/sip/Py2-PyQt5 \
+    --no-sip-files \
     --qsci-api \
     -q /usr/bin/qmake-qt5
 
@@ -62,11 +57,14 @@ package_pyqt5-common(){
   pkgdesc="Common PyQt files shared between python-pyqt5 and python2-pyqt5"
   depends=('qt5-base')
 
-  cd PyQt-gpl-${pkgver}
+  cd PyQt-gpl-${_pkgver}
   make -C pyrcc DESTDIR="${pkgdir}" INSTALL_ROOT="${pkgdir}" install
   make -C pylupdate DESTDIR="${pkgdir}" INSTALL_ROOT="${pkgdir}" install
 
   install -Dm644 PyQt5.api "${pkgdir}"/usr/share/qt/qsci/api/python/PyQt5.api
+
+  install -d "${pkgdir}"/usr/share/sip/PyQt5
+  cp -a sip/* "${pkgdir}"/usr/share/sip/PyQt5
 }
 
 package_python-pyqt5(){
@@ -82,7 +80,7 @@ package_python-pyqt5(){
               'qt5-declarative: QtQml, qmlplugin'
               'qt5-serialport: QtSerialPort')
 
-  cd PyQt-gpl-${pkgver}
+  cd PyQt-gpl-${_pkgver}
   # INSTALL_ROOT is needed for the QtDesigner module, the other Makefiles use DESTDIR
   make DESTDIR="${pkgdir}" INSTALL_ROOT="${pkgdir}" install
 
@@ -104,7 +102,7 @@ package_python2-pyqt5(){
               'qt5-declarative: QtQml, qmlplugin'
               'qt5-serialport: QtSerialPort')
 
-  cd Py2Qt-gpl-${pkgver}
+  cd Py2Qt-gpl-${_pkgver}
   # INSTALL_ROOT is needed for the QtDesigner module, the other Makefiles use DESTDIR
   make DESTDIR="${pkgdir}" INSTALL_ROOT="${pkgdir}" install
 

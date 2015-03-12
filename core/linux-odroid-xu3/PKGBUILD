@@ -4,21 +4,25 @@
 buildarch=4
 
 pkgbase=linux-odroid-xu3
-_commit=ffb20df63b3bf7bfaa360fe832f3b4e72b1fa74e
+_commit=36898ffe2082ad378f2207555eee0ad22e21381c
 _srcname=linux-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="ODROID-XU3"
-pkgver=3.10.58
-pkgrel=2
+pkgver=3.10.69
+pkgrel=1
 arch=('armv7h')
 url="https://github.com/hardkernel/linux"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
 source=("https://github.com/hardkernel/linux/archive/${_commit}.tar.gz"
-        'config')
-md5sums=('607c2bf2e722ecd6fb5cdfc88b9feaf3'
-         'df89ef96c7db7450c07db8b9817d058a')
+        'config'
+        '0001-remove-thermal-messages.patch'
+        '0002-remove-rtc-messages.patch')
+md5sums=('1958942b992ca94e9938ff290a0d39b5'
+         '12ee9852aaf6e052e9052061967cb9d9'
+         '5e9df4f50e140c4491d0045fac025663'
+         '367bbb0892ce26c3627ecd5f95081e7c')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
@@ -30,6 +34,9 @@ prepare() {
 
   # don't run depmod on 'make install'. We'll do this ourselves in packaging
   sed -i '2iexit 0' scripts/depmod.sh
+
+  git apply ../0001-remove-thermal-messages.patch
+  git apply ../0002-remove-rtc-messages.patch
 }
 
 build() {

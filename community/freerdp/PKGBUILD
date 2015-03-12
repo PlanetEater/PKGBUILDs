@@ -6,36 +6,33 @@
 #  - define WITH_NEON and ARM_FP_ABI to fix retard developer assumptions
 
 pkgname=freerdp
-pkgver=1.1.0_beta+2013071101
+epoch=1
+pkgver=1.2.0_beta1+android9
 _pkgver=${pkgver/_/-}
 _pkgver=${_pkgver/+/-}
-pkgrel=1.1
+pkgrel=1
 pkgdesc="Free RDP client"
 arch=('i686' 'x86_64')
 url="http://freerdp.sourceforge.net"
 license=('GPL')
 depends=('openssl' 'libxcursor' 'libcups' 'alsa-lib' 'libxext' 'libxdamage'
-	 'ffmpeg' 'libxkbfile' 'libxinerama' 'libxv' 'libpulse')
-makedepends=('krb5' 'cmake' 'damageproto' 'xmlto' 'docbook-xsl')
+	 'ffmpeg' 'libxkbfile' 'libxinerama' 'libxv' 'libpulse' 'libxkbfile'
+	 'libxrender' 'libxfixes' 'gst-plugins-base-libs')
+makedepends=('krb5' 'cmake' 'damageproto' 'fixesproto' 'renderproto'
+	     'xmlto' 'docbook-xsl' 'git')
 conflicts=('freerdp-git')
-changelog=${pkgname}.changelog
+#source=(FreeRDP-${_pkgver}::git://github.com/FreeRDP/FreeRDP.git#commit=ff6dbb049ce066f6fca5708f81fd33f97086bc0e
 source=($pkgname-$pkgver.tar.gz::https://github.com/FreeRDP/FreeRDP/archive/${pkgver/_/-}.tar.gz
-	ffmpeg2.0.patch
-	patch_numblock.patch
-	CVE-2014-0791.patch
+	https://github.com/FreeRDP/FreeRDP/commit/1b663ceffe51008af7ae9749e5b7999b2f7d6698.patch
 	stuck_winkey.patch)
-md5sums=('37259601bb43bb8f04d65f4ce1057582'
-         'ce01b9a60f8c57154de425e20f5884ca'
-         'ac581d445ded7cdbd59082a48d9c28ac'
-         '62d0ab241c16ee5d85ff89183df9bbc0'
-         '1c1a8f77ebcaa7256968a9506ed3e772')
+md5sums=('a4a0a4f6e69c871aeab0600091ca6118'
+         '83da0f44c0e1a51707fad5ed06fd7b06'
+         'd29f028e61967f091f021d24005dbee2')
 
 prepare() {
   cd $srcdir/FreeRDP-${_pkgver}
-  patch -Np1 -i ../ffmpeg2.0.patch
-#  patch -Np1 -i ../patch_numblock.patch
-#  patch -Np1 -i ../CVE-2014-0791.patch
-#  patch -Np1 -i ../stuck_winkey.patch
+  patch -p1 <$srcdir/stuck_winkey.patch
+  patch -p1 <$srcdir/1b663ceffe51008af7ae9749e5b7999b2f7d6698.patch
 }
 
 build() {
@@ -47,11 +44,15 @@ build() {
   cmake \
 	-DCMAKE_INSTALL_PREFIX=/usr \
 	-DCMAKE_INSTALL_LIBDIR=lib \
-	-DWITH_PULSEAUDIO=ON \
+	-DWITH_PULSE=ON \
+	-DWITH_CUPS=ON \
+	-DWITH_CHANNELS=ON \
+	-DWITH_CLIENT_CHANNELS=ON \
+	-DWITH_SERVER_CHANNELS=ON \
 	-DWITH_NEON=OFF \
 	-DARM_FP_ABI=${ABI} \
 	.
-  make VERBOSE=1
+  make
 }
 
 package() {

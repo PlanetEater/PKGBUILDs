@@ -1,5 +1,6 @@
 # $Id: PKGBUILD 224438 2014-10-15 16:56:29Z andrea $
-# Maintainer: Andrea Scarpino <andrea@archlinux.org>
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Andrea Scarpino <andrea@archlinux.org>
 
 # ALARM on armv6h: Arno Rehn <arno@arnorehn.de>
 # - Find Broadcom's VideoCore GLES and EGL libraries instead of mesa's libs.
@@ -8,35 +9,34 @@
 # - Proper upstream patches for the above are pending.
 
 pkgname=kwin
-pkgver=5.1.0.1
-_pkgver=5.1.0
-pkgrel=2
+pkgver=5.2.1
+_dir=5.2.1
+pkgrel=1
 pkgdesc='KDE Window manager'
 arch=('i686' 'x86_64')
 url='https://projects.kde.org/projects/kde/workspace/kwin'
 license=('LGPL')
 depends=('qt5-multimedia' 'plasma-framework' 'knewstuff' 'libxcursor' 'kinit'
-         'hicolor-icon-theme' 'libepoxy')
+         'hicolor-icon-theme' 'libepoxy' 'kwayland' 'libinput' 'kdecoration')
 makedepends=('extra-cmake-modules' 'qt5-tools' 'kdoctools')
 groups=('plasma-next')
 install=${pkgname}.install
 conflicts=('kdebase-workspace')
-source=("http://download.kde.org/stable/plasma/5.1.0/${pkgname}-${pkgver}.tar.xz"
+source=("http://download.kde.org/stable/plasma/${_dir}/${pkgname}-${pkgver}.tar.xz"
         "rpi_fix_build.patch"
         "kwin_remove_eglonxbackend.patch")
-md5sums=('ab52f7ad3630b4da94b5e5dd09358e66'
-         '3e11a42013f03d55b4b730463bdd6fe0'
-         '28a1e8bd701a8fd1421e6ec238b4c522')
+md5sums=('863205ef27b7a11897fdeb24a75399ed'
+         '65af20bd49436056c93932ad7f80f7dd'
+         '176fedf90b0056de0934ea926095de89')
 
 prepare() {
-  mkdir -p build
-
-  cd "${srcdir}/${pkgname}-${_pkgver}"
+  mkdir build
 
   # Raspberry Pi
   if [ "$CARCH" == 'armv6h' ]; then
-    patch -p1 -i "${srcdir}/rpi_fix_build.patch"
-    patch -p1 -i "${srcdir}/kwin_remove_eglonxbackend.patch"
+    cd ${pkgname}-${pkgver}
+    patch -p1 -i ../rpi_fix_build.patch
+    patch -p1 -i ../kwin_remove_eglonxbackend.patch
   fi
 }
 
@@ -54,15 +54,13 @@ build() {
   fi
 
   cd build
-  cmake ../${pkgname}-5.1.0 \
+  cmake ../${pkgname}-${pkgver} \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DLIB_INSTALL_DIR=lib \
     -DLIBEXEC_INSTALL_DIR=lib \
     -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
-    -DQML_INSTALL_DIR=lib/qt/qml \
     -DBUILD_TESTING=OFF \
-    -DSYSCONF_INSTALL_DIR=/etc \
     $CMAKE_EXTRA_CONFIG_OPTIONS
   make
 }

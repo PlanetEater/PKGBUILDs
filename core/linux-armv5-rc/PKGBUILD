@@ -3,11 +3,12 @@
 
 buildarch=2
 
-_rcver=3.18
-_rcrel=2
+_rcver=4.0
+_rcrel=3
 
 pkgbase=linux-armv5-rc
-_srcname=linux-3.$((${_rcver##*.}-1))
+#_srcname=linux-4.$((${_rcver##*.}-1))
+_srcname=linux-3.19
 _kernelname=${pkgbase#linux}
 _desc="ARMv5 multi-platform"
 pkgver=${_rcver}.rc${_rcrel}
@@ -18,23 +19,21 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
 source=("http://www.kernel.org/pub/linux/kernel/v3.x/${_srcname}.tar.xz"
-        "https://www.kernel.org/pub/linux/kernel/v3.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
+        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
         "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
         '0001-Added-ASoC-driver-for-i.MX233-s-builtin-ADC-DAC-code.patch'
         '0001-arm-dts-imx23-olinuxino-enable-mxs-builtin-audio.patch'
         '0002-Added-DTS-with-mxs-builtin-entries-for-testing-the-a.patch'
         '0001-imx23-I2C-fixes.patch'
-        'archlinuxarm.patch'
         'config')
-md5sums=('fb30d0f29214d75cddd2faa94f73d5cf'
-         'cdc96388a5c70f5f385925caab06db12'
+md5sums=('d3fc8316d4d4d04b65cbc2d70799e763'
+         '8e1711d234cd969d20fd51c5a9698f0e'
          'SKIP'
-         'e3911eef007c122d23fd8ad7e91d69bf'
+         '114af68d721fdc22548994b847807929'
          '3a1e689563354c2f9f2d2764e1baa334'
          'a88071c80e1c2b22637894ae148c74b8'
          'e64077ce856769fc3af2a15ae95d8310'
-         'e319a8e1a596a39a8951fc6454664b15'
-         'c7f55d2d777cbb833a91725f8e0e39e2')
+         '2e055474c84c3c75f02372772766f51d')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
@@ -47,18 +46,17 @@ prepare() {
   git apply ../0001-arm-dts-imx23-olinuxino-enable-mxs-builtin-audio.patch
   git apply ../0002-Added-DTS-with-mxs-builtin-entries-for-testing-the-a.patch
   git apply ../0001-imx23-I2C-fixes.patch
-  patch -p1 -i ../archlinuxarm.patch
 
   # AUFS patches
-  cp -ru "${srcdir}/aufs3-standalone/Documentation" .
-  cp -ru "${srcdir}/aufs3-standalone/fs" .
-  cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" ./include/linux
-  cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" ./include/uapi/linux
+  #cp -ru "${srcdir}/aufs3-standalone/Documentation" .
+  #cp -ru "${srcdir}/aufs3-standalone/fs" .
+  #cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" ./include/linux
+  #cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" ./include/uapi/linux
 
-  git apply ../aufs3-standalone/aufs3-kbuild.patch
-  git apply ../aufs3-standalone/aufs3-base.patch
-  git apply ../aufs3-standalone/aufs3-mmap.patch
-  git apply ../aufs3-standalone/aufs3-standalone.patch
+  #git apply ../aufs3-standalone/aufs3-kbuild.patch
+  #git apply ../aufs3-standalone/aufs3-base.patch
+  #git apply ../aufs3-standalone/aufs3-mmap.patch
+  #git apply ../aufs3-standalone/aufs3-standalone.patch
 
   cat "${srcdir}/config" > ./.config
 

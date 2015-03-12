@@ -7,12 +7,14 @@
 #  - set --enable-compile-warnings=no in configure
 
 pkgname=mutter
-pkgver=3.14.1.5
-pkgrel=1
+pkgver=3.14.3
+pkgrel=2
 pkgdesc="A window manager for GNOME"
 arch=(i686 x86_64)
 license=('GPL')
-depends=('clutter' 'dconf' 'gobject-introspection' 'gsettings-desktop-schemas' 'libcanberra' 'startup-notification' 'zenity' 'libsm' 'gnome-desktop' 'upower' 'libxkbcommon-x11')
+depends=('clutter' 'dconf' 'gobject-introspection' 'gsettings-desktop-schemas' 'libcanberra'
+         'startup-notification' 'zenity' 'libsm' 'gnome-desktop' 'upower' 'libxkbcommon-x11'
+         'gnome-settings-daemon')
 makedepends=('intltool' 'gnome-doc-utils' 'libxkbcommon-x11')
 conflicts=('mutter-wayland')
 replaces=('mutter-wayland')
@@ -21,7 +23,7 @@ groups=('gnome')
 options=('!emptydirs')
 install=mutter.install
 source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
-sha256sums=('bfc1e30f94cb7d057b94ac651cbfff24fb25e9d6617c492b68509e5c638f5114')
+sha256sums=('0b23a2d31980d9de8e92ef940e6f63e3ac0f6446e2afc69ecbc80163f6af3a23')
 
 build() {
   cd "$pkgname-$pkgver"

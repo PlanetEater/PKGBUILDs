@@ -1,6 +1,6 @@
 #
 # Arch Linux ARM repository mirrorlist
-# Generated on 2014-10-22
+# Generated on 2015-03-11
 #
 
 ## Geo-IP based mirror selection and load balancing
@@ -20,9 +20,17 @@ Server = http://mirror.archlinuxarm.org/$arch/$repo
 ## Montreal
 # Server = http://ca.mirror.archlinuxarm.org/$arch/$repo
 
+### Finland
+## Tampere
+# Server = http://fi.mirror.archlinuxarm.org/$arch/$repo
+
 ### France
 ## Ain
 # Server = http://fr.mirror.archlinuxarm.org/$arch/$repo
+## Paris
+# Server = http://fr2.mirror.archlinuxarm.org/$arch/$repo
+## Roubaix
+# Server = http://fr3.mirror.archlinuxarm.org/$arch/$repo
 
 ### Germany
 ## Aachen
@@ -53,6 +61,10 @@ Server = http://mirror.archlinuxarm.org/$arch/$repo
 ## Gdansk
 # Server = http://pl.mirror.archlinuxarm.org/$arch/$repo
 
+### Russia
+## Moscow
+# Server = http://ru.mirror.archlinuxarm.org/$arch/$repo
+
 ### Singapore
 # Server = http://sg.mirror.archlinuxarm.org/$arch/$repo
 
@@ -61,6 +73,8 @@ Server = http://mirror.archlinuxarm.org/$arch/$repo
 # Server = http://tw.mirror.archlinuxarm.org/$arch/$repo
 
 ### United States
+## Colorado
+# Server = http://co.us.mirror.archlinuxarm.org/$arch/$repo
 ## Delaware
 # Server = http://de.us.mirror.archlinuxarm.org/$arch/$repo
 ## California
