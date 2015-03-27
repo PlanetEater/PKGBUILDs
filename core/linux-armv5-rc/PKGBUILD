@@ -3,11 +3,12 @@
 
 buildarch=2
 
-_rcver=3.19
-_rcrel=1
+_rcver=4.0
+_rcrel=5
 
 pkgbase=linux-armv5-rc
-_srcname=linux-3.$((${_rcver##*.}-1))
+#_srcname=linux-4.$((${_rcver##*.}-1))
+_srcname=linux-3.19
 _kernelname=${pkgbase#linux}
 _desc="ARMv5 multi-platform"
 pkgver=${_rcver}.rc${_rcrel}
@@ -18,23 +19,21 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
 source=("http://www.kernel.org/pub/linux/kernel/v3.x/${_srcname}.tar.xz"
-        "https://www.kernel.org/pub/linux/kernel/v3.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
+        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
         "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
         '0001-Added-ASoC-driver-for-i.MX233-s-builtin-ADC-DAC-code.patch'
         '0001-arm-dts-imx23-olinuxino-enable-mxs-builtin-audio.patch'
         '0002-Added-DTS-with-mxs-builtin-entries-for-testing-the-a.patch'
         '0001-imx23-I2C-fixes.patch'
-        'archlinuxarm.patch'
         'config')
-md5sums=('9e854df51ca3fef8bfe566dbd7b89241'
-         'ae18910200b003a2c0a77636b8612a88'
+md5sums=('d3fc8316d4d4d04b65cbc2d70799e763'
+         '19f17cd78849067fa5b512bc2dee63b8'
          'SKIP'
-         'e3911eef007c122d23fd8ad7e91d69bf'
+         '114af68d721fdc22548994b847807929'
          '3a1e689563354c2f9f2d2764e1baa334'
          'a88071c80e1c2b22637894ae148c74b8'
          'e64077ce856769fc3af2a15ae95d8310'
-         'e319a8e1a596a39a8951fc6454664b15'
-         '041d39de67d48fdc42ae7801ca439a22')
+         'd48b211080137cb3e56559e314eddae8')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
@@ -47,7 +46,6 @@ prepare() {
   git apply ../0001-arm-dts-imx23-olinuxino-enable-mxs-builtin-audio.patch
   git apply ../0002-Added-DTS-with-mxs-builtin-entries-for-testing-the-a.patch
   git apply ../0001-imx23-I2C-fixes.patch
-  patch -p1 -i ../archlinuxarm.patch
 
   # AUFS patches
   #cp -ru "${srcdir}/aufs3-standalone/Documentation" .

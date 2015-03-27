@@ -1,14 +1,14 @@
 # Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
 # Contributor: Kiril Zyapkov <kiril.zyapkov@gmail.com>
 
-buildarch=16
+buildarch=20
 
 _pkgname=gst-omx
 pkgname=${_pkgname}-rpi
 pkgver=1.2.0
 pkgrel=2
 pkgdesc="Gstreamer OpenMAX IL wrapper Plugin for Raspberry Pi"
-arch=('armv6h')
+arch=('armv6h' 'armv7h')
 license=('LGPL')
 url="http://gstreamer.freedesktop.org/"
 depends=('gst-plugins-base-libs')

@@ -1,13 +1,27 @@
-diff -rup FreeRDP-1.0.2-old/client/X11/xf_keyboard.c FreeRDP-1.0.2-new/client/X11/xf_keyboard.c
---- FreeRDP-1.0.2-old/client/X11/xf_keyboard.c	2013-01-02 22:46:59.000000000 +0100
-+++ FreeRDP-1.0.2-new/client/X11/xf_keyboard.c	2014-06-24 17:45:44.062728740 +0200
-@@ -169,6 +169,9 @@ void xf_kbd_focus_in(xfInfo* xfi)
- 	/* on focus in send a tab up like mstsc.exe */
- 	input->KeyboardEvent(input, KBD_FLAGS_RELEASE, 0x0F);
+diff -rup ./client/X11.old/xf_event.c ./client/X11/xf_event.c
+--- ./client/X11.old/xf_event.c	2014-06-12 15:51:57.000000000 +0200
++++ ./client/X11/xf_event.c	2014-10-22 16:53:53.440644196 +0200
+@@ -556,6 +556,7 @@ static BOOL xf_event_FocusOut(xfContext*
+ 	if (event->xfocus.mode == NotifyWhileGrabbed)
+ 		XUngrabKeyboard(xfc->display, CurrentTime);
  
-+	/* release windows key */
-+	input->KeyboardEvent(input, KBD_FLAGS_EXTENDED|KBD_FLAGS_RELEASE, 0x5B);
++	xf_keyboard_release_all_keypress(xfc);
+ 	xf_keyboard_clear(xfc);
+ 
+ 	if (app)
+diff -rup ./client/X11.old/xf_keyboard.c ./client/X11/xf_keyboard.c
+--- ./client/X11.old/xf_keyboard.c	2014-06-12 15:51:57.000000000 +0200
++++ ./client/X11/xf_keyboard.c	2014-10-22 16:57:58.403749478 +0200
+@@ -169,6 +169,12 @@ void xf_keyboard_release_all_keypress(xf
+ 		if (xfc->KeyboardState[keycode] != NoSymbol)
+ 		{
+ 			rdp_scancode = freerdp_keyboard_get_rdp_scancode_from_x11_keycode(keycode);
 +
- 	/* synchronize toggle keys */
- 	syncFlags = xf_kbd_get_toggle_keys_state(xfi);
- 	input->SynchronizeEvent(input, syncFlags);
++			// release tab before releasing the windows key.
++			// this stops the start menu from opening on unfocus event.
++			if (rdp_scancode == RDP_SCANCODE_LWIN)
++				freerdp_input_send_keyboard_event_ex(xfc->instance->input, FALSE, RDP_SCANCODE_TAB);
++
+ 			freerdp_input_send_keyboard_event_ex(xfc->instance->input, FALSE, rdp_scancode);
+ 			xfc->KeyboardState[keycode] = NoSymbol;
+ 		}

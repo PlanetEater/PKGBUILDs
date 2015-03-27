@@ -1,10 +1,10 @@
 # $Id$
-# Maintainer: Andrea Scarpino <andrea@archlinux.org>
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Andrea Scarpino <andrea@archlinux.org>
 # Contributor: Ronald van Haren <ronald.archlinux.org>
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - removed makedepend on vc - not for ARM
-#  - patch to fix qreal ARMisms
 
 pkgbase=calligra
 pkgname=('calligra-braindump'
@@ -12,6 +12,7 @@ pkgname=('calligra-braindump'
          'calligra-extras'
          'calligra-filters'
          'calligra-flow'
+         'calligra-gemini'
          'calligra-handbook'
          'calligra-karbon'
          'calligra-kexi'
@@ -22,31 +23,22 @@ pkgname=('calligra-braindump'
          'calligra-sheets'
          'calligra-stage'
          'calligra-words')
-pkgver=2.8.7
-pkgrel=2
+pkgver=2.9.1
+pkgrel=1
 arch=('i686' 'x86_64')
 url='http://www.calligra-suite.org/'
 license=('FDL1.2' 'GPL2' 'LGPL')
-makedepends=('cmake' 'automoc4' 'boost' 'kdepimlibs' 'eigen2' 'kdeedu-marble'
+makedepends=('cmake' 'automoc4' 'boost' 'kdepimlibs' 'eigen' 'kdeedu-marble'
              'lcms2' 'libmariadbclient' 'freetds' 'xbase' 'libwpg' 'opencolorio'
              'libwps' 'gsl' 'glew' 'fftw' 'poppler-qt' 'libkdcraw' 'libodfgen'
              'openjpeg' 'kdegraphics-okular' 'pstoedit' 'libvisio'
-             'libetonyek' 'libpqxx' 'libspnav')
+             'libetonyek' 'libpqxx' 'libspnav' 'postgresql')
 groups=('calligra')
-source=("http://download.kde.org/stable/${pkgbase}-${pkgver}/${pkgbase}-${pkgver}.tar.xz"
-        'arm.patch'
-        0001-switch-to-librevenge-based-import-libs.patch)
-md5sums=('5ba4b76e3f81daffb28d3ed545908736'
-         'dc5105bcc612560f46d27071aca69cba'
-         '2589200d3f2199a8bff5755ff3245e33')
+source=("http://download.kde.org/stable/${pkgbase}-${pkgver}/${pkgbase}-${pkgver}.tar.xz")
+md5sums=('3afd7afffbbb8078dcc1e339a85cf74c')
 
 prepare() {
   mkdir build
-
-  # use librevenge based import filter libraries - patch taken from Fedora
-  pushd $pkgbase-$pkgver
-  patch -Np1 -i $srcdir/0001-switch-to-librevenge-based-import-libs.patch
-  popd
 }
 
 build() {
@@ -169,7 +161,7 @@ package_calligra-stage() {
 package_calligra-krita() {
   pkgdesc="Edit and paint images"
   depends=('calligra-plugins' 'kdebase-runtime' 'opencolorio' 'libkdcraw'
-           'fftw' 'glew')
+           'fftw' 'glew' 'curl' 'gsl')
   conflicts=('koffice-krita' 'calligra-krita-doc')
   replaces=('koffice-krita' 'calligra-krita-doc')
   install=calligra-krita.install
@@ -257,5 +249,16 @@ package_calligra-devtools() {
   depends=('calligra-libs')
 
   cd build/devtools
+  make DESTDIR="${pkgdir}" install
+}
+
+package_calligra-gemini() {
+  pkgdesc="QML interface for Calligra Words and Stage"
+  depends=('calligra-words' 'calligra-stage')
+  install=calligra-gemini.install
+
+  cd build/qtquick
+  make DESTDIR="${pkgdir}" install
+  cd "${srcdir}"/build/gemini
   make DESTDIR="${pkgdir}" install
 }

@@ -7,11 +7,11 @@
 #  - removed numactl dependency
 
 pkgname=fio
-pkgver=2.2.3
+pkgver=2.2.6
 pkgrel=1
 pkgdesc='Scriptable I/O tool for storage benchmarks and drive testing'
 arch=(i686 x86_64)
-url='http://freshmeat.net/projects/fio'
+url='https://github.com/axboe/fio'
 license=(GPL2)
 depends=(bash libaio python2)
 makedepends=(gtk2)
@@ -20,7 +20,7 @@ optdepends=(
   'gnuplot: generating plots using fio_generate_plots'
 )
 source=(http://brick.kernel.dk/snaps/fio-$pkgver.tar.bz2)
-sha256sums=('cb06b79097569e12f9885fa5691b1f46df73e606e3d405fb63df6073739f469f')
+sha256sums=('5d9a12c9fe2de95d15053ed56de8b06cc4cec5bfa38758a796d3a2eb9ce688db')
 
 prepare() {
   cd fio-$pkgver
@@ -41,7 +41,7 @@ package() {
   # documentation
   install -dm755 "$pkgdir/usr/share/doc/$pkgname"
   install -m644 HOWTO README REPORTING-BUGS SERVER-TODO "$pkgdir/usr/share/doc/$pkgname"
-  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
 
   # examples
   install -dm755 "$pkgdir/usr/share/doc/$pkgname/examples"

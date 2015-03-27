@@ -3,12 +3,13 @@
 
 buildarch=4
 
-_rcver=3.19
-_rcrel=1
+_rcver=4.0
+_rcrel=5
 _rcnrel=armv7-x0
 
 pkgbase=linux-armv7-rc
-_srcname=linux-3.$((${_rcver##*.}-1))
+#_srcname=linux-3.$((${_rcver##*.}-1))
+_srcname=linux-3.19
 _kernelname=${pkgbase#linux}
 _desc="ARMv7 multi-platform"
 pkgver=${_rcver}.rc${_rcrel}
@@ -19,23 +20,29 @@ license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools')
 options=('!strip')
 source=("http://www.kernel.org/pub/linux/kernel/v3.x/${_srcname}.tar.xz"
-        "https://www.kernel.org/pub/linux/kernel/v3.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
-        "http://rcn-ee.net/deb/sid-armhf/v${_rcver}.0-rc${_rcrel}-${_rcnrel}/patch-${_rcver}-rc${_rcrel}-${_rcnrel}.diff.gz"
+        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
+        "http://rcn-ee.com/deb/sid-armhf/v${_rcver}.0-rc${_rcrel}-${_rcnrel}/patch-${_rcver}-rc${_rcrel}-${_rcnrel}.diff.gz"
         "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
         '0001-ARM-atags-add-support-for-Marvell-s-u-boot.patch'
         '0002-ARM-atags-fdt-retrieve-MAC-addresses-from-Marvell-bo.patch'
         '0003-SMILE-Plug-device-tree-file.patch'
         '0004-fix-mvsdio-eMMC-timing.patch'
+        '0005-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch'
+        '0006-USB-armory-support.patch'
+        '0007-ARM-TLV320AIC23-SoC-Audio-Codec-Fix-errors-reported-.patch'
         'config')
-md5sums=('9e854df51ca3fef8bfe566dbd7b89241'
-         'ae18910200b003a2c0a77636b8612a88'
-         'be660b7996c1673d78a7f0e88bce6a48'
+md5sums=('d3fc8316d4d4d04b65cbc2d70799e763'
+         '19f17cd78849067fa5b512bc2dee63b8'
+         'de361d2b5bfbd64011d862649462c8a6'
          'SKIP'
-         '70b9ce2701ad3f43940d0172e4618549'
-         'af7f56bc5712f264a55bb6603e64df0e'
-         'a70066db5aa59f660dd7e31809b47e4c'
-         'a27e0ba6c63e0656039e20eeb957fee1'
-         '973b2983e619dd22879c1d53c175ff69')
+         '8ae47c547d49a906c4a5e856fb24bcb4'
+         '931a9a9e35084effd875e4ad095329a6'
+         '9878601068b4daaac9313d33d8cada3a'
+         '3fa1e8e5789a00a402e997301be3da03'
+         'cd6353fb52944f2adc4af0857c734abf'
+         'c3dd1ee6c7fe9a3900b514641ecd6afa'
+         '5a3decd0f8367c1b710fa6f93112c3e4'
+         '350eaf9024e19820a63bc8dbb14256c2')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
@@ -51,6 +58,9 @@ prepare() {
   git apply ../0002-ARM-atags-fdt-retrieve-MAC-addresses-from-Marvell-bo.patch
   git apply ../0003-SMILE-Plug-device-tree-file.patch
   git apply ../0004-fix-mvsdio-eMMC-timing.patch
+  git apply ../0005-net-smsc95xx-Allow-mac-address-to-be-set-as-a-parame.patch
+  git apply ../0006-USB-armory-support.patch
+  git apply ../0007-ARM-TLV320AIC23-SoC-Audio-Codec-Fix-errors-reported-.patch
 
   # AUFS patches
   #cp -ru "${srcdir}/aufs3-standalone/Documentation" .
@@ -274,8 +284,8 @@ _package-headers() {
 _package-smileplug() {
   pkgdesc="The Linux Kernel - ${_desc} - Marvell SMILE Plug"
   depends=('linux-armv7-rc')
-  conflicts=('linux-armv7-rc-mirabox' 'linux-armv7-rc-ax3' 'linux-armv7-rc-d3plug')
-  replaces=('linux-mvebu-smileplug')
+  provides=('linux-armv7-rc-uimage')
+  conflicts=('linux-armv7-rc-uimage')
 
   cd "${srcdir}/${_srcname}"
 
@@ -287,8 +297,8 @@ _package-smileplug() {
 _package-mirabox() {
   pkgdesc="The Linux Kernel - ${_desc} - Globalscale Mirabox"
   depends=('linux-armv7-rc')
-  conflicts=('linux-armv7-rc-smileplug' 'linux-armv7-rc-ax3' 'linux-armv7-rc-d3plug')
-  replaces=('linux-mvebu-mirabox')
+  provides=('linux-armv7-rc-uimage')
+  conflicts=('linux-armv7-rc-uimage')
 
   cd "${srcdir}/${_srcname}"
 
@@ -300,8 +310,8 @@ _package-mirabox() {
 _package-ax3() {
   pkgdesc="The Linux Kernel - ${_desc} - OpenBlocks AX3-4"
   depends=('linux-armv7-rc')
-  conflicts=('linux-armv7-rc-mirabox' 'linux-armv7-rc-smileplug' 'linux-armv7-rc-d3plug')  
-  replaces=('linux-mvebu-ax3')
+  provides=('linux-armv7-rc-uimage')
+  conflicts=('linux-armv7-rc-uimage')
 
   cd "${srcdir}/${_srcname}"
 
@@ -313,7 +323,8 @@ _package-ax3() {
 _package-d3plug() {
   pkgdesc="The Linux Kernel - ${_desc} - Globalscale D3Plug"
   depends=('linux-armv7-rc')
-  conflicts=('linux-armv7-rc-mirabox' 'linux-armv7-rc-smileplug' 'linux-armv7-rc-ax3')
+  provides=('linux-armv7-rc-uimage')
+  conflicts=('linux-armv7-rc-uimage')
 
   cd "${srcdir}/${_srcname}"
 

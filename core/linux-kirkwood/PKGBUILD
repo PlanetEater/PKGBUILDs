@@ -6,10 +6,18 @@ buildarch=2
 pkgbase=linux-kirkwood
 _kernelname=${pkgbase#linux}
 _desc="Marvell Kirkwood"
-pkgver=3.18.1
+pkgver=3.19.3
 pkgrel=1
-cryptodev_commit=6aa62a2c320b04f55fdfe0ed015c3d9b48997239
-bfqver=v7r6
+cryptodev_commit=5054d20d45571cc85339351fde52f872eeb82206
+bfqver=v7r7
+
+### BFQ patch kernel version
+bfqkern=${pkgver:0:4}
+#bfqkern=3.18
+
+### AUFS branch name
+aufsbranch="aufs${pkgver:0:4}"
+#aufsbranch="aufs3.x-rcN"
 
 arch=('arm')
 url="http://www.kernel.org/"
@@ -23,26 +31,23 @@ source=("ftp://ftp.kernel.org/pub/linux/kernel/v3.x/linux-${pkgver}.tar.xz"
         'mach-types::http://www.arm.linux.org.uk/developer/machines/download.php'
         'usb-add-reset-resume-quirk-for-several-webcams.patch'
 	'0001-disable-mv643xx_eth-TSO.patch'
-        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
-        #"git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs${pkgver:0:4}"
-        '0001-AUFS-fix-for-3.18.1.patch'
-        'cryptodev.tar.gz::https://github.com/cryptodev-linux/cryptodev-linux/archive/${cryptodev_commit}.tar.gz'
-        "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
-        "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
-        "http://algo.ing.unimo.it/people/paolo/disk_sched/patches/${pkgver:0:4}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch")
+        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=${aufsbranch}"
+        "cryptodev-${cryptodev_commit}.tar.gz::https://github.com/cryptodev-linux/cryptodev-linux/archive/${cryptodev_commit}.tar.gz"
+        "ftp://teambelgium.net/bfq/patches/${bfqkern}.0-${bfqver}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${bfqkern}.patch"
+        "ftp://teambelgium.net/bfq/patches/${bfqkern}.0-${bfqver}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${bfqkern}.patch"
+        "ftp://teambelgium.net/bfq/patches/${bfqkern}.0-${bfqver}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${bfqkern}.0.patch")
 
-md5sums=('79c9b73a01e1dce0a4c28828496ef02c'
-         'adae431c969e3fcf32aa8c315c96e02a'
-         'fad0103ae663d6bacb922628f6d26fa7'
+md5sums=('f543c62a717a514d99724e9bda15471e'
+         '3fcdf9f1ddbfda0b843f15164f612e59'
+         'b295fdc2d4be88e7516b60e58a6b5b25'
          'df25fccf87d246f97dac2843e22debe6'
          '9b5a265440abf57d2052838f31486a3a'
          '09d44b9f07abfaeaf4f688ee52034786'
          'SKIP'
-         'aa83d1bca3a3583aa4011d03ff23bfd5'
-         'ddf7876487c876f6676ef0e050e9d204'
-         'f84f5f809a0f92e5e469d7c9e2dbac58'
-         '22ef862652608c8d6b07536e990d4bcb'
-         'b031b1aafd416453d1c8579bd6823fca')
+         '8f81b86fffb53ab49d1e48f86383deea'
+         'b548a53e1c07209770dd1acb51dc1ae5'
+         '55446f2cfb5466d868088b6a938adf03'
+         'dc11bd25031e98d003d8b027d79c812c')
 
 prepare() {
   cd "${srcdir}/linux-${pkgver}"
@@ -56,8 +61,6 @@ msg2 "Applying aufs3 patches"
   patch -Np1 -i ../aufs3-standalone/aufs3-base.patch
   patch -Np1 -i ../aufs3-standalone/aufs3-mmap.patch
   patch -Np1 -i ../aufs3-standalone/aufs3-standalone.patch
-  # Remove when updated upstream
-  patch -Np1 -i ../0001-AUFS-fix-for-3.18.1.patch
 
 msg2 "Disable buggy TCP segmentation offload implementation"
 msg2 "http://archlinuxarm.org/forum/viewtopic.php?f=9&t=7692"
@@ -72,9 +75,9 @@ msg2 "Add Arch Linux ARM patch for ARMv5te plug computers, mach-types"
   cp "${srcdir}/mach-types" arch/arm/tools
 
 msg2 "Add BFQ patches"
-  patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${pkgver:0:4}.patch"
-  patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${pkgver:0:4}.patch"
-  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${pkgver:0:4}.0.patch"  
+  patch -Np1 -i "${srcdir}/0001-block-cgroups-kconfig-build-bits-for-BFQ-${bfqver}-${bfqkern}.patch"
+  patch -Np1 -i "${srcdir}/0002-block-introduce-the-BFQ-${bfqver}-I-O-sched-for-${bfqkern}.patch"
+  patch -Np1 -i "${srcdir}/0003-block-bfq-add-Early-Queue-Merge-EQM-to-BFQ-${bfqver}-for-${bfqkern}.0.patch"  
 
   cat "${srcdir}/config" > ./.config
 
