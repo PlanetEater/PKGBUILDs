@@ -3,13 +3,10 @@
 # Contributor: Jakub Schmidtke <sjakub@gmail.com>
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
-#  - patch to fix building webrtc
-#  - patch to fix downloads (https://bugzilla.mozilla.org/show_bug.cgi?id=1050258)
-
-buildarch=20
+#  - patch for skia FTBFS on ARM
 
 pkgname=firefox
-pkgver=34.0.5
+pkgver=36.0.4
 pkgrel=1
 pkgdesc="Standalone web browser from mozilla.org"
 arch=('i686' 'x86_64')
@@ -29,18 +26,17 @@ options=('!emptydirs' '!makeflags')
 source=(https://ftp.mozilla.org/pub/mozilla.org/firefox/releases/$pkgver/source/firefox-$pkgver.source.tar.bz2{,.asc}
         mozconfig firefox.desktop firefox-install-dir.patch vendor.js rhbz-966424.patch
         firefox-fixed-loading-icon.png
-        arm-webrtc-fix.patch
-        arm-download-fix.patch)
-sha256sums=('1680191ff7d4c465c0e6a5d7d6ff7a426f5bfa64f8d6d68a4bdfa9ac4ee459c8'
+        48e130d69836.patch)
+sha256sums=('9143bddc64746bf6471b5ae55b9013586b0ffd6c5515c5566b4015e0bf1e16ab'
             'SKIP'
             'ffcb2a0ba2ed08f74931a11043717391ef380234cadccc6f0c13f1186ad80e8b'
-            'd2a7610393ba259c35e3227b92e02ec91095a95189f56ac93ccdf6732772719c'
+            '7eefe43ba2b4249a4ea2d04a739b80945583aaa5a3d6872a1b7ea7a3d190f882'
             'd86e41d87363656ee62e12543e2f5181aadcff448e406ef3218e91865ae775cd'
             '4b50e9aec03432e21b44d18c4c97b2630bace606b033f7d556c9d3e3eb0f4fa4'
             '4f0046b39a8d98f6e4fc3360ec490cb2416e38c7b3e92699f7e511c206c2c961'
             '68e3a5b47c6d175cc95b98b069a15205f027cab83af9e075818d38610feb6213'
-            '6f81cd3c1d5d96aaeae9882cc24da4fd42ff7ebf25113d9516d5e7c94d375090'
-            'a1fb0067e665af22d5e7bff5623fd85b89491c8f222a6f8eaca07c81b624454e')
+            'ab2d45b70d2006b539af3ea6e6f119d8aa62ef26f9b0d9813b728f22bf7af1de')
+validpgpkeys=('2B90598A745E992F315E22C58AB132963A06537A')
 
 # Google API keys (see http://www.chromium.org/developers/how-tos/api-keys)
 # Note: These are for Arch Linux use ONLY. For your own distribution, please
@@ -56,6 +52,9 @@ prepare() {
 
   # https://bugs.archlinux.org/task/41689
   patch -Np2 -i ../rhbz-966424.patch
+
+  # https://bugzilla.mozilla.org/show_bug.cgi?id=1136958
+  patch -p1 -i ../48e130d69836.patch
 
   echo -n "$_google_api_key" >google-api-key
   echo "ac_add_options --with-google-api-keyfile=\"$PWD/google-api-key\"" >>.mozconfig
@@ -78,12 +77,6 @@ prepare() {
   # https://bugzilla.mozilla.org/show_bug.cgi?id=759252
   cp "$srcdir/firefox-fixed-loading-icon.png" \
     browser/themes/linux/tabbrowser/loading.png
-
-  # Fix webrtc build on ARM
-  patch -Np0 -i ../arm-webrtc-fix.patch
-
-  # Fix downloading on ARM
-  patch -Np1 -i ../arm-download-fix.patch
 }
 
 build() {

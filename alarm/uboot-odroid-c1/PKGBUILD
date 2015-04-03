@@ -5,31 +5,29 @@ buildarch=4
 
 pkgname=uboot-odroid-c1
 pkgver=2011.03
-pkgrel=2
+pkgrel=10
 pkgdesc="U-Boot for ODROID-C1"
 arch=('armv7h')
 url="https://github.com/hardkernel/u-boot"
 license=('GPL')
+install=$pkgname.install
 makedepends=('git' 'bc')
 backup=('boot/boot.ini')
-_commit=388b4ae60f25e5e1a7a625b2253a66d05ab725d0
+_commit=f631c80969b33b796d2d4c077428b4765393ed2b
 source=("https://github.com/hardkernel/u-boot/archive/${_commit}.tar.gz"
         'boot.ini'
-        '0001-add-ext4-support.patch'
-        '0002-remove-cross-compiling.patch'
-        '0003-sd_fusing-tweaks.patch')
-md5sums=('b8b66d02d1fab2a4745a7b769bff4b0c'
-         '5f0868d53453af2f95f36d5094fa406f'
-         'c8d1d5911a15ed995cf7fd57ef86b8fe'
-         '127c91d5af47a6dd78fdaf19a77a5263'
-         '645b00a999368d95c36d6cb5ef2f1076')
+        '0001-remove-cross-compiling.patch'
+        '0002-sd_fusing-tweaks.patch')
+md5sums=('b55a420b3fad08ef6793eb9eb0990725'
+         'f191e1ab6910983585ac877f17eed4e7'
+         'fb9e00cfdc765b60c61b42060bde6fc2'
+         'beeec86a4903a3ce6d1e7956ad9250c4')
 
 prepare() {
   cd u-boot-${_commit}
 
-  git apply ../0001-add-ext4-support.patch
-  git apply ../0002-remove-cross-compiling.patch
-  git apply ../0003-sd_fusing-tweaks.patch
+  git apply ../0001-remove-cross-compiling.patch
+  git apply ../0002-sd_fusing-tweaks.patch
 }
 
 build() {

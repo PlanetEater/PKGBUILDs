@@ -9,21 +9,22 @@
 # Contributor: Jason Plum <jplum@archlinuxarm.org>
 
 pkgname=nodejs
-pkgver=0.10.35
-_npmver=2.1.17
-pkgrel=2
+pkgver=0.12.1
+_npmver=2.7.4
+pkgrel=1
 pkgdesc='Evented I/O for V8 javascript'
 arch=('i686' 'x86_64' 'arm')
 url='http://nodejs.org/'
 license=('MIT')
 provides=('nodejs-node-gyp')
+depends=('openssl' 'zlib') # 'libuv' 'v8' 'c-ares')
 makedepends=('python2' 'git' 'procps-ng')
 optdepends=('python2: for node-gyp')
 checkdepends=('curl')
-options=('!emptydirs !strip')
+options=('!emptydirs' '!strip')
 source=("http://nodejs.org/dist/v$pkgver/node-v$pkgver.tar.gz"
         git+https://github.com/npm/npm.git#tag=v$_npmver)
-sha256sums=('0043656bb1724cb09dbdc960a2fd6ee37d3badb2f9c75562b2d11235daa40a03'
+sha256sums=('30693376519c9736bcb22d44513252aee1d9463d78ac6c744ecb6d13fd91d680'
             'SKIP')
 
 set_flags_for_arm() {
@@ -88,7 +89,9 @@ build() {
     --prefix=/usr \
     --without-snapshot \
     --with-arm-float-abi=$EABI \
-    --shared-openssl 
+    --shared-openssl \
+    --shared-zlib
+#    --shared-libuv
 #    --shared-v8 \
 #    --shared-v8-libpath=/usr/lib \
 #    --shared-v8-includes=/usr/include 
