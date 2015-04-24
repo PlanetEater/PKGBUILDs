@@ -5,18 +5,18 @@ buildarch=4
 
 pkgname=uboot-usbarmory
 pkgver=2014.07
-pkgrel=1
+pkgrel=3
 pkgdesc="U-Boot for USB armory"
 arch=('armv7h')
 url="https://github.com/inversepath/u-boot-usbarmory.git"
 license=('GPL')
 makedepends=('git' 'bc')
-source=("u-boot-${pkgver}::git+https://github.com/inversepath/u-boot-usbarmory.git"
+source=("u-boot-${pkgver}::git+https://github.com/inversepath/u-boot-usbarmory.git#commit=f31f8430da00f5dde1d7564b059571ca8581dd68"
         'alarm.patch'
         'uEnv.txt')
 md5sums=('SKIP'
-         '1306feac5b1d451af20d845e31ded762'
-         'd41d8cd98f00b204e9800998ecf8427e')
+         '06742be0021c4a4123383e3790f21edf'
+         '5e8a8854cc2a154e1a157535f2161913')
 
 prepare() {
   cd u-boot-${pkgver}

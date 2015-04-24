@@ -5,11 +5,12 @@
 # Contributor: Miroslaw Szot <mss@czlug.icis.pcz.pl>
 # Contributor: Daniel Micay <danielmicay@gmail.com>
 
-# remove when bumped upstream
+# ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
+#  - build with PIE to fix segfaults
 
 pkgname=nginx
-pkgver=1.6.2
-pkgrel=2
+pkgver=1.6.3
+pkgrel=1.1
 pkgdesc='Lightweight HTTP server and IMAP/POP3 proxy server'
 arch=('i686' 'x86_64')
 url='http://nginx.org'
@@ -29,12 +30,14 @@ install=nginx.install
 source=($url/download/nginx-$pkgver.tar.gz
         service
         logrotate)
-md5sums=('d1b55031ae6e4bce37f8776b94d8b930'
+md5sums=('ea813aee2c344c2f5b66cdb24a472738'
          '5dd4d09914a4403b9df778ec1d66167c'
          '19a26a61c8afe78defb8b4544f79a9a0')
 
 build() {
   cd $pkgname-$pkgver
+
+  CFLAGS+=" -fPIE -pie" && CXXFLAGS+=" -fPIE -pie"
 
   ./configure \
     --prefix=/etc/nginx \

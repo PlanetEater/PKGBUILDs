@@ -5,7 +5,6 @@
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - removed makedepend on vc - not for ARM
-#  - patch to fix qreal ARMisms
 
 pkgbase=calligra
 pkgname=('calligra-braindump'
@@ -24,8 +23,8 @@ pkgname=('calligra-braindump'
          'calligra-sheets'
          'calligra-stage'
          'calligra-words')
-pkgver=2.9.0
-pkgrel=4
+pkgver=2.9.2
+pkgrel=3
 arch=('i686' 'x86_64')
 url='http://www.calligra-suite.org/'
 license=('FDL1.2' 'GPL2' 'LGPL')
@@ -35,16 +34,11 @@ makedepends=('cmake' 'automoc4' 'boost' 'kdepimlibs' 'eigen' 'kdeedu-marble'
              'openjpeg' 'kdegraphics-okular' 'pstoedit' 'libvisio'
              'libetonyek' 'libpqxx' 'libspnav' 'postgresql')
 groups=('calligra')
-source=("http://download.kde.org/stable/${pkgbase}-${pkgver}/${pkgbase}-${pkgver}.tar.xz"
-        'arm.patch')
-md5sums=('78ca03bcd5e5a4aff23694fce3835735'
-         'e701bc237f84bfa9ed6531d1446008da')
+source=("http://download.kde.org/stable/${pkgbase}-${pkgver}/${pkgbase}-${pkgver}.tar.xz")
+md5sums=('a293d85b288468c14c8638ad0dc37947')
 
 prepare() {
   mkdir build
-
-  cd ${pkgbase}-${pkgver}
-  patch -p1 -i ../arm.patch
 }
 
 build() {

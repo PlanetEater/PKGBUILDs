@@ -1,4 +1,4 @@
-From 66194a57f0a746b701c019b3a232e01eccf1044a Mon Sep 17 00:00:00 2001
+From 03e44453292b21a4dad61e0fa79256117ec77c1b Mon Sep 17 00:00:00 2001
 From: Willy Tarreau <w@xxxxxx>
 Date: Sun, 2 Dec 2012 19:56:58 +0100
 Subject: [PATCH 2/6] ARM: atags/fdt: retrieve MAC addresses from Marvell boot
@@ -43,5 +43,5 @@ index 9448aa0..ac7b6ae 100644
  	}
  
 -- 
-2.3.1
+2.3.5
 
