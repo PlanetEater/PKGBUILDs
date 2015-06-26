@@ -3,12 +3,11 @@
 
 buildarch=2
 
-_rcver=4.0
-_rcrel=7
+_rcver=4.1
+_rcrel=8
 
 pkgbase=linux-armv5-rc
-#_srcname=linux-4.$((${_rcver##*.}-1))
-_srcname=linux-3.19
+_srcname=linux-4.$((${_rcver##*.}-1))
 _kernelname=${pkgbase#linux}
 _desc="ARMv5 multi-platform"
 pkgver=${_rcver}.rc${_rcrel}
@@ -18,22 +17,24 @@ url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
-source=("http://www.kernel.org/pub/linux/kernel/v3.x/${_srcname}.tar.xz"
+source=("http://www.kernel.org/pub/linux/kernel/v4.x/${_srcname}.tar.xz"
         "https://www.kernel.org/pub/linux/kernel/v4.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
-        "git://git.code.sf.net/p/aufs/aufs3-standalone#branch=aufs3.x-rcN"
         '0001-Added-ASoC-driver-for-i.MX233-s-builtin-ADC-DAC-code.patch'
-        '0001-arm-dts-imx23-olinuxino-enable-mxs-builtin-audio.patch'
-        '0002-Added-DTS-with-mxs-builtin-entries-for-testing-the-a.patch'
-        '0001-imx23-I2C-fixes.patch'
+        '0002-ARM-dts-imx23-olinuxino-enable-mxs-builtin-audio.patch'
+        '0003-imx23-I2C-fixes.patch'
+        '0004-Added-DTS-with-mxs-builtin-entries-for-testing-the-a.patch'
+        '0005-at91-ariag25-updates.patch'
+        '0006-at91-arietta-g25-support.patch'
         'config')
-md5sums=('d3fc8316d4d4d04b65cbc2d70799e763'
-         '0d6ecab86e4002a11256547535370d10'
-         'SKIP'
-         '114af68d721fdc22548994b847807929'
-         '3a1e689563354c2f9f2d2764e1baa334'
-         'a88071c80e1c2b22637894ae148c74b8'
-         'e64077ce856769fc3af2a15ae95d8310'
-         'd48b211080137cb3e56559e314eddae8')
+md5sums=('a86916bd12798220da9eb4a1eec3616d'
+         '9bd2e3045ff03759558a5d94a27dfdc4'
+         '1576643242d4c2a4ef3f69c62cba953c'
+         'dc460708c043cac8c70e733fcd6e1a9b'
+         'e29707ad7bf5b2d357ad6d96cd9d88ac'
+         'decd45d4861dbf461196e6af4e34e423'
+         '8c926477e229099a35ce4b67c13dcc6a'
+         '069885e001c96ed6095dedd9bf840141'
+         '80cc6e66dd3ac0c33bf15b975a466085')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
@@ -43,20 +44,11 @@ prepare() {
 
   # ALARM patches
   git apply ../0001-Added-ASoC-driver-for-i.MX233-s-builtin-ADC-DAC-code.patch
-  git apply ../0001-arm-dts-imx23-olinuxino-enable-mxs-builtin-audio.patch
-  git apply ../0002-Added-DTS-with-mxs-builtin-entries-for-testing-the-a.patch
-  git apply ../0001-imx23-I2C-fixes.patch
-
-  # AUFS patches
-  #cp -ru "${srcdir}/aufs3-standalone/Documentation" .
-  #cp -ru "${srcdir}/aufs3-standalone/fs" .
-  #cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" ./include/linux
-  #cp -ru "${srcdir}/aufs3-standalone/include/uapi/linux/aufs_type.h" ./include/uapi/linux
-
-  #git apply ../aufs3-standalone/aufs3-kbuild.patch
-  #git apply ../aufs3-standalone/aufs3-base.patch
-  #git apply ../aufs3-standalone/aufs3-mmap.patch
-  #git apply ../aufs3-standalone/aufs3-standalone.patch
+  git apply ../0002-ARM-dts-imx23-olinuxino-enable-mxs-builtin-audio.patch
+  git apply ../0003-imx23-I2C-fixes.patch
+  git apply ../0004-Added-DTS-with-mxs-builtin-entries-for-testing-the-a.patch
+  git apply ../0005-at91-ariag25-updates.patch
+  git apply ../0006-at91-arietta-g25-support.patch
 
   cat "${srcdir}/config" > ./.config
 
@@ -101,7 +93,7 @@ _package() {
   pkgdesc="The Linux Kernel and modules - ${_desc}"
   depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7')
   optdepends=('crda: to set the correct wireless channels of your country')
-  provides=('kernel26' 'linux=${pkgver}' 'aufs_friendly')
+  provides=('kernel26' "linux=${pkgver}")
   conflicts=('linux')
   install=${pkgname}.install
 
@@ -147,7 +139,7 @@ _package() {
 
 _package-headers() {
   pkgdesc="Header files and scripts for building modules for linux kernel - ${_desc}"
-  provides=('linux-headers=${pkgver}')
+  provides=("linux-headers=${pkgver}")
   conflicts=('linux-headers')
 
   install -dm755 "${pkgdir}/usr/lib/modules/${_kernver}"
@@ -172,6 +164,8 @@ _package-headers() {
   cp -a arch/$KARCH/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/
   mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-mvebu
   cp -a arch/$KARCH/mach-mvebu/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-mvebu/
+  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-at91
+  cp -a arch/$KARCH/mach-at91/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-at91/
   mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-orion
   cp -a arch/$KARCH/plat-orion/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-orion/
 

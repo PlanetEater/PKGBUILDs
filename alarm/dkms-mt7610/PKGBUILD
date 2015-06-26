@@ -1,0 +1,46 @@
+# Maintainer: Adrian Fedoreanu <adrian.fedoreanu@gmail.com>
+pkgname=dkms-mt7610
+pkgver=v3.0.0.3
+pkgrel=2
+pkgdesc="Driver for Ralink/MediaTek MT7610 chipset wireless adaptors"
+arch=('any')
+url="http://www.ralinktech.com"
+license=('GPL')
+depends=('dkms' 'linux-headers')
+conflicts=()
+install=${pkgname}.install
+options=(!strip)
+_pkgname="mt7610"
+source=("https://github.com/phedoreanu/mt7610u_wifi_sta_v3002_dpo_20130916/archive/v3.0.0.3.tar.gz"
+        "dkms.conf")
+
+md5sums=('893f1d25554fae13092ef1d98ec020f2'
+         'd470c24251bb61a06f467ec5de7b4340')
+
+prepare() {
+    rm -rf ${srcdir}/$_pkgname-$pkgver
+
+    # Change src dir name
+    mv ${srcdir}/mt7610u_wifi_sta_v3002_dpo_20130916-3.0.0.3 ${srcdir}/$_pkgname-$pkgver
+    cd "${srcdir}/${_pkgname}-${pkgver}/"
+}
+
+package() {
+    installDir="$pkgdir/usr/src/$_pkgname-$pkgver"
+
+    install -dm755 "$installDir"
+    install -m644 "$srcdir/dkms.conf" "$installDir"
+    install -dm755 "$pkgdir/etc/modprobe.d"
+
+    cd "${srcdir}/${_pkgname}-${pkgver}/"
+
+    for d in `find . -type d`
+    do
+        install -dm755  "$installDir/$d"
+    done
+
+    for f in `find . -type f -o -type l`
+    do
+        install -m644 "${srcdir}/${_pkgname}-${pkgver}/$f" "$installDir/$f"
+    done
+}

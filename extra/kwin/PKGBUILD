@@ -9,13 +9,13 @@
 # - Proper upstream patches for the above are pending.
 
 pkgname=kwin
-pkgver=5.2.2
+pkgver=5.3.1
 pkgrel=1
 pkgdesc='KDE Window manager'
 arch=('i686' 'x86_64')
 url='https://projects.kde.org/projects/kde/workspace/kwin'
 license=('LGPL')
-depends=('qt5-multimedia' 'plasma-framework' 'knewstuff' 'libxcursor' 'kinit'
+depends=('qt5-multimedia' 'plasma-framework' 'knewstuff' 'xcb-util-cursor' 'kinit'
          'hicolor-icon-theme' 'kwayland' 'libinput' 'kdecoration')
 makedepends=('extra-cmake-modules' 'qt5-tools' 'kdoctools')
 groups=('plasma-next')
@@ -24,9 +24,9 @@ conflicts=('kdebase-workspace')
 source=("http://download.kde.org/stable/plasma/${pkgver}/${pkgname}-${pkgver}.tar.xz"
         "rpi_fix_build.patch"
         "kwin_remove_eglonxbackend.patch")
-md5sums=('543fd38ecfa2bb0a8dd251a2bbbd10bf'
+md5sums=('34607a1d125dc12fd88b5b8cdcc396b1'
          '65af20bd49436056c93932ad7f80f7dd'
-         '176fedf90b0056de0934ea926095de89')
+         '7bfedcb642b0d6b517cc9e639c9b9c16')
 
 prepare() {
   mkdir build
@@ -35,7 +35,7 @@ prepare() {
   if [ "$CARCH" == 'armv6h' ]; then
     cd ${pkgname}-${pkgver}
     patch -p1 -i ../rpi_fix_build.patch
-    patch -p1 -i ../kwin_remove_eglonxbackend.patch
+    #patch -p1 -i ../kwin_remove_eglonxbackend.patch
   fi
 }
 

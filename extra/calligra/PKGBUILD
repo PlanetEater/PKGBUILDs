@@ -23,8 +23,8 @@ pkgname=('calligra-braindump'
          'calligra-sheets'
          'calligra-stage'
          'calligra-words')
-pkgver=2.9.2
-pkgrel=3
+pkgver=2.9.5
+pkgrel=2
 arch=('i686' 'x86_64')
 url='http://www.calligra-suite.org/'
 license=('FDL1.2' 'GPL2' 'LGPL')
@@ -32,13 +32,18 @@ makedepends=('cmake' 'automoc4' 'boost' 'kdepimlibs' 'eigen' 'kdeedu-marble'
              'lcms2' 'libmariadbclient' 'freetds' 'xbase' 'libwpg' 'opencolorio'
              'libwps' 'gsl' 'glew' 'fftw' 'poppler-qt' 'libkdcraw' 'libodfgen'
              'openjpeg' 'kdegraphics-okular' 'pstoedit' 'libvisio'
-             'libetonyek' 'libpqxx' 'libspnav' 'postgresql')
+             'libetonyek' 'libpqxx' 'libspnav' 'postgresql') # 'libqgit2'
 groups=('calligra')
-source=("http://download.kde.org/stable/${pkgbase}-${pkgver}/${pkgbase}-${pkgver}.tar.xz")
-md5sums=('a293d85b288468c14c8638ad0dc37947')
+source=("http://download.kde.org/stable/${pkgbase}-${pkgver}/${pkgbase}-${pkgver}.tar.xz" 'libwps-0.4.patch')
+md5sums=('9469c373206ec0d98d80efe8d722930d'
+         '6ea15f8b3938838d89ea0aa08921afd1')
 
 prepare() {
   mkdir build
+
+# Fix build against libwps 0.4
+  cd $pkgbase-$pkgver
+  patch -p1 -i "$srcdir"/libwps-0.4.patch
 }
 
 build() {
@@ -255,6 +260,7 @@ package_calligra-devtools() {
 package_calligra-gemini() {
   pkgdesc="QML interface for Calligra Words and Stage"
   depends=('calligra-words' 'calligra-stage')
+#  optdepends=('libqgit2: GIT plugin')
   install=calligra-gemini.install
 
   cd build/qtquick

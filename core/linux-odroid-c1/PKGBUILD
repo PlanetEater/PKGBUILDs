@@ -4,11 +4,11 @@
 buildarch=4
 
 pkgbase=linux-odroid-c1
-_commit=877f0fc4aaa3d29abb011639c00db83733726494
+_commit=5fd2c0a66767fc6a92ff9c0b5daed57215c78ebc
 _srcname=linux-${_commit}
 _kernelname=${pkgbase#linux}
 _desc="ODROID-C1"
-pkgver=3.10.73
+pkgver=3.10.79
 pkgrel=4
 arch=('armv7h')
 url="https://github.com/hardkernel/linux"
@@ -19,22 +19,22 @@ source=("https://github.com/hardkernel/linux/archive/${_commit}.tar.gz"
         "git+https://github.com/mdrjr/c1_bootini.git"
         'config'
         'amlogic.service'
-        '0001-dirty-status-led-active-low-hack.patch'
-        '0002-remove-backports-cflags.patch')
-md5sums=('7e327eba7cb9b50e4326d9094f7e46e9'
+        '0001-remove-backports-cflags.patch'
+        '0002-AUFS-fix-for-3.10.76.patch')
+md5sums=('5e25414b8054c8cdb44af268e2998958'
          'SKIP'
-         '4d625bc2d4b4315543edf7b02b2ab869'
+         '892014616cf866d7f46e13e63659e187'
          'b8956789318f49cec5b8bb0b41654a9b'
-         '1d2f1d042ebe8b49a85b6ceab9dc0dd4'
-         'b2014d69ffa477f23d3a311a621a6bdc')
+         '5cbceb4671d498ebd3548c6d02b5324d'
+         '160a47ab9efd5cbbf4b0ac392ae59180')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
 
   cat "${srcdir}/config" > ./.config
 
-  git apply ../0001-dirty-status-led-active-low-hack.patch
-  git apply ../0002-remove-backports-cflags.patch
+  git apply ../0001-remove-backports-cflags.patch
+  git apply ../0002-AUFS-fix-for-3.10.76.patch
 
   # add pkgrel to extraversion
   sed -ri "s|^(EXTRAVERSION =)(.*)|\1 \2-${pkgrel}|" Makefile

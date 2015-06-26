@@ -1,32 +1,34 @@
 # $Id$
-# Maintainer:  Bartłomiej Piotrowski <bpiotrowski@archlinux.org>
+# Maintainer: Christian Hesse <mail@eworm.de>
+# Contributor:  Bartłomiej Piotrowski <bpiotrowski@archlinux.org>
 # Contributor: Eivind Uggedal <eivind@uggedal.com>
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - armv7 needs to be built with fPIC
 
 pkgname=mpv
-pkgver=0.8.3
+pkgver=0.9.2
 pkgrel=1
 pkgdesc='Video player based on MPlayer/mplayer2'
 arch=('i686' 'x86_64')
 license=('GPL')
 url='http://mpv.io'
 depends=(
-  'ffmpeg' 'lcms2' 'libdvdread' 'libcdio-paranoia' 'libgl' 'enca' 'libguess'
-  'libxinerama' 'mpg123' 'libxv' 'libxkbcommon' 'libva' 'lirc' 'wayland'
-  'desktop-file-utils' 'hicolor-icon-theme' 'xdg-utils' 'lua' 'libdvdnav'
-  'libguess' 'libxrandr' 'jack' 'smbclient'
+  'ffmpeg' 'lcms2' 'libcdio-paranoia' 'libgl' 'enca' 'libxss'
+  'libxinerama' 'libxv' 'libxkbcommon' 'libva' 'wayland'
+  'desktop-file-utils' 'hicolor-icon-theme' 'xdg-utils' 'lua52' 'libdvdnav'
+  'libguess' 'libxrandr' 'jack' 'smbclient' 'rubberband'
 )
 makedepends=('mesa' 'python-docutils' 'ladspa' 'hardening-wrapper')
 optdepends=('youtube-dl: for video-sharing websites playback')
 options=('!emptydirs' '!buildflags')
 install=mpv.install
-source=(https://github.com/mpv-player/$pkgname/archive/v$pkgver.tar.gz)
-md5sums=('a34ff41da1d5393ac8d6f9fbb743d3bd')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/mpv-player/$pkgname/archive/v$pkgver.tar.gz")
+md5sums=('ed1384e703f7032e531731842e4da4f7')
 
 prepare() {
   cd $pkgname-$pkgver
+
   ./bootstrap.py
 }
 
@@ -37,7 +39,6 @@ build() {
 
   ./waf configure --prefix=/usr \
     --confdir=/etc/mpv \
-    --enable-joystick \
     --enable-zsh-comp \
     --enable-libmpv-shared \
     --enable-cdda

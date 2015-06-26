@@ -9,13 +9,13 @@ buildarch=20
 
 pkgbase=libreoffice-fresh
 pkgname=('libreoffice-fresh-sdk' 'libreoffice-fresh')
-_LOver=4.4.2.2
-pkgver=4.4.2
-pkgrel=1
+_LOver=4.4.3.2
+pkgver=4.4.3
+pkgrel=2
 arch=('i686' 'x86_64')
 license=('LGPL3')
 url="http://www.libreoffice.org/"
-makedepends=('curl>=7.20.0' 'hunspell>=1.2.8' 'python>=3.4' 'libwpd>=0.9.2' 'libwps'
+makedepends=('curl>=7.20.0' 'hunspell>=1.2.8' 'python>=3.4' 'libwpd>=0.9.2' # 'libwps'
 	'neon>=0.28.6' 'pango' 'nspr' 'libjpeg' 'libxrandr' 'libgl' 'dbus-glib'
 	'libxslt' 'redland' 'icu' 'hyphen' 'lpsolve' 'gcc-libs' 'sh' 'graphite'
 	'lcms2' 'poppler>=0.24.0' 'libvisio' 'libetonyek' 'libodfgen' 'libcdr'
@@ -66,6 +66,7 @@ source=(${_mirror}/libreoffice{,-help,-translations}-${_LOver}.tar.xz{,.asc}
 	${_additional_source_url}/5821b806a98e6c38370970e682ce76e8-libcmis-0.5.0.tar.gz
 	${_additional_source_url}/libfreehand-0.1.0.tar.bz2
 	${_additional_source_url}/36271d3fa0d9dec1632029b6d7aac925-liblangtag-0.5.1.tar.bz2
+	${_additional_source_url}/libwps-0.3.1.tar.bz2
 	${_additional_source_url2}/185d60944ea767075d27247c3162b3bc-unowinreg.dll
 	make-pyuno-work-with-system-wide-module-install.diff
 	libreoffice-fresh.sh libreoffice-fresh.csh)
@@ -102,12 +103,13 @@ noextract=(d6eef4b4cacb2183f2bf265a5a03a354-boost_1_55_0.tar.bz2
 	5821b806a98e6c38370970e682ce76e8-libcmis-0.5.0.tar.gz
 	libfreehand-0.1.0.tar.bz2
 	36271d3fa0d9dec1632029b6d7aac925-liblangtag-0.5.1.tar.bz2
+	libwps-0.3.1.tar.bz2
 	185d60944ea767075d27247c3162b3bc-unowinreg.dll)
-md5sums=('5971b3feefec99f819d8b6c6260eb845'
+md5sums=('427075aba3e1d32197954b7d6a2d0566'
          'SKIP'
-         'a6cf287374c39a488dc8e77e062aa7b7'
+         '9019bcc3d1bc4bb882c3366a2dfc302d'
          'SKIP'
-         '538f8b3b9514cdc4ffb3d671f2f79609'
+         '8a7d1a0976f37334cb15cd93e01f5914'
          'SKIP'
          'd6eef4b4cacb2183f2bf265a5a03a354'
          '1f24ab1d39f4a51faf22244c94a6203f'
@@ -142,6 +144,7 @@ md5sums=('5971b3feefec99f819d8b6c6260eb845'
          '5821b806a98e6c38370970e682ce76e8'
          '5f029fef73e42a2c2ae4524a7513f97d'
          '36271d3fa0d9dec1632029b6d7aac925'
+         'a111d9ef5a0dab564e9aec0f2cf8d218'
          '185d60944ea767075d27247c3162b3bc'
          'dcb5ad3e5f7139227677ea064b075422'
          '4195735a80876ae812fca5736b50192a'
@@ -255,7 +258,7 @@ build() {
 		--with-system-glew \
 		--with-system-glm \
 		--with-system-libwpg \
-		--with-system-libwps \
+		--without-system-libwps \
 		--with-system-redland\
 		--with-system-serf \
 		--without-system-npapi-headers \
@@ -313,7 +316,7 @@ package_libreoffice-fresh-sdk() {
 
 package_libreoffice-fresh() {
 	pkgdesc="LibreOffice branch which contains new features and program enhancements"
-	depends=('curl>=7.20.0' 'hunspell>=1.2.8' 'python>=3.4' 'libwpd>=0.9.2' 'libwps'
+	depends=('curl>=7.20.0' 'hunspell>=1.2.8' 'python>=3.4' 'libwpd>=0.9.2' # 'libwps'
 		'neon>=0.28.6' 'pango' 'nspr' 'libjpeg' 'libxrandr' 'libgl' 'dbus-glib'
 		'libxslt' 'redland' 'icu' 'hyphen' 'lpsolve' 'gcc-libs' 'sh' 'graphite'
 		'lcms2' 'poppler>=0.24.0' 'libvisio' 'libetonyek' 'libodfgen' 'libcdr'
