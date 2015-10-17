@@ -55,6 +55,7 @@ prepare() {
               --disable-altivec \
               --disable-audio-jack \
               --disable-ccache \
+              --disable-mythlogserver \
               --enable-libfftw3 \
               --enable-libmp3lame \
               --enable-libvpx \
