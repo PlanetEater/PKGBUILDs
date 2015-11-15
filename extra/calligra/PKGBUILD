@@ -1,5 +1,6 @@
 # $Id$
 # Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Maintainer: Antonio Rojas <arojas@archlinux.org>
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 # Contributor: Ronald van Haren <ronald.archlinux.org>
 
@@ -23,27 +24,32 @@ pkgname=('calligra-braindump'
          'calligra-sheets'
          'calligra-stage'
          'calligra-words')
-pkgver=2.9.5
+pkgver=2.9.9
 pkgrel=2
 arch=('i686' 'x86_64')
 url='http://www.calligra-suite.org/'
 license=('FDL1.2' 'GPL2' 'LGPL')
-makedepends=('cmake' 'automoc4' 'boost' 'kdepimlibs' 'eigen' 'kdeedu-marble'
+makedepends=('cmake' 'automoc4' 'boost' 'kdepimlibs4' 'eigen' 'libmarble4'
              'lcms2' 'libmariadbclient' 'freetds' 'xbase' 'libwpg' 'opencolorio'
-             'libwps' 'gsl' 'glew' 'fftw' 'poppler-qt' 'libkdcraw' 'libodfgen'
+             'libwps' 'gsl' 'glew' 'fftw' 'poppler-qt4' 'libkdcraw4' 'libodfgen'
              'openjpeg' 'kdegraphics-okular' 'pstoedit' 'libvisio'
              'libetonyek' 'libpqxx' 'libspnav' 'postgresql') # 'libqgit2'
 groups=('calligra')
 source=("http://download.kde.org/stable/${pkgbase}-${pkgver}/${pkgbase}-${pkgver}.tar.xz" 'libwps-0.4.patch')
-md5sums=('9469c373206ec0d98d80efe8d722930d'
+md5sums=('2d138719508ba62560bd29c7abd6bf4f'
          '6ea15f8b3938838d89ea0aa08921afd1')
 
 prepare() {
-  mkdir build
+  mkdir -p build
 
 # Fix build against libwps 0.4
   cd $pkgbase-$pkgver
   patch -p1 -i "$srcdir"/libwps-0.4.patch
+
+# Fix build against libmarble4
+  sed -e 's|PATH_SUFFIXES marble|PATH_SUFFIXES marble4|g' -i CMakeLists.txt
+  sed -e 's|#include <marble/|#include <marble4/|g' -e 's|#include "marble/|#include "marble4/|g' \
+    -i plugins/reporting/maps/{*.cpp,*.h,marble/*.h} -i kexi/plugins/forms/widgets/mapbrowser/{*.cpp,*.h}
 }
 
 build() {
@@ -53,7 +59,10 @@ build() {
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \
     -DBUILD_active=OFF \
-    -DWITH_Soprano=OFF
+    -DWITH_Soprano=OFF \
+    -DMARBLE_INCLUDE_DIR=/usr/include/marble4 \
+    -DMARBLE_GLOBAL_HEADER=/usr/include/marble4/MarbleGlobal.h \
+    -DMARBLE_LIBRARIES=/usr/lib/libmarblewidget.so
   make
 }
 
@@ -64,8 +73,6 @@ package_calligra-filters() {
               'libwps: Microsoft Works file word processor format import'
               'libvisio: Microsoft Visio import filter'
               'libetonyek: Apple Keynote import filter')
-  conflicts=('koffice-filters')
-  replaces=('koffice-filters')
   install=calligra-filters.install
 
   cd build/filters
@@ -74,13 +81,9 @@ package_calligra-filters() {
 
 package_calligra-libs() {
   pkgdesc="Libraries for the Calligra office suite"
-  depends=('kdepimlibs' 'kactivities' 'libkactivities4')
-  conflicts=('koffice-interfaces' 'koffice-libs' 'koffice-pics'
-             'koffice-servicetypes' 'calligra-interfaces'
-             'calligra-pics' 'calligra-servicetypes')
-  replaces=('koffice-interfaces' 'koffice-libs' 'koffice-pics'
-             'koffice-servicetypes' 'calligra-interfaces'
-             'calligra-pics' 'calligra-servicetypes')
+  depends=('kdepimlibs4' 'libkactivities4')
+  conflicts=('calligra-interfaces' 'calligra-pics' 'calligra-servicetypes')
+  replaces=('calligra-interfaces' 'calligra-pics' 'calligra-servicetypes')
 
   for d in interfaces libs pics servicetypes; do
     cd "${srcdir}"/build/${d}
@@ -91,9 +94,7 @@ package_calligra-libs() {
 package_calligra-plugins() {
   pkgdesc="Plugins for the Calligra office suite"
   depends=('calligra-libs' 'calligra-filters' 'libspnav')
-  optdepends=('kdeedu-marble: map shape for Calligra')
-  conflicts=('koffice-plugins' 'koffice-kchart')
-  replaces=('koffice-plugins' 'koffice-kchart' 'koffice-kformula')
+  optdepends=('libmarble4: map shape for Calligra')
   install=calligra-plugins.install
 
   cd build/plugins
@@ -108,8 +109,6 @@ package_calligra-karbon() {
   depends=('calligra-libs' 'kdebase-runtime' 'pstoedit')
   optdepends=('calligra-filters: import/export filters'
               'calligra-extras: extra calligra tools')
-  conflicts=('koffice-karbon' 'koffice-karbon-doc' 'calligra-karbon-doc')
-  replaces=('koffice-karbon' 'koffice-karbon-doc' 'calligra-karbon-doc')
   install=calligra-karbon.install
 
   cd build/karbon
@@ -124,10 +123,8 @@ package_calligra-kexi() {
               'freetds: Sybase & MS SQL driver'
               'xbase: XBase driver'
               'calligra-sheets: Spreadsheet-to-Kexi-table import plugin'
-              'kdeedu-marble: map form widget'
+              'libmarble4: map form widget'
               'calligra-plugins: extra calligra plugins')
-  conflicts=('koffice-kexi' 'koffice-kexi-doc' 'calligra-kexi-doc')
-  replaces=('koffice-kexi' 'koffice-kexi-doc' 'calligra-kexi-doc')
   install=calligra-kexi.install
 
   cd build/kexi
@@ -139,8 +136,6 @@ package_calligra-kexi() {
 package_calligra-plan() {
   pkgdesc="Calligra Project Management Component"
   depends=('calligra-words')
-  conflicts=('koffice-kplato' 'calligra-kplato')
-  replaces=('koffice-kplato' 'calligra-kplato')
   install=calligra-plan.install
 
   cd build/plan
@@ -153,8 +148,6 @@ package_calligra-plan() {
 package_calligra-stage() {
   pkgdesc="Write presentation documents"
   depends=('calligra-plugins' 'kdebase-runtime')
-  conflicts=('koffice-kpresenter' 'koffice-kpresenter-doc' 'calligra-stage-doc')
-  replaces=('koffice-kpresenter' 'koffice-kpresenter-doc' 'calligra-stage-doc')
   install=calligra-stage.install
 
   cd build/stage
@@ -165,10 +158,8 @@ package_calligra-stage() {
 
 package_calligra-krita() {
   pkgdesc="Edit and paint images"
-  depends=('calligra-plugins' 'kdebase-runtime' 'opencolorio' 'libkdcraw'
+  depends=('calligra-plugins' 'kdebase-runtime' 'opencolorio' 'libkdcraw4'
            'fftw' 'glew' 'curl' 'gsl')
-  conflicts=('koffice-krita' 'calligra-krita-doc')
-  replaces=('koffice-krita' 'calligra-krita-doc')
   install=calligra-krita.install
 
   cd build/krita
@@ -181,8 +172,6 @@ package_calligra-sheets() {
   optdepends=('calligra-filters: import/export filters'
               'calligra-plugins: extra calligra plugins'
               'calligra-extras: extra calligra tools')
-  conflicts=('koffice-kspread' 'koffice-kspread-doc' 'calligra-tables-doc' 'calligra-tables')
-  replaces=('koffice-kspread' 'koffice-kspread-doc' 'calligra-tables-doc' 'calligra-tables')
   install=calligra-sheets.install
 
   cd build/sheets
@@ -195,8 +184,6 @@ package_calligra-words() {
   pkgdesc="Word Processor"
   depends=('kdebase-runtime' 'calligra-plugins')
   optdepends=('calligra-extras: extra calligra tools')
-  conflicts=('koffice-kword')
-  replaces=('koffice-kword')
   install=calligra-words.install
 
   cd build/words
@@ -205,8 +192,6 @@ package_calligra-words() {
 
 package_calligra-handbook() {
   pkgdesc="Documentation for Calligra"
-  conflicts=('koffice-handbook')
-  replaces=('koffice-handbook')
   options=('docs')
 
   cd build/doc/calligra
@@ -226,8 +211,6 @@ package_calligra-flow() {
   pkgdesc="Flowchart & Diagram Editing"
   depends=('calligra-words')
   optdepends=('calligra-karbon: to export the charts in various formats')
-  conflicts=('calligra-flow-doc')
-  replaces=('calligra-flow-doc')
   install=calligra-flow.install
 
   cd build/flow
@@ -238,8 +221,8 @@ package_calligra-extras() {
   pkgdesc="Calligra suite extras"
   depends=('calligra-libs')
   optdepends=('kdegraphics-okular')
-  conflicts=('calligra-tools' 'koffice-templates' 'calligra-templats')
-  replaces=('calligra-tools' 'koffice-templates' 'calligra-templats')
+  conflicts=('calligra-tools')
+  replaces=('calligra-tools')
   install=calligra-extras.install
 
   cd build/extras

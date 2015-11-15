@@ -4,7 +4,7 @@
 # it would be great if pkgname and not just pkgver was passed in the arg list
 
 _pkg='gnuradio'
-_cpython='cpython-34'
+_cpython='cpython-35'
 
 post_upgrade() {
   while read _f; do
@@ -38,7 +38,9 @@ post_upgrade() {
     rmdir --ignore-fail-on-non-empty "$_thisdir" &> /dev/null
   done <<<  "$(pacman -Qql $_pkg | grep '\.py$')"
 
-  update-desktop-database -q
+  if [[ -e /usr/bin/update-desktop-database ]]; then
+    update-desktop-database -q
+  fi
 }
 
 post_install() {

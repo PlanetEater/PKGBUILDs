@@ -7,25 +7,35 @@ pkgbase=linux-odroid
 pkgname=('linux-odroid-x' 'linux-odroid-x2' 'linux-odroid-u2' 'linux-headers-odroid')
 _kernelname=${pkgname#linux}
 _basekernel=3.8
-pkgver=${_basekernel}.13.29
+pkgver=${_basekernel}.13.30
 pkgrel=2
 arch=('armv7h')
 url="http://github.com/hardkernel/linux/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'git' 'inetutils' 'bc')
 options=('!strip')
-_commit=2e69deea23b94e2b2c3d0696306f722f49742660
+_commit=1130f8761789bfe79de0db2b7f5013ff3eb1f978
 source=("https://github.com/hardkernel/linux/archive/${_commit}.tar.gz"
+        'add-gcc5-support.patch'
+	'gcc5-use-std89.patch'
+        'rtl8812_to_v4_3_14_and_enable_rtl8821.patch.xz'
         'config_x'
         'config_x2'
         'config_u2')
-md5sums=('d26d94527d4f8a4b5592f8983968e933'
-         '57f724207784f97c76e2f1915ffccbef'
-         '418189dad3c5da3718b70e63f80cf7f7'
-         '686747466e2615ac796af3314018926a')
+md5sums=('9eec4534016d3bd8dc6fb372ec7ab574'
+         '2873a50f4311434fd07d7d52bccaade7'
+         '407619b134dd00b453ebba9f23dcabf5'
+         'c6d56cc8134dd25d97d0416ef98a3dfe'
+         '98decab218ac0e376f2bd9b435f5634e'
+         '28e8fe0251cecf2e05798f2ac4cce06a'
+         '67abbc5dd3f81a03012230423618ec1e')
 
 prepare() {
   cd "${srcdir}/linux-${_commit}"
+
+  patch -Np1 -i ${srcdir}/add-gcc5-support.patch
+  patch -Np1 -i ${srcdir}/gcc5-use-std89.patch
+  patch -p1 -i ${srcdir}/rtl8812_to_v4_3_14_and_enable_rtl8821.patch
 
   # add pkgrel to extraversion
   sed -ri "s|^(EXTRAVERSION =)(.*)|\1 \2-${pkgrel}|" Makefile

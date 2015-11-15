@@ -2,14 +2,14 @@
 # arg 2:  the old package version
 
 KERNEL_NAME=-imx6-cubox-dt
-KERNEL_VERSION=3.14.44-1-ARCH
+KERNEL_VERSION=3.14.55-1-ARCH
 
 post_install () {
   # updating module dependencies
   echo ">>> Updating module dependencies. Please wait ..."
   depmod ${KERNEL_VERSION}
 
-  echo "NOTE: You will probably need to copy /boot/uImage to the first partition"
+  echo "NOTE: You will probably need to copy the contents of /boot/ to the first partition"
   echo "      of your SD card."
 }
 

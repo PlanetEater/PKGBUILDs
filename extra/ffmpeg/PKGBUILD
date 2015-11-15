@@ -1,6 +1,7 @@
 # $Id$
 # Maintainer:  Ionut Biru <ibiru@archlinux.org>
 # Maintainer:  Bartłomiej Piotrowski <bpiotrowski@archlinux.org>
+# Maintainer:  Maxime Gauduin <alucryd@archlinux.org>
 # Contributor: Tom Newsom <Jeepster@gmx.co.uk>
 # Contributor: Paul Mattal <paul@archlinux.org>
 
@@ -8,30 +9,38 @@
 #  - use -fPIC in host cflags for armv7 to fix print_options.c compile
 
 pkgname=ffmpeg
-pkgver=2.7
-pkgrel=1
+pkgver=2.8.1
+pkgrel=3
 epoch=1
 pkgdesc='Complete and free Internet live audio and video broadcasting solution'
 arch=('i686' 'x86_64')
 url='http://ffmpeg.org/'
 license=('GPL')
 depends=(
-      'alsa-lib' 'bzip2' 'fontconfig' 'gnutls' 'gsm' 'lame' 'libass' 'libvdpau'
-      'libbluray' 'libmodplug' 'libpulse' 'libtheora' 'libva' 'opencore-amr'
-      'openjpeg' 'opus' 'schroedinger' 'sdl' 'speex' 'v4l-utils' 'xvidcore'
-      'zlib' 'fribidi' 'libssh'
-      'libvorbisenc.so' 'libvorbis.so' 'libvpx.so' 'libx264.so' 'libx265.so'
+      'alsa-lib' 'bzip2' 'fontconfig' 'fribidi' 'gnutls' 'gsm' 'lame' 'libass'
+      'libbluray' 'libmodplug' 'libpulse' 'libsoxr' 'libssh' 'libtheora'
+      'libva' 'libvdpau' 'libwebp' 'opencore-amr' 'openjpeg' 'opus'
+      'schroedinger' 'sdl' 'speex' 'v4l-utils' 'xvidcore' 'zlib'
+      'sdl' 'speex' 'v4l-utils' 'xvidcore' 'zlib'
+      'libvidstab.so' 'libvorbis.so' 'libvorbisenc.so' 'libvpx.so' 'libx264.so'
+      'libx265.so'
 )
-makedepends=('libvdpau' 'yasm' 'hardening-wrapper')
+makedepends=('hardening-wrapper' 'ladspa' 'libvdpau' 'yasm')
+optdepends=('ladspa: LADSPA filters')
+provides=(
+      'libavcodec.so' 'libavdevice.so' 'libavfilter.so' 'libavformat.so'
+      'libavresample.so' 'libavutil.so' 'libpostproc.so' 'libswresample.so'
+      'libswscale.so'
+)
 source=(http://ffmpeg.org/releases/$pkgname-$pkgver.tar.bz2{,.asc})
 validpgpkeys=('FCF986EA15E6E293A5644F10B4322F04D67658D8') # ffmpeg-devel
-md5sums=('5a16425b0bde1b952f58cff71b569a45'
+md5sums=('63b2cfeea930e942ff7579fd0064c5be'
          'SKIP')
 
 build() {
   cd $pkgname-$pkgver
 
-  [[ $CARCH == "armv7h" ]] && CONFIG='--host-cflags="-fPIC"'
+  [[ $CARCH == "armv7h" || $CARCH == "aarch64" ]] && CONFIG='--host-cflags="-fPIC"'
 
   ./configure \
     --prefix=/usr \
@@ -43,6 +52,7 @@ build() {
     --enable-fontconfig \
     --enable-gnutls \
     --enable-gpl \
+    --enable-ladspa \
     --enable-libass \
     --enable-libbluray \
     --enable-libfreetype \
@@ -56,12 +66,15 @@ build() {
     --enable-libopus \
     --enable-libpulse \
     --enable-libschroedinger \
+    --enable-libsoxr \
     --enable-libspeex \
     --enable-libssh \
     --enable-libtheora \
     --enable-libv4l2 \
+    --enable-libvidstab \
     --enable-libvorbis \
     --enable-libvpx \
+    --enable-libwebp \
     --enable-libx264 \
     --enable-libx265 \
     --enable-libxvid \

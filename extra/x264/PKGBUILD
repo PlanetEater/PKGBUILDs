@@ -1,22 +1,24 @@
 # $Id$
 # Maintainer:  Ionut Biru <ibiru@archlinux.org>
 # Maintainer:  Bartłomiej Piotrowski <bpiotrowski@archlinux.org>
+# Maintainer:  Maxime Gauduin <alucryd@archlinux.org>
 # Contributor: damir <damir@archlinux.org>
 # Contributor: Paul Mattal <paul@archlinux.org>
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
-#  - configure needs --disable-asm to build on ARM
+#  - configure needs --disable-asm to build on non-AArch64
 
 pkgname=('x264' 'libx264' 'libx264-10bit')
-pkgver=144.20150223
+pkgver=148.20150725
 pkgrel=1
 epoch=2
 arch=('i686' 'x86_64')
 url='http://www.videolan.org/developers/x264.html'
 license=('GPL')
 depends=('glibc')
-makedepends=('yasm' 'git' 'ffmpeg')
-source=(git://git.videolan.org/x264.git#commit=c8a773ebf)
+makedepends=('yasm' 'git' 'ffmpeg' 'l-smash')
+_commit=73ae2d11d472d0eb3b7c218dc1659db32f649b14
+source=(git://git.videolan.org/x264.git#commit=${_commit})
 md5sums=('SKIP')
 
 pkgver() {
@@ -32,21 +34,23 @@ prepare() {
 }
 
 build() {
+  [[ $CARCH != "aarch64" ]] && CONFIG="--disable-asm"
+
   cd $pkgname
   ./configure --prefix=/usr \
-    --enable-shared --enable-pic --disable-asm
+    --enable-shared --enable-pic $CONFIG
   make
 
   cd ../$pkgname-10bit
   ./configure --prefix=/usr \
     --enable-shared --enable-pic \
-    --bit-depth=10 --disable-asm
+    --bit-depth=10 $CONFIG
   make
 }
 
 package_x264() {
   pkgdesc='CLI tools for encoding H264/AVC video streams'
-  depends=('glibc' 'ffmpeg')
+  depends=('ffmpeg' 'liblsmash.so')
   provides=('x264-10bit')
   conflicts=('x264-10bit')
   replaces=('x264-10bit')
@@ -57,7 +61,6 @@ package_x264() {
 
 package_libx264() {
   pkgdesc='Library for encoding H264/AVC video streams'
-  depends=('glibc')
   provides=('libx264.so' 'x264-dev')
   conflicts=('x264-dev')
   replaces=('x264-dev')
@@ -68,7 +71,6 @@ package_libx264() {
 
 package_libx264-10bit() {
   pkgdesc='Library for encoding H264/AVC video streams. 10bit-depth.'
-  depends=('glibc')
   provides=('libx264.so' 'libx264' 'x264-dev')
   conflicts=('libx264' 'x264-dev')
 

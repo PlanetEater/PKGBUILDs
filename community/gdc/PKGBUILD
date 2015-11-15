@@ -7,31 +7,31 @@
 #  - specifid build host
 #  - replaced bugurl with our GitHub issue page
 
+# ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
+#  - TEMPORARY: specify current gdc head commit, adjusted system_zlib.diff
+
 noautobuild=1
 
 pkgname=('gdc' 'libgphobos-devel')
-pkgver=5.1.0
-pkgrel=3
+pkgver=5.2.0
+pkgrel=1
 arch=('i686' 'x86_64')
 url="https://github.com/D-Programming-GDC/GDC"
 license=('GPL')
 makedepends=('binutils>=2.23' 'git' 'gcc' 'make' 'perl' 'automake')
 options=('!emptydirs' '!buildflags')
-_snapshot=4.8-20130725
 source=(
     "ftp://gcc.gnu.org/pub/gcc/releases/gcc-${pkgver}/gcc-${pkgver}.tar.bz2"
-    "gdc::git://github.com/D-Programming-GDC/GDC.git#tag=v2.066.1_gcc"
+    "gdc::git://github.com/D-Programming-GDC/GDC.git#commit=42c4f6c"
     "git+https://github.com/D-Programming-GDC/GDMD.git"
     "folders.diff"
     "system_zlib.diff"
 )
-sha256sums=(
-    'b7dafdf89cbb0e20333dbf5b5349319ae06e3d1a30bf3515b5488f7e89dca5ad'
-    'SKIP'
-    'SKIP'
-    'ea5c80a28026393bd4627485602660a4a01d9fbc65299e95e768013e197bad20'
-    '1bf81cde6a7bad096f76db2f20ad8ab2801cd0ab2dd2fa0219503073e8dae480'
-)
+sha256sums=('5f835b04b5f7dd4f4d2dc96190ec1621b8d89f2dc6f638f9f8bc1b1014ba8cad'
+            'SKIP'
+            'SKIP'
+            'ea5c80a28026393bd4627485602660a4a01d9fbc65299e95e768013e197bad20'
+            '79b618e5223bc145da360bee8cf3e71b86baa15c4686815e418ae8e3110df243')
 
 groups=('dlang' 'dlang-gdc')
 conflicts=('gdc1-bin' 'gdc1-hg' 'gdc-git')
@@ -54,12 +54,12 @@ prepare()
 }
 
 
-build()
-{
+build() {
     # ALARM: Specify build host types
     [[ $CARCH == "arm" ]] && CONFIGFLAG="--host=armv5tel-unknown-linux-gnueabi --build=armv5tel-unknown-linux-gnueabi"
     [[ $CARCH == "armv6h" ]] && CONFIGFLAG="--host=armv6l-unknown-linux-gnueabihf --build=armv6l-unknown-linux-gnueabihf --with-arch=armv6 --with-float=hard --with-fpu=vfp"
     [[ $CARCH == "armv7h" ]] && CONFIGFLAG="--host=armv7l-unknown-linux-gnueabihf --build=armv7l-unknown-linux-gnueabihf --with-arch=armv7-a --with-float=hard --with-fpu=vfpv3-d16"
+    [[ $CARCH == "aarch64" ]] && CONFIGFLAG="--host=aarch64-unknown-linux-gnu --build=aarch64-unknown-linux-gnu --with-arch=armv8-a"
 
     cd ${srcdir}/gcc-build
 
@@ -88,7 +88,6 @@ build()
 package_gdc()
 {
     depends=('gcc' 'perl' 'binutils' 'libgphobos-devel')
-    optdepends=('libgphobos-devel: D standard library, GDC version')
     provides=("d-compiler")
     pkgdesc="Compiler for D programming language which uses gcc backend"
  

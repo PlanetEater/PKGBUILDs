@@ -5,22 +5,23 @@
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - remove numactl from depends, doesn't build on ARM
 #  - drop ceph depend until it builds
+#  - removed qemu makedepend
 
 pkgname=libvirt
-pkgver=1.2.16
+pkgver=1.2.21
 pkgrel=1
 pkgdesc="API for controlling virtualization engines (openvz,kvm,qemu,virtualbox,xen,etc)"
 arch=('i686' 'x86_64')
 url="http://libvirt.org/"
 license=('LGPL')
 depends=('e2fsprogs' 'gnutls' 'iptables' 'libxml2' 'parted' 'polkit' 'python2'
-	 'avahi' 'yajl' 'libpciaccess' 'udev' 'dbus' 'libxau' 'libxdmcp' 'libpcap'
+	 'avahi' 'yajl' 'libpciaccess' 'udev' 'dbus' 'libxau' 'libxdmcp' 'libpcap' 'libcap-ng'
 	 'curl' 'libsasl' 'libgcrypt' 'libgpg-error' 'openssl' 'libxcb' 'gcc-libs'
-	 'iproute2' 'libnl' 'libx11' 'gettext')
+	 'iproute2' 'libnl' 'libx11' 'gettext' 'libssh2' 'netcf')
 makedepends=('pkgconfig' 'lvm2' 'linux-api-headers' 'dnsmasq' 'lxc'
 	     'libiscsi' 'open-iscsi'
 	     'perl-xml-xpath' 'libxslt')
-optdepends=('bridge-utils: for briged networking (default)'
+optdepends=('bridge-utils: for bridged networking (default)'
 	    'dnsmasq: for NAT/DHCP for guests'
 	    'openbsd-netcat: for remote management over ssh'
 	    'qemu'
@@ -67,7 +68,7 @@ source=("http://libvirt.org/sources/$pkgname-$pkgver.tar.gz"
 	libvirtd.conf.d
 	libvirtd-guests.conf.d
 	libvirt.tmpfiles.d)
-md5sums=('015b0aa29c7868916f7b32c9ee70ef60'
+md5sums=('76ab39194302b9067332e1f619c8bad9'
          '5e31269067dbd12ca871234450bb66bb'
          '384fff96c6248d4f020f6fa66c32b357'
          '020971887442ebbf1b6949e031c8dd3f')
@@ -102,7 +103,7 @@ build() {
 	--with-storage-lvm --without-xen --with-udev --without-hal --disable-static \
 	--with-init-script=systemd \
 	--with-qemu-user=nobody --with-qemu-group=nobody \
-	--without-netcf --with-interface --with-lxc --with-storage-iscsi
+	--with-netcf --with-interface --with-lxc --with-storage-iscsi
   make
 }
 
@@ -115,8 +116,11 @@ package() {
   install -D -m644 "$srcdir"/libvirtd-guests.conf.d "$pkgdir"/etc/conf.d/libvirt-guests
   install -D -m644 "$srcdir"/libvirt.tmpfiles.d "$pkgdir"/usr/lib/tmpfiles.d/libvirt.conf
 
-  chown -R 0:78 $pkgdir/var/lib/libvirt/qemu
-  chmod 0770 $pkgdir/var/lib/libvirt/qemu
+  chown -R 0:78 "$pkgdir"/var/lib/libvirt/qemu
+  chmod 0770 "$pkgdir"/var/lib/libvirt/qemu
+
+  chown 0:102 "$pkgdir"/usr/share/polkit-1/rules.d
+  chmod 0750 "$pkgdir"/usr/share/polkit-1/rules.d
 
   rm -rf \
 	"$pkgdir"/var/run \

@@ -5,7 +5,7 @@
 #  - drop valgrind makedepend
 
 pkgname=libevdev
-pkgver=1.4.2
+pkgver=1.4.5
 pkgrel=1
 pkgdesc="Wrapper library for evdev devices"
 arch=(i686 x86_64)
@@ -15,7 +15,7 @@ depends=('glibc')
 makedepends=('python2' 'check' 'doxygen')
 #checkdepends=('kmod')
 source=(http://freedesktop.org/software/$pkgname/$pkgname-$pkgver.tar.xz{,.sig})
-sha256sums=('7c77b213f075706d428a2af54b66bf86b03a68e9fb390e7ec48cf55065970643'
+sha256sums=('e91c58ca86e0631186798449e0a78c65474ff562081d968ba0521f76c8c2ca1d'
             'SKIP')
 validpgpkeys=('3C2C43D9447D5938EF4551EBE23B7E70B467F0BF') # Peter Hutterer (Who-T) <office@who-t.net>
 

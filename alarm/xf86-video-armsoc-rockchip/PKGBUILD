@@ -1,0 +1,41 @@
+# Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
+
+buildarch=4
+
+pkgname=xf86-video-armsoc-rockchip
+_commit=67d4cffe67737458716116498a67546291def000
+pkgver=261.67d4cff
+pkgrel=1
+pkgdesc='X.org graphics driver for ARM graphics - Rockchip'
+arch=('armv7h')
+url="https://github.com/mmind/xf86-video-armsoc"
+license=('GPL2')
+makedepends=('git' 'pkgconfig' 'xorg-server-devel' 'resourceproto' 'scrnsaverproto')
+options=('!libtool')
+conflicts=(xf86-video-armsoc)
+provides=(xf86-video-armsoc)
+source=("$pkgname::git+https://github.com/mmind/xf86-video-armsoc.git#commit=${_commit}"
+        '20-armsoc.conf')
+md5sums=('SKIP'
+         'ca34299695813b200f0d6054c45d1f94')
+
+pkgver() {
+  cd $pkgname
+  echo $(git rev-list --count makepkg).$(git rev-parse --short makepkg)
+}
+
+build() {
+  cd $pkgname
+
+  CFLAGS=`echo $CFLAGS | sed -e 's/vfpv3-d16/neon/'` && CXXFLAGS="$CFLAGS"
+  ./autogen.sh --prefix=/usr --with-drmmode=rockchip
+  make
+}
+
+package() {
+  cd $pkgname
+
+  make DESTDIR="${pkgdir}" install
+  mkdir -p "${pkgdir}"/etc/X11/xorg.conf.d/
+  cp ../20-armsoc.conf "${pkgdir}"/etc/X11/xorg.conf.d/
+}

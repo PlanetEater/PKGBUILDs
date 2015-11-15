@@ -5,19 +5,15 @@
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - removed doc package, --disable-docs in configure, this is measured in lifetimes to build on ARM
-#  - --enable-zero, hotspot changeset, url changed to use Zero hotspot source.
-#    original changeset left commented to be able to spot changes on package upgrades
+#  - --enable-zero
 #  - added our architectures to set _JARCH
 #  - strip -D_FORTIFY_SOURCE=2 from C/CXXFLAGS
-#  - specify default hotspot build (can remove for icedtea 2.6.0)
-
-#noautobuild=1
 
 pkgname=('jre7-openjdk-headless' 'jre7-openjdk' 'jdk7-openjdk' 'openjdk7-src')
 pkgbase=java7-openjdk
 _java_ver=7
-_icedtea_ver=2.5.5
-_updatever=79
+_icedtea_ver=2.6.2
+_updatever=91
 pkgver=${_java_ver}.u${_updatever}_${_icedtea_ver}
 pkgrel=1
 
@@ -30,7 +26,7 @@ options=('!emptydirs')
 makedepends=('jdk7-openjdk' 'libxp' 'libxslt'
              'alsa-lib' 'apache-ant>=1.8.1' 'giflib' 'libpng>=1.5.7' 'gtk2'
              'java-rhino' 'libpulse>=0.9.11' 'zip' 'unzip' 'cpio' 'fastjar' 'wget' 'procps-ng' 'inetutils'
-             'eclipse-ecj')
+             'eclipse-ecj' 'pcsclite' 'lksctp-tools')
 
 _icedtea_url=http://icedtea.classpath.org/download
 _drops_url=${_icedtea_url}/drops/icedtea7/${_icedtea_ver}
@@ -44,14 +40,17 @@ source=(${_icedtea_url}/source/icedtea-${_icedtea_ver}.tar.gz
         icedtea_${_icedtea_ver}_hotspot.tar.bz2::${_drops_url}/hotspot.tar.bz2
         fontconfig-paths.diff
         openjdk7_nonreparenting-wm.diff)
-sha256sums=('f05b1db06021f4cd3a39647f358a47130136d189431fb55f79855f627b1d6619'
-            '5301baacfb6b4ee28a3469b8429a0017898615532f727bb50d94777682c5fd0d'
-            'f0576599b474f56e58068071242cedbbf2f181b58c9010b614c9096be764ac51'
-            '293218d595763f7e02a91ea88860e5314e42330cbc21b73dc5de32e7e26fd256'
-            '76d6d0670ede806b01d39e07c644e423a50984f1cf0ec560afa23f0fedf575be'
-            'c1bc0d25457ccf40fcaeb5311052f6d2fbab8ef316b0381995835827711da483'
-            '71b269ea930da36d751c6183816ef53a65c0587b7cf0195f87759b4c02c3b660'
-            'd724a9749f51a3c66351ad8a27bc4570640720eace33cd03f1a52e2e45731dfb'
+
+# http://icedtea.classpath.org/bugzilla/show_bug.cgi?id=2357
+
+sha256sums=('c19eafacd23c81179934acab123511c424cd07c094739fa33778bf7cc80e14d0'
+            '4911adb6d7877b014777b6db6d90f1d1626314bd0c6a2c9cf9911d1e11eb4b49'
+            '92fa1e73dc0eb463bccd9ce3636643f492b8935cb7a23b91c5d855f4641382af'
+            '94cda3ba29ab3cd36d50f2e6c98a5e250eb6372379e171288b3022b978136fc0'
+            '14467736097197a199b483f24f8111e9c76252a2ad2a5f166c97585c0a3930d4'
+            '7ad801d5f6b61818c78f2f39931df24d8c6f6a1c821180c998975ac884eb8af1'
+            'a53fe8912b8190d82615778cf8bfb77202a55adcdc5bacc56ce7738b6a654335'
+            '984918bcb571fecebd490160935bb282c60eb9e17b4fc8fc77733d8da164c33a'
             '9ad943ceb3dbcdf45d72974fc3667886a7ed65c69ab9abc17be5412827551a7f'
             '56b919ababb13bd6afdcdaceb112b529b6e82539255f2dae9a7e5eb91645164b')
 
@@ -66,6 +65,7 @@ noextract=(icedtea_${_icedtea_ver}_openjdk.tar.bz2
  [ "$CARCH" = "x86_64" ] && _JARCH=amd64
  [ "$CARCH" = "i686" ] && _JARCH=i386
  [ "$CARCH" = "arm" -o "$CARCH" = "armv6h" -o "$CARCH" = "armv7h" ] && _JARCH=arm
+ [ "$CARCH" = "aarch64" ] && _JARCH=aarch64
 
 _jvmdir=/usr/lib/jvm/java-7-openjdk
 _imgdir="icedtea-${_icedtea_ver}/openjdk.build/j2sdk-image"
@@ -113,8 +113,7 @@ build() {
         --with-abs-install-dir=${_jvmdir} \
         --enable-infinality=no \
         --disable-docs \
-        --enable-zero \
-        --with-hotspot-build=default
+        --enable-zero
     make
 }
 

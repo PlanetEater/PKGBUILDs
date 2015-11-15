@@ -5,15 +5,17 @@
 #  - do not use LLINT assembly for v5/v6
 #  - strip -O3 from cmake generated makefiles, solves ICE
 
+highmem=1
+
 pkgname=webkit2gtk
-pkgver=2.8.3
-pkgrel=1
+pkgver=2.10.3
+pkgrel=2
 pkgdesc="GTK+ Web content engine library"
 arch=('i686' 'x86_64')
 url="http://webkitgtk.org/"
 license=('custom')
 depends=('libxt' 'libxslt' 'enchant' 'geoclue2' 'gst-plugins-base-libs'
-	 'libsecret' 'libwebp' 'harfbuzz-icu' 'gtk3')
+	 'libsecret' 'libwebp' 'harfbuzz-icu' 'gtk3' 'libnotify' 'hyphen')
 makedepends=('gtk2' 'gperf' 'gobject-introspection' 'ruby' 'gtk-doc' 'cmake' 'python')
 optdepends=('gtk2: Netscape plugin support'
             'gst-plugins-base: free media decoding'
@@ -21,7 +23,7 @@ optdepends=('gtk2: Netscape plugin support'
             'gst-libav: nonfree media decoding')
 options=('!emptydirs')
 source=(http://webkitgtk.org/releases/webkitgtk-${pkgver}.tar.xz)
-sha256sums=('b3de60c8676ed54bb3d6201c742bbd702ee176fdfef5ca06f2fc514783792f16')
+sha256sums=('2b3ee0b2ea9bac82064d818085e09236d5fca97a5780d4c731b2f0400fb64052')
 
 prepare() {
   mkdir build
@@ -36,7 +38,8 @@ build() {
   cd build
 
   # do not use LLINT assembly for v5/v6
-  [[ $CARCH == "arm" || $CARCH == "armv6h" ]] && CONFIG="-DENABLE_LLINT_C_LOOP=1"
+  [[ $CARCH == "arm" || $CARCH == "armv6h" ]] && CONFIG="-DENABLE_JIT=OFF"
+  [[ $CARCH == "aarch64" ]] && CONFIG="-DUSE_LD_GOLD=OFF"
 
   cmake -DPORT=GTK -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_SKIP_RPATH=ON -DCMAKE_INSTALL_PREFIX=/usr \
