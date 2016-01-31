@@ -1,6 +1,7 @@
 # Contributor Oleg Rakhmanov <oleg [at] archlinuxarm [dot] com>
 # Contributor tomasgroth at yahoo.dk
 # Contributor WarheadsSE <max@warheads.net>
+# Contributor Adrian Fedoreanu <adrian [dot] fedoreanu [at] gmail [dot] com>
 
 buildarch=20
 
@@ -8,9 +9,9 @@ _prefix=/usr
 
 pkgbase=kodi-rbp-git
 pkgname=('kodi-rbp-git' 'kodi-rbp-git-eventclients')
-pkgver=16.0a4.20151101
+pkgver=16.0b3.20151205
 
-_tag=16.0a4-Jarvis
+_tag=16.0b3-Jarvis
 pkgrel=1
 pkgdesc="A software media player and entertainment hub for digital media for the Raspberry Pi"
 arch=('armv6h' 'armv7h')
@@ -22,12 +23,12 @@ makedepends=('hicolor-icon-theme' 'fribidi' 'lzo2' 'smbclient' 'libtiff' 'libva'
              'libmpeg2' 'libmad' 'libmodplug' 'jasper' 'rtmpdump' 'unzip' 'xorg-xdpyinfo' 'libbluray'
              'libnfs' 'afpfs-ng' 'avahi' 'bluez-libs' 'tinyxml' 'raspberrypi-firmware' 'libcec-rpi'
              'libplist' 'swig' 'taglib' 'libxslt' 'shairplay-git' 'boost' 'cmake' 'gperf' 'nasm' 'zip'
-             'udisks' 'upower' 'git' 'autoconf' 'java-environment' 'libcrossguid-git' 'dcadec-git')
+             'udisks' 'upower' 'git' 'autoconf' 'java-environment' 'libcrossguid-git' 'dcadec')
 source=("xbmc-${_tag}.tar.gz::https://github.com/xbmc/xbmc/archive/${_tag}.tar.gz"
-	'kodi.service'
+        'kodi.service'
         'polkit.rules')
 
-sha256sums=('e013916572d53b566014c89658be02434252f9be290cde6e284eb9f1e91a9af9'
+sha256sums=('404f76228b7d27daf625dc5ee1931685a4c1101e52b2cb10d54b86048c6a71f5'
             '5235068d5800d69f0287087815990e7fe8d6572733d60c8800546d35f608e87f'
             '9ea592205023ba861603d74b63cdb73126c56372a366dc4cb7beb379073cbb96')
 prepare() {
@@ -68,11 +69,9 @@ build() {
   --enable-gles \
   --disable-x11 \
   --enable-optimizations \
-  --disable-goom \
   --disable-pulse \
   --disable-vaapi \
   --disable-vdpau \
-  --disable-xrandr \
   --enable-airplay \
   --enable-airtunes \
   --enable-avahi \
@@ -83,10 +82,7 @@ build() {
   --disable-mid \
   --enable-nfs \
   --disable-profiling \
-  --disable-projectm \
-  --enable-rsxs \
   --enable-rtmp \
-  --disable-vaapi \
   --enable-optical-drive \
   --enable-player=omxplayer \
   --with-lirc-device=/run/lirc/lircd \
