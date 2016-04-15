@@ -1,6 +1,6 @@
 #
 # Arch Linux ARM repository mirrorlist
-# Generated on 2015-11-19
+# Generated on 2016-03-19
 #
 
 ## Geo-IP based mirror selection and load balancing
@@ -18,10 +18,6 @@ Server = http://mirror.archlinuxarm.org/$arch/$repo
 ## Sao Paulo
 # Server = http://br2.mirror.archlinuxarm.org/$arch/$repo
 
-### Canada
-## Montreal
-# Server = http://ca.mirror.archlinuxarm.org/$arch/$repo
-
 ### Finland
 ## Tampere
 # Server = http://fi.mirror.archlinuxarm.org/$arch/$repo
@@ -29,8 +25,6 @@ Server = http://mirror.archlinuxarm.org/$arch/$repo
 ### France
 ## Ain
 # Server = http://fr.mirror.archlinuxarm.org/$arch/$repo
-## Roubaix
-# Server = http://fr3.mirror.archlinuxarm.org/$arch/$repo
 
 ### Germany
 ## Aachen
@@ -47,6 +41,10 @@ Server = http://mirror.archlinuxarm.org/$arch/$repo
 ## Nuremberg
 # Server = http://de2.mirror.archlinuxarm.org/$arch/$repo
 
+### Greece
+## Athens
+# Server = http://gr.mirror.archlinuxarm.org/$arch/$repo
+
 ### Italy
 ## Turin
 # Server = http://it.mirror.archlinuxarm.org/$arch/$repo
@@ -54,6 +52,7 @@ Server = http://mirror.archlinuxarm.org/$arch/$repo
 ### Netherlands
 ## Amsterdam
 # Server = http://nl.mirror.archlinuxarm.org/$arch/$repo
+# Server = http://nl2.mirror.archlinuxarm.org/$arch/$repo
 
 ### Norway
 ## Trondheim
@@ -64,13 +63,20 @@ Server = http://mirror.archlinuxarm.org/$arch/$repo
 # Server = http://ru.mirror.archlinuxarm.org/$arch/$repo
 
 ### Singapore
+# Server = http://sg.mirror.archlinuxarm.org/$arch/$repo
 # Server = http://sg2.mirror.archlinuxarm.org/$arch/$repo
+
+### South Africa
+## Johannesburg
+# Server = https://za.mirror.archlinuxarm.org/$arch/$repo
 
 ### Taiwan
 ## New Taipei City
 # Server = http://tw.mirror.archlinuxarm.org/$arch/$repo
 
 ### United States
+## California
+# Server = http://ca.us.mirror.archlinuxarm.org/$arch/$repo
 ## Colorado
 # Server = http://co.us.mirror.archlinuxarm.org/$arch/$repo
 ## Delaware

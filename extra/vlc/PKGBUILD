@@ -7,15 +7,15 @@
 #  - enable gles2
 
 pkgname=vlc
-pkgver=2.2.1
-pkgrel=9
+pkgver=2.2.2
+pkgrel=3
 pkgdesc="A multi-platform MPEG, VCD/DVD, and DivX player"
 arch=('i686' 'x86_64')
 url="http://www.videolan.org/vlc/"
 license=('LGPL2.1' 'GPL2')
 depends=('a52dec' 'libdvbpsi' 'libxpm' 'libdca' 'qt4' 'libproxy'
          'sdl_image' 'libdvdnav' 'libtiger' 'lua' 'libmatroska'
-         'zvbi' 'taglib' 'libmpcdec' 'ffmpeg' 'faad2' 'libupnp'
+         'zvbi' 'taglib' 'libmpcdec' 'ffmpeg2.8' 'faad2' 'libupnp'
          'libshout' 'libmad' 'libmpeg2' 'xcb-util-keysyms' 'libtar'
          'libxinerama')
 makedepends=('live-media' 'libnotify' 'libbluray' 'flac' 'kdelibs'
@@ -60,9 +60,11 @@ backup=('usr/share/vlc/lua/http/.hosts'
         'usr/share/vlc/lua/http/dialogs/.hosts')
 options=('!emptydirs')
 install=vlc.install
-source=("http://download.videolan.org/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+source=("http://download.videolan.org/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.xz"{,.asc}
         "lua53_compat.patch")
-md5sums=('42273945758b521c408fabc7fd6d9946'
+validpgpkeys=(65F7C6B4206BD057A7EB73787180713BE58D1ADC) # VideoLAN Release Signing Key
+md5sums=('f98d60f0f59ef72b6e3407f2ff09bda6'
+         'SKIP'
          '96d3b346d9149ffb1b430066dfb6249a')
 
 prepare() {
@@ -77,6 +79,7 @@ prepare() {
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
 
+  PKG_CONFIG_PATH="/usr/lib/ffmpeg2.8/pkgconfig" \
   CFLAGS+=" -I/usr/include/samba-4.0" CPPFLAGS+=" -I/usr/include/samba-4.0" \
   ./configure --prefix=/usr \
               --sysconfdir=/etc \

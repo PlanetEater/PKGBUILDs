@@ -3,13 +3,13 @@
 
 buildarch=4
 
-_rcver=4.4
-_rcrel=4
-_rcnrel=armv7-x1
+_rcver=4.6
+_rcrel=3
+_rcnrel=armv7-x0
 
 pkgbase=linux-armv7-rc
-#_srcname=linux-4.$((${_rcver##*.}-1))
-_srcname=linux-${_rcver}-rc${_rcrel}
+_srcname=linux-4.$((${_rcver##*.}-1))
+#_srcname=linux-${_rcver}-rc${_rcrel}
 _kernelname=${pkgbase#linux}
 _desc="ARMv7 multi-platform (release candidate)"
 pkgver=${_rcver}.rc${_rcrel}
@@ -19,9 +19,9 @@ url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' 'vboot-utils' 'dtc')
 options=('!strip')
-source=(#"http://www.kernel.org/pub/linux/kernel/v4.x/${_srcname}.tar.xz"
-        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
-        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/${_srcname}.tar.xz"
+source=("http://www.kernel.org/pub/linux/kernel/v4.x/${_srcname}.tar.xz"
+        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
+        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/${_srcname}.tar.xz"
         "http://rcn-ee.com/deb/sid-armhf/v${_rcver}.0-rc${_rcrel}-${_rcnrel}/patch-${_rcver}-rc${_rcrel}-${_rcnrel}.diff.gz"
         '0001-ARM-atags-add-support-for-Marvell-s-u-boot.patch'
         '0002-ARM-atags-fdt-retrieve-MAC-addresses-from-Marvell-bo.patch'
@@ -31,24 +31,27 @@ source=(#"http://www.kernel.org/pub/linux/kernel/v4.x/${_srcname}.tar.xz"
         '0006-ARM-TLV320AIC23-SoC-Audio-Codec-Fix-errors-reported-.patch'
         '0007-set-default-cubietruck-led-triggers.patch'
         '0008-USB-armory-support.patch'
+        '0009-drm-exynos-fimd-fix-broken-dp_clock-control.patch'
         'config'
         'cmdline'
         'kernel.its'
         'kernel.keyblock'
         'kernel_data_key.vbprivk')
-md5sums=('893caa049cd5c680bf6770603d6cb416'
-         'e5cb194f856c365ff299998218f83d0c'
-         '8ea5f9e5dc4cccabb26a8fd0048da4a9'
-         'acc9cb3f7c34def13e311bbc7893c0d1'
-         '68b4a3e938d9ab24d8d82a2a7ddbff2a'
-         '649ae077135c10480ba52e8bad047780'
-         '7507fdc224b1000a81f87316befd0f6c'
-         'd77167c977871128b862b9aaffde23bc'
-         'acb3f83e664bd23fdddf69044b2b0eb4'
-         '825186972ceb93fe91a9b027731dd95b'
-         'c3c96af8f066e9675b882db01254544f'
-         '1813b39074d01af6548951764a0f6444'
-         '4b0392e55063eb9f89d91affd1189fc5'
+md5sums=('a60d48eee08ec0536d5efb17ca819aef'
+         'aa1c3f33ceabb564e3264cd8163df780'
+         '028fb9603da833f4a6cd5e2c9d350766'
+         'fcf612f5a71f3c96d0e574d415cebd14'
+         'fad932a4bc1da070b64c06b003405b70'
+         '55697205d01f197cbb0a204f1fbc11a7'
+         '10be278b083da9d6ee197215017a2c11'
+         '5c96b8a10bd59f536e77c7392fef3936'
+         '8bae10b25116820b0f7492f028386c3c'
+         '426888e80a5c62276e76dad08ece3a8d'
+         '1e4daa74081b645cd9d0508a04d4ad44'
+         'ca2c19f4ecf593dd6fccd7d23e9a6efc'
+         '5d3b774d20b2a8e957fa8c624ba329de'
+         '7d3061393c215d08f44a46ca48b13b7e'
+         '4f2379ed84258050edb858ee8d281678'
          '61c5ff73c136ed07a7aadbf58db3d96a'
          '584777ae88bce2c5659960151b64c7d8')
 
@@ -56,7 +59,7 @@ prepare() {
   cd "${srcdir}/${_srcname}"
 
   # add upstream patch
-  #git apply --whitespace=nowarn ../patch-${_rcver}-rc${_rcrel}
+  git apply --whitespace=nowarn ../patch-${_rcver}-rc${_rcrel}
 
   # RCN patch
   git apply ../patch-${_rcver}-rc${_rcrel}-${_rcnrel}.diff
@@ -70,6 +73,7 @@ prepare() {
   git apply ../0006-ARM-TLV320AIC23-SoC-Audio-Codec-Fix-errors-reported-.patch
   git apply ../0007-set-default-cubietruck-led-triggers.patch
   git apply ../0008-USB-armory-support.patch
+  git apply ../0009-drm-exynos-fimd-fix-broken-dp_clock-control.patch
 
   cat "${srcdir}/config" > ./.config
 
@@ -185,12 +189,14 @@ _package-headers() {
   # copy arch includes for external modules
   mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH
   cp -a arch/$KARCH/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/
-  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-omap2
-  cp -a arch/$KARCH/mach-omap2/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-omap2/
-  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-mvebu
-  cp -a arch/$KARCH/mach-mvebu/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-mvebu/
-  mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-omap
-  cp -a arch/$KARCH/plat-omap/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-omap/
+  for i in dove exynos omap2; do
+    mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-${i}
+    cp -a arch/$KARCH/mach-${i}/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/mach-${i}/
+  done
+  for i in omap orion samsung versatile; do
+    mkdir -p ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-${i}
+    cp -a arch/$KARCH/plat-${i}/include ${pkgdir}/usr/lib/modules/${_kernver}/build/arch/$KARCH/plat-${i}/
+  done
 
   # copy files necessary for later builds, like nvidia and vmware
   cp Module.symvers "${pkgdir}/usr/lib/modules/${_kernver}/build"
@@ -333,7 +339,8 @@ _package-d3plug() {
 
 _package-chromebook() {
   pkgdesc="The Linux Kernel - ${_desc} - Chromebooks"
-  depends=('linux-armv7')
+  depends=('linux-armv7-rc')
+  install=${pkgname}.install
 
   cd "${srcdir}/${_srcname}"
 

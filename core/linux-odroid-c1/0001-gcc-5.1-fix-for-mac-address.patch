@@ -1,4 +1,4 @@
-From a4a1d285e508db9cc72d213be528a3d74d7573d8 Mon Sep 17 00:00:00 2001
+From ebf576e456d152ef2f54d58bfb730b4910ad9467 Mon Sep 17 00:00:00 2001
 From: Kevin Mihelich <kevin@archlinuxarm.org>
 Date: Tue, 23 Jun 2015 18:02:40 -0600
 Subject: [PATCH] gcc 5.1 fix for mac address
@@ -106,5 +106,5 @@ index c39df30..a192128 100644
  	memcpy(DEFMAC, mac, 6);
  	g_mac_addr_setup++;
 -- 
-2.4.4
+2.7.3
 

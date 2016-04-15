@@ -7,8 +7,8 @@
 #  - removed numactl dependency
 
 pkgname=fio
-pkgver=2.2.12
-pkgrel=2
+pkgver=2.8
+pkgrel=1
 pkgdesc='Scriptable I/O tool for storage benchmarks and drive testing'
 arch=(i686 x86_64)
 url='https://github.com/axboe/fio'
@@ -21,12 +21,12 @@ optdepends=(
   'gnuplot: generating plots using fio_generate_plots'
 )
 source=(https://github.com/axboe/fio/archive/fio-$pkgver.zip)
-sha256sums=('a11a6c6843500c7335599aa91c94af4a3a62374bc6f046f2e060e1c19f8fa89d')
+sha256sums=('f83ef5b8f6d0548ae652ee8e36644e9a969a3f333156567903bf00f5c9b00ff1')
 
 prepare() {
   cd fio-fio-$pkgver
 
-  sed -e 's|#!/usr/bin/env python|#!/usr/bin/env python2|' -i tools/plot/fio2gnuplot 
+  sed -e 's|#!/usr/bin/env python|#!/usr/bin/env python2|' -i tools/plot/fio2gnuplot
 }
 
 build() {

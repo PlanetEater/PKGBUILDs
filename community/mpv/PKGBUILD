@@ -1,16 +1,17 @@
 # $Id$
 # Maintainer: Christian Hesse <mail@eworm.de>
-# Contributor:  Bartłomiej Piotrowski <bpiotrowski@archlinux.org>
+# Contributor: Bartłomiej Piotrowski <bpiotrowski@archlinux.org>
 # Contributor: Eivind Uggedal <eivind@uggedal.com>
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
-#  - armv7 needs to be built with fPIC
+#  - armv7/aarch64 needs to be built with fPIC
 
 pkgname=mpv
 epoch=1
-pkgver=0.13.0
+pkgver=0.17.0
 pkgrel=1
-pkgdesc='Video player based on MPlayer/mplayer2'
+_waf_version=1.8.12
+pkgdesc='a free, open source, and cross-platform media player'
 arch=('i686' 'x86_64')
 license=('GPL')
 url='http://mpv.io'
@@ -18,25 +19,27 @@ depends=(
   'ffmpeg' 'lcms2' 'libcdio-paranoia' 'libgl' 'enca' 'libxss'
   'libxinerama' 'libxv' 'libxkbcommon' 'libva' 'wayland' 'libcaca'
   'desktop-file-utils' 'hicolor-icon-theme' 'xdg-utils' 'lua52' 'libdvdnav'
-  'libguess' 'libxrandr' 'jack' 'smbclient' 'rubberband'
+  'libxrandr' 'jack' 'smbclient' 'rubberband'
 )
 makedepends=('mesa' 'python-docutils' 'ladspa' 'hardening-wrapper' 'git')
 optdepends=('youtube-dl: for video-sharing websites playback')
 options=('!emptydirs' '!buildflags')
 install=mpv.install
-source=("$pkgname-$pkgver.tar.gz::https://github.com/mpv-player/$pkgname/archive/v$pkgver.tar.gz")
-sha256sums=('1372704fd8f5701ef7d60f347fd15fe536e23ef148279bf4a4415e72896912db')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/mpv-player/$pkgname/archive/v$pkgver.tar.gz"
+  "http://www.freehackers.org/~tnagy/release/waf-${_waf_version}")
+sha256sums=('602cd2b0f5fc7e43473234fbb96e3f7bbb6418f15eb8fa720d9433cce31eba6e'
+  '01bf2beab2106d1558800c8709bc2c8e496d3da4a2ca343fe091f22fca60c98b')
 
 prepare() {
   cd ${pkgname}-${pkgver}
 
-  ./bootstrap.py
+  install -m755 "${srcdir}"/waf-${_waf_version} waf
 }
 
 build() {
   cd ${pkgname}-${pkgver}
 
-  [[ $CARCH == "armv7h" ]] && CFLAGS+=" -fPIC" && CXXFLAGS+=" -fPIC"
+  [[ $CARCH == "armv7h" || $CARCH == "aarch64" ]] && CFLAGS+=" -fPIC" && CXXFLAGS+=" -fPIC"
 
   ./waf configure --prefix=/usr \
     --confdir=/etc/mpv \

@@ -10,15 +10,16 @@
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - removed NaCl, not for ARM
-#  - adjusted gyp flags for v7h
-#  - patch to fix webrtc code for non-android ARM
-#  - patch (hack) to fix skia
-#  - makeflags to -j3, seems to barf higher
+#  - adjusted gyp flags for v7/aarch64
+#  - makeflags to -j4 on v7, RAM constraints
+#  - Gentoo patch to remove lingering built-in ffmpeg code
+#  - upstream patches to fix AArch64
 
-buildarch=4
+buildarch=12
+highmem=1
 
 pkgname=chromium
-pkgver=47.0.2526.80
+pkgver=49.0.2623.112
 pkgrel=1
 _launcher_ver=3
 pkgdesc="The open-source project behind Google Chrome, an attempt at creating a safer, faster, and more stable browser"
@@ -29,7 +30,7 @@ depends=('gtk2' 'nss' 'alsa-lib' 'xdg-utils' 'bzip2' 'libevent' 'libxss' 'icu'
          'libexif' 'libgcrypt' 'ttf-font' 'systemd' 'dbus' 'flac' 'snappy'
          'speech-dispatcher' 'pciutils' 'libpulse' 'harfbuzz' 'libsecret'
          'libvpx' 'perl' 'perl-file-basedir' 'desktop-file-utils'
-         'hicolor-icon-theme')
+         'hicolor-icon-theme' 'ffmpeg')
 makedepends=('python2' 'gperf' 'yasm' 'mesa' 'ninja')
 optdepends=('kdebase-kdialog: needed for file dialogs in KDE'
             'gnome-keyring: for storing passwords in GNOME keyring'
@@ -40,19 +41,17 @@ install=chromium.install
 source=(https://commondatastorage.googleapis.com/chromium-browser-official/$pkgname-$pkgver.tar.xz
         chromium-launcher-$_launcher_ver.tar.gz::https://github.com/foutrelis/chromium-launcher/archive/v$_launcher_ver.tar.gz
         chromium.desktop
-        chromium-fix-print-preview-on-en_GB-locale.patch
-        0001-Add-FPDFAPIJPEG_-prefix-to-more-libjpeg-functions.patch
-        arm-webrtc-fix.patch
-        chromium-arm-r0.patch
-        chromium-widevine.patch)
-sha256sums=('b107148323a3b641eae29bfeda298183c0d1c110ef96a04a13f329015d614d05'
+        chromium-widevine.patch
+        0001-system-ffmpeg-fixes.patch
+        0002-sandbox-arm64-align-stack-16-bytes.patch
+        0003-Linux-Sandbox-whitelist-arm64-syscalls.patch)
+sha256sums=('443b6d5f0d07f336783e700edc4ecae96769e105d0f8553e98fefae747302cf0'
             '8b01fb4efe58146279858a754d90b49e5a38c9a0b36a1f84cbb7d12f92b84c28'
             '028a748a5c275de9b8f776f97909f999a8583a4b77fd1cd600b4fc5c0c3e91e9'
-            '6fff45aafa31fb35a032b4e2175a341e08f9d2a9b37c5cf080c318180f558378'
-            'd114def156d60d5f4c9e42f2955ba19bdebe38037a330ef947af24ace25db39d'
-            '9db0f01517c52e3236ff52e8a664840542a19144a54923ae6aabea3dcfa92c52'
-            'df4be49770d508b772f98eda9fc5f37fa71d4c0459437e12f7f3db5892aa1611'
-            '379b746e187de28f80f5a7cd19edcfa31859656826f802a1ede054fcb6dfb221')
+            '4660344789c45c9b9e52cb6d86f7cb6edb297b39320d04f6947e5216d6e5f64c'
+            '9f0d843fcda221b97386f8686a00918a5e165e65e9eb34df19ba6bc11ec91eee'
+            '48e83c69c33d5b0882982e71c1a3c55a093d2c0416374db6159a87fd4b836ece'
+            'c5b6a12756eb50ecf9bf0763b9ab3e6822fe6365083b73595ca8c593c963145b')
 
 # Google API keys (see http://www.chromium.org/developers/how-tos/api-keys)
 # Note: These are for Arch Linux use ONLY. For your own distribution, please
@@ -72,39 +71,32 @@ prepare() {
   # https://code.google.com/p/chromium/issues/detail?id=541273
   sed -i "/'target_name': 'libvpx'/s/libvpx/&_new/" build/linux/unbundle/libvpx.gyp
 
-  # https://code.google.com/p/chromium/issues/detail?id=480415
-  patch -Np1 -i ../chromium-fix-print-preview-on-en_GB-locale.patch
-
-  # https://code.google.com/p/chromium/issues/detail?id=505226
-  patch -d third_party/pdfium -Np1 <../0001-Add-FPDFAPIJPEG_-prefix-to-more-libjpeg-functions.patch
-
   # Enable support for the Widevine CDM plugin
-  # The actual libraries are not included, but can be copied over from Chrome:
-  #   libwidevinecdmadapter.so
-  #   libwidevinecdm.so
+  # libwidevinecdm.so is not included, but can be copied over from Chrome
   # (Version string doesn't seem to matter so let's go with "Pinkie Pie")
   sed "s/@WIDEVINE_VERSION@/Pinkie Pie/" ../chromium-widevine.patch |
     patch -Np1
 
-  # Fix WebRTC for ARM
-  patch -Np0 -i "$srcdir/arm-webrtc-fix.patch"
+  # Fix building with system ffmpeg
+  patch -Np1 -i ../0001-system-ffmpeg-fixes.patch
 
-  # Fix icu build on ARM
-  patch -Np0 -i ../chromium-arm-r0.patch
+  # Upstream AArch64 fixes
+  patch -Np1 -i ../0002-sandbox-arm64-align-stack-16-bytes.patch
+  patch -Np1 -i ../0003-Linux-Sandbox-whitelist-arm64-syscalls.patch
 
   # Remove bundled ICU; its header files appear to get picked up instead of
   # the system ones, leading to errors during the final link stage.
   # https://groups.google.com/a/chromium.org/d/topic/chromium-packagers/BNGvJc08B6Q
   find third_party/icu -type f \! -regex '.*\.\(gyp\|gypi\|isolate\)' -delete
 
-  MAKEFLAGS=-j4
+  [[ $CARCH == "armv7h" ]] && MAKEFLAGS=-j4
 
   # Use Python 2
   find . -name '*.py' -exec sed -i -r 's|/usr/bin/python$|&2|g' {} +
 
   # There are still a lot of relative calls which need a workaround
-  mkdir "$srcdir/python2-path"
-  ln -s /usr/bin/python2 "$srcdir/python2-path/python"
+  mkdir -p "$srcdir/python2-path"
+  ln -sf /usr/bin/python2 "$srcdir/python2-path/python"
 }
 
 build() {
@@ -127,7 +119,6 @@ build() {
     -Dgoogle_default_client_secret=$_google_default_client_secret
     -Dwerror=
     -Dclang=0
-    -Dclang_use_chrome_plugins=0
     -Dpython_ver=2.7
     -Dlinux_link_gsettings=1
     -Dlinux_link_libpci=1
@@ -138,6 +129,9 @@ build() {
     -Dlinux_use_bundled_gold=0
     -Dlinux_use_gold_flags=0
     -Dicu_use_data_file_flag=0
+    -Dlogging_like_official_build=1
+    -Dtracing_like_official_build=1
+    -Dfieldtrial_testing_like_official_build=1
     -Drelease_extra_cflags="$CFLAGS -DUSE_EABI_HARDFLOAT"
     -Dlibspeechd_h_prefix=speech-dispatcher/
     -Dffmpeg_branding=Chrome
@@ -145,8 +139,7 @@ build() {
     -Duse_gnome_keyring=0
     -Duse_system_bzip2=1
     -Duse_system_flac=1
-    -Duse_system_protobuf=0
-    -Duse_system_ffmpeg=0
+    -Duse_system_ffmpeg=1
     -Duse_system_harfbuzz=1
     -Duse_system_icu=1
     -Duse_system_libevent=1
@@ -160,23 +153,29 @@ build() {
     -Duse_system_yasm=1
     -Duse_system_zlib=0
     -Dusb_ids_path=/usr/share/hwdata/usb.ids
+    -Duse_mojo=0
     -Duse_gconf=0
     -Denable_hangout_services_extension=1
+    -Denable_widevine=1
     -Ddisable_fatal_linker_warnings=1
     -Ddisable_glibc=1
     -Ddisable_sse2=1
-    -Dtarget_arch=arm
-    -Darm_neon=1
-    -Dlogging_like_official_build=1
-    -Dtracing_like_official_build=1
-    -Dfieldtrial_testing_like_official_build=1
     -Ddisable_nacl=1
     -Ddisable_pnacl=1
+    -Dsysroot=)
+
+  [[ $CARCH == "armv7h" ]] && _chromium_conf+=(
+    -Dtarget_arch=arm
+    -Darm_neon=1
     -Dv8_use_arm_eabi_hardfloat=true
     -Darm_float_abi=hard
-    -Dsysroot=
     -Darmv7=1
     -Darm_fpu=neon)
+
+  [[ $CARCH == "aarch64" ]] && _chromium_conf+=(
+    -Dtarget_arch=arm64
+    -Darm_neon=0
+    -Duse_allocator=none)
 
   # Re-configure bundled ffmpeg.
   #pushd third_party/ffmpeg > /dev/null || exit 1
@@ -204,7 +203,10 @@ package() {
   install -Dm4755 out/Release/chrome_sandbox \
     "$pkgdir/usr/lib/chromium/chrome-sandbox"
 
-  cp out/Release/{*.pak,*.bin} "$pkgdir/usr/lib/chromium/"
+  cp out/Release/{*.pak,*.bin,libwidevinecdmadapter.so} \
+    "$pkgdir/usr/lib/chromium/"
+
+  strip $STRIP_SHARED "$pkgdir/usr/lib/chromium/libwidevinecdmadapter.so"
 
   cp -a out/Release/locales "$pkgdir/usr/lib/chromium/"
 

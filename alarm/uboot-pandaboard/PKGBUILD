@@ -4,29 +4,28 @@
 buildarch=4
 
 pkgname=uboot-pandaboard
-pkgver=2015.10
-pkgrel=2
+pkgver=2016.03
+pkgrel=1
 pkgdesc="U-Boot for Pandaboard and Pandaboard ES"
 arch=('armv7h')
 url="http://git.denx.de/u-boot.git/"
-makedepends=('git' 'bc')
+makedepends=('bc' 'dtc' 'git')
 license=('GPL')
 install=${pkgname}.install
-backup=('boot/uEnv.txt')
+backup=('boot/boot.txt' 'boot/boot.scr')
 source=("ftp://ftp.denx.de/pub/u-boot/u-boot-${pkgver}.tar.bz2"
         '0001-arch-linux-arm-modifications.patch'
-        '0002-ARM-Fix-pandaboard-es-and-a4-revision-ID.patch'
-        'uEnv.txt')
-md5sums=('7c203b0fc3390a122d8e8b75f147eac5'
-         'bcdd217ecc19efcaddcb6ceb2cff79bf'
-         'b93a61d2465a80ed7f0119c623719cb6'
-         '86004660f2912861a040e335c9c0e85b')
+        'boot.txt'
+        'mkscr')
+md5sums=('973c1d896be751321cc3aafa564f64b2'
+         '87c8adf701979f8bbb85360856bd9b23'
+         '4908cf55626f1109276f14111b11117d'
+         '021623a04afd29ac3f368977140cfbfd')
 
 prepare() {
   cd u-boot-${pkgver}
 
   git apply ../0001-arch-linux-arm-modifications.patch
-  git apply ../0002-ARM-Fix-pandaboard-es-and-a4-revision-ID.patch
 }
 
 build() {
@@ -36,12 +35,15 @@ build() {
 
   make distclean 
   make omap4_panda_config
-  make
+  make EXTRAVERSION=-${pkgrel}
 }
 
 package() {
   cd u-boot-${pkgver}
 
   mkdir -p "${pkgdir}"/boot
-  cp MLO u-boot.img "${srcdir}"/uEnv.txt "${pkgdir}"/boot
+  cp MLO u-boot.img "${pkgdir}"/boot
+
+  tools/mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" -d ../boot.txt "${pkgdir}"/boot/boot.scr
+  cp ../{boot.txt,mkscr} "${pkgdir}"/boot
 }

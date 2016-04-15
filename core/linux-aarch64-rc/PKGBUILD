@@ -3,12 +3,12 @@
 
 buildarch=8
 
-_rcver=4.4
-_rcrel=4
+_rcver=4.6
+_rcrel=3
 
 pkgbase=linux-aarch64-rc
-#_srcname=linux-4.$((${_rcver##*.}-1))
-_srcname=linux-${_rcver}-rc${_rcrel}
+_srcname=linux-4.$((${_rcver##*.}-1))
+#_srcname=linux-${_rcver}-rc${_rcrel}
 _kernelname=${pkgbase#linux}
 _desc="AArch64 multi-platform (release candidate)"
 pkgver=${_rcver}.rc${_rcrel}
@@ -18,40 +18,35 @@ url="http://www.kernel.org/"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git')
 options=('!strip')
-source=(#"http://www.kernel.org/pub/linux/kernel/v4.x/${_srcname}.tar.xz"
-        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
-        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/${_srcname}.tar.xz"
-        '0001-amd-xgbe-a0-Add-support-for-XGBE-on-A0.patch'
-        '0002-amd-xgbe-phy-a0-Add-support-for-XGBE-PHY-on-A0.patch'
-        '0003-arm64-acpi-drop-expert-patch.patch'
-        '0004-devicetree-bindings-Document-qcom-msm-id-and-qcom-bo.patch'
-        '0005-arm64-dts-Add-Qualcomm-MSM8916-MTP8916-ids.patch'
-        '0006-arm64-dts-qcom-Add-APQ8016-SBC-support.patch'
+source=("http://www.kernel.org/pub/linux/kernel/v4.x/${_srcname}.tar.xz"
+        "https://www.kernel.org/pub/linux/kernel/v4.x/testing/patch-${_rcver}-rc${_rcrel}.xz"
+        #"https://www.kernel.org/pub/linux/kernel/v4.x/testing/${_srcname}.tar.xz"
+        '0001-arm64-acpi-drop-expert-patch.patch'
+        '0002-devicetree-bindings-Document-qcom-msm-id-and-qcom-bo.patch'
+        '0003-arm64-dts-Add-Qualcomm-MSM8916-MTP8916-ids.patch'
+        '0004-arm64-dts-qcom-Add-APQ8016-SBC-support.patch'
         'config'
         'linux.preset')
-md5sums=('893caa049cd5c680bf6770603d6cb416'
-         '90e8c4300d263db370eb2155ee1a4b42'
-         '51c4dcc18641b9c4dfb824b98213c080'
-         'dd04cf22c2b1dc946884cdb55efc6424'
-         '2a052b7347d21f8813c09931ea0ef495'
-         '4166c1a8edeec7eb8c7e69f42e561332'
-         '1891555762fc267cf2cd7a9a6d01f70d'
-         'e3c4bf1db5e515bce4103e9371293a98'
+md5sums=('a60d48eee08ec0536d5efb17ca819aef'
+         'aa1c3f33ceabb564e3264cd8163df780'
+         'c8e84e01e8f88b47edba6a479942cc6e'
+         '66de90ece2f3dcae72ee4c27ddd37b38'
+         '29d5fafca011d80a8cfbffb5ebbfd327'
+         'f2f044e19e0e8d5e81034e5870c644c7'
+         '589e06730b3e787a0b92fb237e7bd7f7'
          '25d8f6983c9a616946848c0e075a949c')
 
 prepare() {
   cd "${srcdir}/${_srcname}"
 
   # add upstream patch
-  #git apply --whitespace=nowarn ../patch-${_rcver}-rc${_rcrel}
+  git apply --whitespace=nowarn ../patch-${_rcver}-rc${_rcrel}
 
   # ALARM patches
-  git apply ../0001-amd-xgbe-a0-Add-support-for-XGBE-on-A0.patch
-  git apply ../0002-amd-xgbe-phy-a0-Add-support-for-XGBE-PHY-on-A0.patch
-  git apply ../0003-arm64-acpi-drop-expert-patch.patch
-  git apply ../0004-devicetree-bindings-Document-qcom-msm-id-and-qcom-bo.patch
-  git apply ../0005-arm64-dts-Add-Qualcomm-MSM8916-MTP8916-ids.patch
-  git apply ../0006-arm64-dts-qcom-Add-APQ8016-SBC-support.patch
+  git apply ../0001-arm64-acpi-drop-expert-patch.patch
+  git apply ../0002-devicetree-bindings-Document-qcom-msm-id-and-qcom-bo.patch
+  git apply ../0003-arm64-dts-Add-Qualcomm-MSM8916-MTP8916-ids.patch
+  git apply ../0004-arm64-dts-qcom-Add-APQ8016-SBC-support.patch
 
   cat "${srcdir}/config" > ./.config
 

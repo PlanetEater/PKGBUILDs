@@ -1,7 +1,7 @@
-From 76a73d29fd0f45aa163d839ede4e21dd183f6ed3 Mon Sep 17 00:00:00 2001
+From 176a636cc67640d9cd20bc50603c460a7c17516e Mon Sep 17 00:00:00 2001
 From: Kevin Mihelich <kevin@archlinuxarm.org>
 Date: Sat, 14 Feb 2015 12:32:27 +0100
-Subject: [PATCH 7/8] set default cubietruck led triggers
+Subject: [PATCH 7/9] set default cubietruck led triggers
 
 Signed-off-by: Kevin Mihelich <kevin@archlinuxarm.org>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Kevin Mihelich <kevin@archlinuxarm.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/arch/arm/boot/dts/sun7i-a20-cubietruck.dts b/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
-index e6b0192..fff91d3 100644
+index 8da939a..9957d5f 100644
 --- a/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
 +++ b/arch/arm/boot/dts/sun7i-a20-cubietruck.dts
 @@ -70,6 +70,7 @@
@@ -29,5 +29,5 @@ index e6b0192..fff91d3 100644
  	};
  
 -- 
-2.6.2
+2.7.4
 

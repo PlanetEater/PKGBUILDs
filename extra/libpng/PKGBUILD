@@ -5,12 +5,12 @@
 # Contributor: Douglas Soares de Andrade <douglas@archlinux.org>
 
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
-#  - added --enable-arm-neon=no to configure
+#  - added --enable-arm-neon=no to configure for !aarch64
 
 pkgname=libpng
-pkgver=1.6.19
-_apngver=1.6.19
-pkgrel=1
+pkgver=1.6.21
+_apngver=1.6.21
+pkgrel=1.1
 pkgdesc="A collection of routines used to create PNG format graphics files"
 arch=('i686' 'x86_64')
 url="http://www.libpng.org/pub/png/libpng.html"
@@ -19,9 +19,9 @@ depends=('zlib' 'sh')
 options=('!libtool')
 source=(http://downloads.sourceforge.net/sourceforge/$pkgname/$pkgname-$pkgver.tar.xz{,.asc}
         http://downloads.sourceforge.net/sourceforge/libpng-apng/libpng-$_apngver-apng.patch.gz)
-md5sums=('1e6a458429e850fc93c1f3b6dc00a48f'
+md5sums=('3bacb4728f6694a64ad9052769d6a4ce'
          'SKIP'
-         'b215830867151242fb4ef9d246f050c4')
+         '360346394543ec0a880f61830541608f')
 validpgpkeys=('8048643BA2C840F4F92A195FF54984BFA16C640F')
 
 prepare() {
@@ -35,7 +35,8 @@ prepare() {
 build() {
   cd $pkgname-$pkgver
 
-  ./configure --prefix=/usr --enable-arm-neon=no --disable-static
+  [[ $CARCH != "aarch64" ]] && CONFIG="--enable-arm-neon=no"
+  ./configure --prefix=/usr --disable-static $CONFIG
   make
 }
 

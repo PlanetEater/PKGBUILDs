@@ -1,0 +1,58 @@
+# U-Boot: ODROID-C2
+# Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
+
+# Note: must be built on x86 with an old cross toolchain
+
+buildarch=8
+noautobuild=1
+
+pkgname=uboot-odroid-c2
+pkgver=2015.01
+pkgrel=5
+pkgdesc="U-Boot for ODROID-C2"
+arch=('aarch64')
+url="https://github.com/hardkernel/u-boot"
+license=('GPL')
+install=$pkgname.install
+makedepends=('git' 'bc')
+backup=('boot/boot.ini')
+_commit=f416a769454b89c39d5b217d28bd3c9f5d1594df
+source=("https://github.com/hardkernel/u-boot/archive/${_commit}.tar.gz"
+        'boot.ini'
+        '0001-remove-cross-compiling.patch'
+        '0002-sd_fusing-tweaks.patch'
+        '0003-Add-linux-compiler-gcc5.h-to-fix-builds-with-gcc5.patch'
+        '0004-arch-linux-arm-modifications.patch')
+md5sums=('ba155ecbfbede25e5db8285f031c1786'
+         '4a7c30962e9d180d1551fed9b1261740'
+         '063ed1211b9ff1f045f2480b02dcc7f0'
+         '568e66da8b3e339fe653b05c375de4db'
+         'fddd7cc81ad9e8dc76441376ff8c56f8'
+         '0f2c6a61e94d48dffd2c17dd22d4e3e6')
+
+prepare() {
+  cd u-boot-${_commit}
+
+  git apply ../0001-remove-cross-compiling.patch
+  git apply ../0002-sd_fusing-tweaks.patch
+  git apply ../0003-Add-linux-compiler-gcc5.h-to-fix-builds-with-gcc5.patch
+  git apply ../0004-arch-linux-arm-modifications.patch
+}
+
+build() {
+  cd u-boot-${_commit}
+
+  unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
+  
+  make distclean
+  make odroidc2_config
+  make -j1 EXTRAVERSION=-${pkgrel}
+}
+
+package() {
+  cd u-boot-${_commit}/sd_fuse
+
+  mkdir -p "${pkgdir}"/boot
+  cp bl1.bin.hardkernel sd_fusing.sh u-boot.bin "${pkgdir}"/boot
+  cp "${srcdir}"/boot.ini "${pkgdir}"/boot
+}

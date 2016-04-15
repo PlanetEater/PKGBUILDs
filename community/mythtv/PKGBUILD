@@ -10,8 +10,8 @@
 #  - disabled vdpau, mmx, incompatible ARM FPUs
 
 pkgname=mythtv-git
-pkgver=0.27.5
-pkgrel=4
+pkgver=0.28
+pkgrel=1
 epoch=1
 pkgdesc="A Homebrew PVR project (git 0.27/fixes branch)"
 arch=('i686' 'x86_64' 'arm')
@@ -20,38 +20,29 @@ license=('GPL')
 depends=('avahi' 'fftw' 'lame' 'libass' 'libavc1394' 'libcdio' 'libiec61883'
          'libgl' 'libpulse' 'libva' 'libvpx' 'libxinerama' 'lirc' 'mariadb-clients'
          'mysql-python' 'perl-dbd-mysql' 'perl-io-socket-inet6' 'perl-libwww'
-         'perl-net-upnp' 'python2-lxml' 'qtwebkit' 'taglib' 'urlgrabber'
-         'libx264')
-makedepends=('glew' 'libcec' 'libxml2' 'mesa' 'mesa-libgl' 'openssl' 'yasm' 'x264' 'git')
+         'perl-net-upnp' 'python2-lxml' 'qt5-webkit' 'qt5-script' 'taglib' 'urlgrabber'
+         'libx264' 'exiv2' 'libxrandr')
+makedepends=('glew' 'libcec' 'libxml2' 'mesa' 'mesa-libgl' 'openssl' 'yasm' 'x264' 'gdb' 'git')
 optdepends=('glew: for GPU commercial flagging'
             'libcec: for consumer electronics control capabilities'
             'libxml2: to read blu-ray metadata'
-            'openssl: for AirTunes (RAOP) support'
-            'udisks: detect changes to removable media'
-            'xmltv: to download tv listings')
+            'openssl: for AirTunes (RAOP) support')
 conflicts=('myththemes' 'mythplugins-mythvideo' 'mythtv')
 replaces=('myththemes' 'mythplugins-mythvideo' 'mythtv')
 provides=('mythtv')
 install='mythtv.install'
-source=("git://github.com/MythTV/mythtv.git#branch=fixes/0.27"
-        'mythbackend.service'
-        'ffmpeg-libvpxenc-remove-some-unused-ctrl-id-mappings.patch'
-        'http://code.mythtv.org/trac/raw-attachment/ticket/11338/libcec-2-support.2.patch')
+source=("git://github.com/MythTV/mythtv.git#branch=fixes/0.28"
+        'mythbackend.service' '99-mythbackend.rules')
 sha256sums=('SKIP'
             'ecfde779ded8332cc62c86fac6b432b09cbf5d254135798287ada688af9a1302'
-            '277994aca5a6e40c1a90750859828817e0646bfb28142fdb34d5f9d3196c3f7a'
-            '8270407c2074b305e0c32151f89c84f6bf980a32665a2da8e4727405fa3911f3')
+            'ecfd02bbbef5de9773f4de2c52e9b2b382ce8137735f249d7900270d304fd333')
 
 prepare() {
   cd "$srcdir/mythtv/mythtv"
-
-  patch -d external/FFmpeg -Np1 -i "$srcdir/ffmpeg-libvpxenc-remove-some-unused-ctrl-id-mappings.patch"
-
-  patch -Np2 -i "$srcdir/libcec-2-support.2.patch"
-
   [[ $CARCH == "arm" ]] && ARCH="armv5te" && CONFIG="--disable-armv6 --disable-armv6t2 --disable-vfp"
   [[ $CARCH == "armv6h" ]] && ARCH="armv6l" && CONFIG="--disable-vfp"
   [[ $CARCH == "armv7h" ]] && ARCH="armv7-a"
+  [[ $CARCH == "aarch64" ]] && CONFIG+=" --enable-vaapi" || CONFIG+=" --disable-vaapi"
   ./configure --prefix=/usr \
               --cpu="$ARCH" \
               --disable-mmx \
@@ -64,7 +55,6 @@ prepare() {
               --enable-libmp3lame \
               --enable-libvpx \
               --enable-libx264 \
-              --enable-vaapi \
               --python=python2 \
               --perl-config-opts=INSTALLDIRS=vendor \
               --disable-neon $CONFIG
@@ -72,7 +62,6 @@ prepare() {
 
 build() {
   cd "$srcdir/mythtv/mythtv"
-
   make
 }
 
@@ -86,6 +75,9 @@ package() {
   mkdir -p "$pkgdir/usr/share/mythtv"
   cp -R 'contrib' "$pkgdir/usr/share/mythtv"
   mkdir -p "$pkgdir/var/log/mythtv"
+
+# Install udev rules https://www.mythtv.org/wiki/Systemd_mythbackend_Configuration#Delay_starting_the_backend_until_tuners_have_initialized
+  install -Dm644 "$srcdir"/99-mythbackend.rules "$pkgdir"/usr/lib/udev/rules.d/99-mythbackend.rules
 }
 
 pkgver() {
