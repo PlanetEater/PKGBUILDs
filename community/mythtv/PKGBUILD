@@ -8,13 +8,14 @@
 # ALARM: Kevin Mihelich <kevin@archlinuxarm.org>
 #  - correctly define ARM cpus for configure
 #  - disabled vdpau, mmx, incompatible ARM FPUs
+#  - patch to fix v5 build
 
 pkgname=mythtv-git
 pkgver=0.28
 pkgrel=3
 epoch=1
 pkgdesc="A Homebrew PVR project (git 0.28/fixes branch)"
-arch=('i686' 'x86_64' 'arm')
+arch=('i686' 'x86_64')
 url="http://www.mythtv.org/"
 license=('GPL')
 depends=('avahi' 'fftw' 'lame' 'libass' 'libavc1394' 'libcdio' 'libiec61883'
@@ -33,17 +34,21 @@ provides=('mythtv')
 install='mythtv.install'
 source=("git://github.com/MythTV/mythtv.git#branch=fixes/0.28"
         'mythbackend.service' '99-mythbackend.rules'
-        '0001-fix_libudfread.patch')
+        '0001-libudfread-set-HAVE_PTHREAD_H.patch'
+        '0002-visualisations-fix-ambiguous-abs-call.patch')
 sha256sums=('SKIP'
             'ecfde779ded8332cc62c86fac6b432b09cbf5d254135798287ada688af9a1302'
             'ecfd02bbbef5de9773f4de2c52e9b2b382ce8137735f249d7900270d304fd333'
-            'e1c325591dbcb0c0c9cc519b6c6d0936a8a8244d4263a97e068e90a51a169ca1')
+            'cd337cdf4de86c9343c1bcb6635ded717359cb249fde8eea4879b4abc7ee3c6b'
+            '61cd9c37dc086131f41aea58e7a436acc76f79aa9dd0d5691941a3a8a16d3558')
 
 prepare() {
-
   cd "$srcdir/mythtv/mythtv"
-  patch -Np2 -i ${srcdir}/0001-fix_libudfread.patch
   find 'bindings/python' 'contrib' 'programs/scripts' -type f | xargs sed -i 's@^#!.*python$@#!/usr/bin/python2@'
+
+  patch -p2 -i "${srcdir}/0001-libudfread-set-HAVE_PTHREAD_H.patch"
+  patch -p2 -i "${srcdir}/0002-visualisations-fix-ambiguous-abs-call.patch"
+
   [[ $CARCH == "arm" ]] && ARCH="armv5te" && CONFIG="--disable-armv6 --disable-armv6t2 --disable-vfp"
   [[ $CARCH == "armv6h" ]] && ARCH="armv6l" && CONFIG="--disable-vfp"
   [[ $CARCH == "armv7h" ]] && ARCH="armv7-a"
