@@ -10,6 +10,7 @@
 #  - disabled vdpau, mmx, incompatible ARM FPUs
 #  - patch to fix v5 build
 
+options=('debug' 'strip')
 pkgname=mythtv-git
 pkgver=0.28
 pkgrel=3
