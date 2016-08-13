@@ -6,17 +6,19 @@ pkgname=('raspberrypi-firmware'
          'raspberrypi-firmware-bootloader-x'
          'raspberrypi-firmware-tools'
          'raspberrypi-firmware-examples')
-pkgver=20160506
+pkgver=20160728
 pkgrel=1
-_commit=cc6d7bf8b4c03a2a660ff9fdf4083fc165620866
+_commit=1205048f037098b1532bb947d1f4b823bcdebdf7
 pkgdesc="Firmware files for Raspberry Pi"
 arch=('any')
 url="https://github.com/raspberrypi/firmware"
 makedepends=('git')
 license=('custom')
 options=(!strip)
-source=("https://github.com/raspberrypi/firmware/archive/${_commit}.tar.gz")
-md5sums=('325374fec737ae4ac6c22bcf86ef49fd')
+source=("https://github.com/raspberrypi/firmware/archive/${_commit}.tar.gz"
+        '00-raspberrypi-firmware.conf')
+md5sums=('bbeed9e16796d8d5318629590b045e04'
+         '72e0d5818fc513ece1b964f25f7e7882')
 
 package_raspberrypi-firmware() {
   depends=('raspberrypi-firmware-bootloader'
@@ -50,9 +52,7 @@ package_raspberrypi-firmware-tools() {
 
   # Create lib links
   mkdir -p "${pkgdir}"/etc/ld.so.conf.d/
- 
-  # ensure we can load libs
-  echo "/opt/vc/lib/" > "${pkgdir}"/etc/ld.so.conf.d/00-raspberrypi-firmware.conf
+  cp "${srcdir}/00-raspberrypi-firmware.conf" "${pkgdir}"/etc/ld.so.conf.d/
 }
 
 package_raspberrypi-firmware-examples() {

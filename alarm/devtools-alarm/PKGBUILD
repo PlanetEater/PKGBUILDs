@@ -6,8 +6,8 @@
 
 pkgname=devtools-alarm
 _pkgname=devtools
-pkgver=20151129
-pkgrel=1
+pkgver=20160528
+pkgrel=2
 pkgdesc='Tools for Arch Linux ARM package maintainers'
 arch=('any')
 license=('GPL')
@@ -21,14 +21,16 @@ source=("https://sources.archlinux.org/other/$_pkgname/$_pkgname-$pkgver.tar.gz"
         '0003-makechrootpkg-distcc.patch'
         '0004-arch-nspawn-arm-fix.patch'
         '0005-makechrootpkg-no-default-logging.patch'
-        '0006-archbuild-no-setarch.patch')
-md5sums=('86fe057b7180ce0247338e64f1a8722c'
-         '755e80123ab9d6afc8bb392b9e41a5fc'
-         '85a94eb74f123d420cc16db1edacd10f'
-         '8a778d0f0ec93340c0ecd98df8e38527'
-         'adf75517838b4fdbbc3199ea2049fa73'
-         '29ca8fac5cf40b5f2b83a16b9eb968f8'
-         '9182e6ab4f3ed7a60d9263e839c0d71a')
+        '0006-archbuild-no-setarch.patch'
+        '0007-makechrootpkg-don-t-delete-MAKEFLAGS-and-PACKAGER.patch')
+md5sums=('aa2ec2fd3a377fb5a1e7b0d2e491f99b'
+         '0e95fab4943ac07968613210386bb3a2'
+         '7fa66ac96350d20a7ea5796fc3a74551'
+         '8d070301e36c453a922997c7511326db'
+         '3ef8b4a7bbc0772c36be29ac27f4e08e'
+         '1d8710a87530f36d544afb99bad4cb01'
+         'e745a81238e1dcfc46ae2aec64e59731'
+         '95cd4a5c70892c6f12424655884f43fb')
 
 prepare() {
 	cd "${_pkgname}-${pkgver}"
@@ -38,6 +40,7 @@ prepare() {
 	patch -p1 -i ../0004-arch-nspawn-arm-fix.patch
 	patch -p1 -i ../0005-makechrootpkg-no-default-logging.patch
 	patch -p1 -i ../0006-archbuild-no-setarch.patch
+	patch -p1 -i ../0007-makechrootpkg-don-t-delete-MAKEFLAGS-and-PACKAGER.patch
 }
 
 build() {
