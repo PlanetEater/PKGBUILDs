@@ -12,8 +12,8 @@
 
 options=('debug' 'strip')
 pkgname=mythtv-git
-pkgver=0.28
-pkgrel=6
+pkgver=0.28.49~gc9d15e4
+pkgrel=1
 epoch=1
 pkgdesc="A Homebrew PVR project (git 0.28/fixes branch)"
 arch=('i686' 'x86_64')
@@ -34,11 +34,9 @@ replaces=('myththemes' 'mythplugins-mythvideo' 'mythtv')
 provides=('mythtv')
 install='mythtv.install'
 source=("git://github.com/MythTV/mythtv.git#branch=fixes/0.28"
-        mythtv-fix-segfault.patch::"https://github.com/MythTV/mythtv/commit/c3a79298.patch"
         'mythbackend.service' '99-mythbackend.rules'
         '0001-libudfread-set-HAVE_PTHREAD_H.patch')
 sha256sums=('SKIP'
-            '60696991fcaa24fb61392401bd27cfa35a15b54f4bcc01aee54dc84440c6df99'
             'ecfde779ded8332cc62c86fac6b432b09cbf5d254135798287ada688af9a1302'
             'ecfd02bbbef5de9773f4de2c52e9b2b382ce8137735f249d7900270d304fd333'
             'c15efbcc7d8db4a185ef908861f48633353173012b18dada44df4c200fea8072')
@@ -47,9 +45,9 @@ prepare() {
   cd "$srcdir/mythtv/mythtv"
   find 'bindings/python' 'contrib' 'programs/scripts' -type f | xargs sed -i 's@^#!.*python$@#!/usr/bin/python2@'
 
-# Fix segfault with GCC 6 https://github.com/MythTV/mythtv/pull/122
-###  cd ..
-  patch -p2 -i "$srcdir"/mythtv-fix-segfault.patch
+  ## Backend segfault fix
+  git cherry-pick -x 38de43e
+  git cherry-pick -x eaf81bc
 
   patch -p2 -i "${srcdir}/0001-libudfread-set-HAVE_PTHREAD_H.patch"
 
